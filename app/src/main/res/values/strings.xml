@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">KidsPos</string>
+    <string name="label_splash">起動画面</string>
+    <string name="label_toppage">トップ画面</string>
+</resources>
