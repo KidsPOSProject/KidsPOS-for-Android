@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">KidsPos</string>
+    <string name="app_name">KidsPOS</string>
     <string name="label_splash">起動画面</string>
     <string name="label_toppage">トップ画面</string>
+    <string name="project_name">キッズビジネスタウンいちかわ</string>
+    <string name="icon_launcher_description">アプリのアイコン</string>
+    <string name="navigation_open">open drawer</string>
+    <string name="navigation_close">close drawer</string>
 </resources>
