@@ -1,0 +1,6 @@
+build
+manifest-merger-release-report.txt
+class_files.txt
+seeds.txt
+unused.txt
+app-release.apk
