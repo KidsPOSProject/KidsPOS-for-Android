@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import info.nukoneko.cuc.kidspos.R;
 
 /**
@@ -61,18 +61,18 @@ public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        @InjectView(R.id.head) LinearLayout headView;
-        @InjectView(R.id.store) TextView storeName;
+        @Bind(R.id.head) LinearLayout headView;
+        @Bind(R.id.store) TextView storeName;
 
         // TODO いつかわける。
-        @InjectView(R.id.menu) LinearLayout menuView;
-        @InjectView(R.id.title) TextView itemName;
+        @Bind(R.id.menu) LinearLayout menuView;
+        @Bind(R.id.title) TextView itemName;
 
         public View v;
         public ViewHolder(View view) {
             super(view);
             v = view;
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
 
         public View getView(){
