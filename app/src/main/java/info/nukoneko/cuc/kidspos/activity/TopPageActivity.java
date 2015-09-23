@@ -8,7 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import info.nukoneko.cuc.kidspos.R;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.kidspos.navigation.NavigationView;
@@ -17,16 +17,16 @@ import info.nukoneko.cuc.kidspos.navigation.NavigationView;
  * created at 2015/06/13.
  */
 public class TopPageActivity extends CommonActivity {
-    @InjectView(R.id.tool_bar) Toolbar toolbar;
-    @InjectView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
-    @InjectView(R.id.navigation_view) NavigationView mNavigation;
+    @Bind(R.id.tool_bar) Toolbar toolbar;
+    @Bind(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+    @Bind(R.id.navigation_view) NavigationView mNavigation;
     ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_launcher);
