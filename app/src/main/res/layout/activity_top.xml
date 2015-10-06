@@ -25,7 +25,27 @@
             android:background="@android:color/holo_red_light"
             android:layout_toEndOf="@id/tool_bar"
             android:layout_alignTop="@id/tool_bar"
-            android:layout_alignBottom="@id/tool_bar"/>
+            android:layout_alignBottom="@id/tool_bar"
+            android:textSize="35sp"
+            android:gravity="center_vertical|right"
+            android:padding="8dp"/>
+        <Button
+            android:id="@+id/account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:padding="32dp"
+            android:layout_margin="8dp"
+            android:text="か　い　け　い"
+            android:background="@drawable/toast_corner_rect"
+            android:textSize="30sp"/>
+        <info.nukoneko.cuc.kidspos.activity.ItemListView
+            android:id="@+id/item_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/price"
+            android:layout_above="@id/account"
+            android:padding="8dp"/>
     </RelativeLayout>
     <info.nukoneko.cuc.kidspos.navigation.NavigationView
         android:id="@+id/navigation_view"
