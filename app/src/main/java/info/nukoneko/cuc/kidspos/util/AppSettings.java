@@ -1,0 +1,1 @@
+package info.nukoneko.cuc.kidspos.util;/** * Created by TEJNEK on 2015/10/04. */public class AppSettings {    static public final Boolean DEBUG = true;}

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import info.nukoneko.cuc.kidspos.util.KPLogger;
+import info.nukoneko.cuc.kidspos.util.SQLiteManager;
 
 /**
  * created at 2015/06/13.
@@ -15,6 +16,9 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+
+        SQLiteManager.Initialize(this);
+
         Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
         {
             @Override
