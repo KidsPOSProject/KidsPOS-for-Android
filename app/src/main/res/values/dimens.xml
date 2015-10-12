@@ -4,4 +4,6 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="toolbar_height">30dp</dimen>
     <dimen name="item_height">60dp</dimen>
+
+    <dimen name="text_size_button_calc">50sp</dimen>
 </resources>

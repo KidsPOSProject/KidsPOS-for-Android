@@ -35,13 +35,15 @@ public class NavigationView extends RecyclerView {
         setAdapter(mAdapter);
     }
 
-    private ArrayList<String> getNavigationList(){
-        ArrayList<String> ret = new ArrayList<>();
-        ret.add("売上表");
-        ret.add("商品表");
-        ret.add("従業員表");
+    private ArrayList<Integer> getNavigationList(){
+        ArrayList<Integer> ret = new ArrayList<>();
+        ret.add(R.string.drawer_sales);
+        ret.add(R.string.drawer_items);
+        ret.add(R.string.drawer_employee);
+        ret.add(R.string.debug_drawer_add_item);
         return ret;
     }
+
     @Override
     public NavigationAdapter getAdapter(){
         return mAdapter;
@@ -49,5 +51,9 @@ public class NavigationView extends RecyclerView {
 
     public void setStoreName(String text){
         getAdapter().replaceItem(0, text);
+    }
+
+    public void setOnItemClickListener(NavigationAdapter.OnItemClickListener listener){
+        this.mAdapter.setOnItemClickListener(listener);
     }
 }
