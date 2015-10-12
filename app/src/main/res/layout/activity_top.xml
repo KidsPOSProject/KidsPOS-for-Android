@@ -39,7 +39,7 @@
             android:text="か　い　け　い"
             android:background="@drawable/toast_corner_rect"
             android:textSize="30sp"/>
-        <info.nukoneko.cuc.kidspos.activity.ItemListView
+        <info.nukoneko.cuc.kidspos.itemlist.ItemListView
             android:id="@+id/item_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -1,5 +1,7 @@
 package info.nukoneko.cuc.kidspos.navigation;
 
+import android.content.Context;
+import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -12,23 +14,47 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.Bind;
+import info.nukoneko.cuc.kidspos.AppController;
 import info.nukoneko.cuc.kidspos.R;
 
 /**
  * created at 2015/06/13.
  */
-public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.ViewHolder> {
+public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.ViewHolder> implements View.OnClickListener {
 
     private ArrayList<String> items = new ArrayList<>();
-    public NavigationAdapter(ArrayList<String> items) {
+
+    private RecyclerView mParentView;
+
+    private OnItemClickListener mListener;
+
+    public NavigationAdapter(ArrayList<Integer> items) {
         this.items.add("");
-        this.items.addAll(items);
+
+        Context context = AppController.get().getApplicationContext();
+
+        for (Integer i : items){
+            this.items.add(context.getString(i));
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.mParentView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.mParentView = null;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_navi_menu, parent, false);
+        itemView.setOnClickListener(this);
         itemView.setClickable(true);
         TypedValue outValue = new TypedValue();
         parent.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
@@ -55,9 +81,27 @@ public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.Vi
         return items.size();
     }
 
+    public void replaceItem(int position, @StringRes int itemResID){
+        this.items.remove(position);
+        this.items.add(position, AppController.get().getString(itemResID));
+    }
+
     public void replaceItem(int position, String item){
         this.items.remove(position);
         this.items.add(position, item);
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        if (this.mParentView == null) {
+            return;
+        }
+
+        if (mListener != null) {
+            int position = this.mParentView.getChildAdapterPosition(v);
+            mListener.onItemClick(this, position, R.string.app_name); //this.items.get(position));
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -78,5 +122,14 @@ public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.Vi
         public View getView(){
             return v;
         }
+    }
+
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.mListener = listener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(NavigationAdapter adapter, int position, @StringRes int itemResID);
     }
 }
