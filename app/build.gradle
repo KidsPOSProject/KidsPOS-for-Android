@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "info.nukoneko.cuc.kidspos"
@@ -20,10 +20,10 @@ android {
                 )
             }
         }
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'
-        }
+//        release {
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'
+//        }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'
@@ -33,12 +33,16 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'com.squareup.okhttp:okhttp:2.5.0'
