@@ -87,10 +87,15 @@
 }
 
 ##-------------- Log ----------------
--assumenosideeffects class android.util.Log {
+-assumenosideeffects class * android.util.Log {
     <methods>;
 }
--assumenosideeffects class info.nukoneko.cuc.kidspos.util.KPLogger {
+-assumenosideeffects class * info.nukoneko.cuc.kidspos.util.KPLogger {
     <methods>;
 }
 -keepattributes Signature
+
+-dontwarn java.nio.file.Files
+-dontwarn java.nio.file.Path
+-dontwarn java.nio.file.OpenOption
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
