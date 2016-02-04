@@ -1,1 +1,0 @@
-package info.nukoneko.cuc.kidspos.observer;import de.greenrobot.event.EventBus;/** * Created by TEJNEK on 2015/10/12. */public final class EventBusHolder {    public static final EventBus EVENT_BUS = new EventBus();}

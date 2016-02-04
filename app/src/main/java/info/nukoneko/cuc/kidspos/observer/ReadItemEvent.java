@@ -1,1 +1,0 @@
-package info.nukoneko.cuc.kidspos.observer;import info.nukoneko.cuc.kidspos.model.ItemObject;/** * Created by TEJNEK on 2015/10/12. */public class ReadItemEvent {    private final ItemObject mItem;    public ReadItemEvent(final ItemObject itemObject){        this.mItem = itemObject;    }    public ItemObject getItem(){        return this.mItem;    }}

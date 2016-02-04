@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import info.nukoneko.cuc.kidspos.model.ItemObject;
 import info.nukoneko.cuc.kidspos.util.KPLogger;
 
 /**

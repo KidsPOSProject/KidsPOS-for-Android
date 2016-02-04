@@ -1,1 +1,0 @@
-package info.nukoneko.cuc.kidspos.model;import android.support.annotation.StringRes;/** * Created by TEJNEK on 2015/10/12. */public class SendItemObject {    final public String barcode;    final public int count;    public SendItemObject(String barcode, int count){        this.barcode = barcode;        this.count = count;    }}
