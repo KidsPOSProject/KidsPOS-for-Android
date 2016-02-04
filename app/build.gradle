@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "0.0.1"
+        multiDexEnabled false
     }
     buildTypes {
         applicationVariants.all { variant ->
@@ -30,8 +31,11 @@ android {
         }
     }
     packagingOptions{
-        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
     }
 
     lintOptions {
@@ -45,16 +49,14 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.jakewharton:butterknife:7.0.1'
 
-    compile 'com.squareup.okhttp:okhttp:2.5.0'
-
     compile 'org.java-websocket:Java-WebSocket:1.3.0'
-
-    compile 'com.fasterxml.jackson.core:jackson-core:2.6.2'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.2'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.6.2'
 
     compile 'com.google.zxing:core:3.2.1'
     compile 'com.google.zxing:javase:3.2.1'
 
     compile 'de.greenrobot:eventbus:3.0.0-beta1'
+
+    compile 'info.nukoneko:kidspos4j:0.0.7'
+
+    compile 'io.reactivex:rxandroid:1.1.0'
 }

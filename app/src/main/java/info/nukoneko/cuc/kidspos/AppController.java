@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import info.nukoneko.cuc.kidspos.util.KPLogger;
-import info.nukoneko.cuc.kidspos.util.SQLiteManager;
+import info.nukoneko.kidspos4j.KidsPos4jConfig;
 
 /**
  * created at 2015/06/13.
@@ -17,16 +17,7 @@ public class AppController extends Application {
         super.onCreate();
         mInstance = this;
 
-        SQLiteManager.Initialize(this);
-
-        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
-        {
-            @Override
-            public void uncaughtException (Thread thread, Throwable e)
-            {
-                handleUncaughtException (thread, e);
-            }
-        });
+        KidsPos4jConfig.setBaseUrl("http://192.168.11.14:8080/api/");
     }
 
     @Override
@@ -38,9 +29,4 @@ public class AppController extends Application {
         return mInstance;
     }
 
-    public void handleUncaughtException (Thread thread, Throwable e)
-    {
-        KPLogger.d(e.getLocalizedMessage());
-        System.exit(1);
-    }
 }

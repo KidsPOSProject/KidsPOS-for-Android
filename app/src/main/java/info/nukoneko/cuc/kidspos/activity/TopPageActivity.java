@@ -10,37 +10,31 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
-import java.io.IOException;
-import java.util.Date;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.Bind;
 import butterknife.OnClick;
-import butterknife.OnItemClick;
 import de.greenrobot.event.Subscribe;
 import info.nukoneko.cuc.kidspos.R;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.kidspos.itemlist.ItemListView;
-import info.nukoneko.cuc.kidspos.model.ItemObject;
-import info.nukoneko.cuc.kidspos.model.SendAccountObject;
-import info.nukoneko.cuc.kidspos.model.SendItemObject;
 import info.nukoneko.cuc.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.kidspos.navigation.NavigationView;
-import info.nukoneko.cuc.kidspos.observer.EventBusHolder;
-import info.nukoneko.cuc.kidspos.observer.ReadItemEvent;
 import info.nukoneko.cuc.kidspos.util.AppUtils;
 import info.nukoneko.cuc.kidspos.util.KPLogger;
 import info.nukoneko.cuc.kidspos.util.KPToast;
-import info.nukoneko.cuc.kidspos.util.SQLiteManager;
+import info.nukoneko.kidspos4j.api.APIManager;
+import info.nukoneko.kidspos4j.model.DataBase;
+import info.nukoneko.kidspos4j.model.ItemFactory;
+import info.nukoneko.kidspos4j.model.ModelItem;
+import rx.Observable;
+import rx.Observer;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * created at 2015/06/13.
@@ -105,7 +99,8 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
 
     @Override
     protected void onInputBarcode(String barcode) {
-        ItemObject item = SQLiteManager.getItem(barcode);
+        DataBase<ModelItem> itemModel = ItemFactory.getInstance();
+        ModelItem item = itemModel.find(String.format("barcode = '%s'", barcode)).get(0);
         if (item == null) {
             KPToast.showToast("登録されていない商品です");
         } else {
@@ -131,73 +126,50 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 break;
 
             case 3: // employee
-                this.createJson();
+//                this.createJson();
                 break;
 
             case 4: // dummy
-                this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
+//                this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
                 break;
         }
-    }
-
-    @Subscribe
-    public void onAddItem(ReadItemEvent event){
-        this.sumPrice += event.getItem().price;
-        this.priceView.setText(String.valueOf(this.sumPrice));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         init();
-        EventBusHolder.EVENT_BUS.register(this);
-        this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
-    }
+        APIManager.Item().getList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .flatMap(new Func1<List<ModelItem>, Observable<ModelItem>>() {
+                    @Override
+                    public Observable<ModelItem> call(List<ModelItem> modelItems) {
+                        return Observable.from(modelItems);
+                    }
+                })
+                .subscribe(new Observer<ModelItem>() {
+                    @Override
+                    public void onCompleted() {
 
-    @Override
-    protected void onPause() {
-        EventBusHolder.EVENT_BUS.unregister(this);
-        super.onPause();
-    }
+                    }
 
+                    @Override
+                    public void onError(Throwable e) {
+                        KPLogger.d(e.toString());
+                    }
+
+                    @Override
+                    public void onNext(ModelItem modelItem) {
+                        mItemListView.getAdapter().add(modelItem);
+                    }
+                });
+
+
+//        this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
+    }
     public void init(){
         this.sumPrice = 0;
         this.priceView.setText("");
-    }
-
-    public void createJson(){
-        SendAccountObject account = new SendAccountObject(120, new Date().getTime());
-        account.add(new SendItemObject("41204124124", 1));
-        account.add(new SendItemObject("41203214000", 2));
-        account.add(new SendItemObject("41203214001", 1));
-        account.add(new SendItemObject("41203214003", 1));
-
-        ObjectMapper mapper = new ObjectMapper();
-        String json = "";
-        try {
-            json = mapper.writeValueAsString(account);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        KPLogger.d(json);
-
-        Request request = new Request.Builder()
-                .url("http://localhost:10800")
-                .post(RequestBody.create(MediaType.parse("application/json"), json)).get().build();
-
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                KPLogger.d(response.body().string());
-            }
-        });
-
     }
 }
