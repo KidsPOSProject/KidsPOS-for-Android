@@ -17,7 +17,7 @@ public class AppController extends Application {
         super.onCreate();
         mInstance = this;
 
-        KidsPos4jConfig.setBaseUrl("http://192.168.11.14:8080/api/");
+        KidsPos4jConfig.setBaseUrl("http://localhost:8080/api/");
     }
 
     @Override

@@ -93,6 +93,11 @@
 -assumenosideeffects class * info.nukoneko.cuc.kidspos.util.KPLogger {
     <methods>;
 }
+
+##-------------- retrolambda ----------------
+-dontwarn java.lang.invoke.*
+
+
 -keepattributes Signature
 
 -dontwarn java.nio.file.Files

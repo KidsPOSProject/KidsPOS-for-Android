@@ -15,7 +15,6 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.Bind;
 import butterknife.OnClick;
-import de.greenrobot.event.Subscribe;
 import info.nukoneko.cuc.kidspos.R;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.kidspos.itemlist.ItemListView;
@@ -130,7 +129,10 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 break;
 
             case 4: // dummy
-//                this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
+                ModelItem dummyItem = new ModelItem();
+                dummyItem.setName("ダミー");
+                dummyItem.setPrice(300);
+                this.mItemListView.getAdapter().add(dummyItem);
                 break;
         }
     }
