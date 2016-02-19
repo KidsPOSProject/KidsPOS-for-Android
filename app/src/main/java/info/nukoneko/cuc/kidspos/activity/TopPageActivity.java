@@ -17,6 +17,7 @@ import butterknife.Bind;
 import butterknife.OnClick;
 import info.nukoneko.cuc.kidspos.R;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
+import info.nukoneko.cuc.kidspos.common.SimpleCallback;
 import info.nukoneko.cuc.kidspos.itemlist.ItemListView;
 import info.nukoneko.cuc.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.kidspos.navigation.NavigationView;
@@ -27,13 +28,6 @@ import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.DataBase;
 import info.nukoneko.kidspos4j.model.ItemFactory;
 import info.nukoneko.kidspos4j.model.ModelItem;
-import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * created at 2015/06/13.
@@ -49,23 +43,37 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     ItemListView mItemListView;
     @Bind(R.id.price) TextView priceView;
 
-    @OnClick(R.id.account)
-    public void onClickAccount(){
-        Intent intent = new Intent(getApplicationContext(), CalculatorActivity.class);
-        intent.putExtra(AppUtils.INTENT.EXTRA_VALUE, this.sumPrice);
-        startActivity(intent);
-    }
-
     ActionBarDrawerToggle mDrawerToggle;
 
-    Integer sumPrice = 0;
+    private Integer sumPrice = 0;
+
+    public Integer getSumPrice() {
+        return sumPrice;
+    }
+
+    public void setSumPrice(Integer sumPrice) {
+        this.sumPrice = sumPrice;
+        this.priceView.setText(String.valueOf(this.sumPrice));
+    }
+
+    public void addSumPrice(Integer sumPrice) {
+        this.sumPrice += sumPrice;
+        this.priceView.setText(String.valueOf(this.sumPrice));
+    }
+
+    @OnClick(R.id.account)
+    public void onClickAccount(){
+        CalculatorActivity.startActivity(this, this.getSumPrice(), (SimpleCallback) () -> {
+            setSumPrice(0);
+            mItemListView.getAdapter().clear();
+        });
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top);
-
-        ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,7 +84,6 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
         mDrawerToggle = getDrawerToggle();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
-
     }
 
     @Override
@@ -104,6 +111,7 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
             KPToast.showToast("登録されていない商品です");
         } else {
             this.mItemListView.getAdapter().add(item);
+            this.addSumPrice(item.getPrice());
         }
     }
 
@@ -133,6 +141,7 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 dummyItem.setName("ダミー");
                 dummyItem.setPrice(300);
                 this.mItemListView.getAdapter().add(dummyItem);
+                this.addSumPrice(dummyItem.getPrice());
                 break;
         }
     }
@@ -141,37 +150,10 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     protected void onResume() {
         super.onResume();
         init();
-        APIManager.Item().getList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .flatMap(new Func1<List<ModelItem>, Observable<ModelItem>>() {
-                    @Override
-                    public Observable<ModelItem> call(List<ModelItem> modelItems) {
-                        return Observable.from(modelItems);
-                    }
-                })
-                .subscribe(new Observer<ModelItem>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        KPLogger.d(e.toString());
-                    }
-
-                    @Override
-                    public void onNext(ModelItem modelItem) {
-                        mItemListView.getAdapter().add(modelItem);
-                    }
-                });
-
-
-//        this.mItemListView.getAdapter().add(new ItemObject("だみー", 300));
     }
+
     public void init(){
-        this.sumPrice = 0;
+        this.setSumPrice(0);
         this.priceView.setText("");
     }
 }

@@ -23,10 +23,10 @@ android {
                 )
             }
         }
-//        release {
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'
-//        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'
+        }
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.pro'

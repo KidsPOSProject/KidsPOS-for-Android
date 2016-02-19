@@ -20,7 +20,9 @@ import info.nukoneko.cuc.kidspos.R;
 /**
  * created at 2015/06/13.
  */
-public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.ViewHolder> implements View.OnClickListener {
+public class NavigationAdapter
+        extends RecyclerView.Adapter<NavigationAdapter.ViewHolder>
+        implements View.OnClickListener {
 
     private ArrayList<String> items = new ArrayList<>();
 
