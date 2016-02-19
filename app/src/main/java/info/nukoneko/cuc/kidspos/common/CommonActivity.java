@@ -2,10 +2,12 @@ package info.nukoneko.cuc.kidspos.common;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import butterknife.ButterKnife;
 import info.nukoneko.cuc.kidspos.util.KPLogger;
 
 /**
@@ -24,8 +26,15 @@ abstract public class CommonActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        super.setContentView(layoutResID);
+        ButterKnife.bind(this);
+    }
+
     String inputValue = "";
     boolean flip = false;
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 
