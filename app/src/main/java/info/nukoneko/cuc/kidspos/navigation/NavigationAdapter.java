@@ -30,13 +30,13 @@ public class NavigationAdapter
 
     private OnItemClickListener mListener;
 
-    public NavigationAdapter(ArrayList<Integer> items) {
+    public NavigationAdapter() {
         this.items.add("");
 
         Context context = AppController.get().getApplicationContext();
 
-        for (Integer i : items){
-            this.items.add(context.getString(i));
+        for (NavigationItems i : NavigationItems.values()){
+            this.items.add(context.getString(i.val));
         }
     }
 
@@ -102,7 +102,7 @@ public class NavigationAdapter
 
         if (mListener != null) {
             int position = this.mParentView.getChildAdapterPosition(v);
-            mListener.onItemClick(this, position, R.string.app_name); //this.items.get(position));
+            mListener.onItemClick(this, NavigationItems.getItem(position)); //this.items.get(position));
         }
     }
 
@@ -132,6 +132,6 @@ public class NavigationAdapter
     }
 
     public interface OnItemClickListener {
-        void onItemClick(NavigationAdapter adapter, int position, @StringRes int itemResID);
+        void onItemClick(NavigationAdapter adapter, NavigationItems selectedItem);
     }
 }

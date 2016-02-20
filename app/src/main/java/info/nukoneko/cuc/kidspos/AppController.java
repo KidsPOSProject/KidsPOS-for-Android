@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.Context;
 
 import info.nukoneko.cuc.kidspos.util.KPLogger;
+import info.nukoneko.cuc.kidspos.util.SQLiteAdapter;
 import info.nukoneko.kidspos4j.KidsPos4jConfig;
+import info.nukoneko.kidspos4j.util.config.SQLiteSetting;
 
 /**
  * created at 2015/06/13.
@@ -16,6 +18,10 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+
+        StoreManager.Initialize(this);
+
+        SQLiteSetting.setSqlProvider(new SQLiteAdapter());
 
         KidsPos4jConfig.setBaseUrl("http://localhost:8080/api/");
     }
