@@ -13,7 +13,7 @@ import info.nukoneko.cuc.kidspos.R;
  * created at 2015/06/13.
  */
 public class NavigationView extends RecyclerView {
-    NavigationAdapter mAdapter;
+    NavigationAdapter mAdapter = new NavigationAdapter();
     public NavigationView(Context context) {
         this(context, null);
     }
@@ -31,17 +31,7 @@ public class NavigationView extends RecyclerView {
         setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         setLayoutManager(mLayoutManager);
-        mAdapter = new NavigationAdapter(getNavigationList());
         setAdapter(mAdapter);
-    }
-
-    private ArrayList<Integer> getNavigationList(){
-        ArrayList<Integer> ret = new ArrayList<>();
-        ret.add(R.string.drawer_sales);
-        ret.add(R.string.drawer_items);
-        ret.add(R.string.drawer_employee);
-        ret.add(R.string.debug_drawer_add_item);
-        return ret;
     }
 
     @Override
