@@ -52,14 +52,14 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:recyclerview-v7:23.2.0'
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'com.google.zxing:core:3.2.1'
     compile 'com.google.zxing:javase:3.2.1'
 
-    compile 'info.nukoneko:kidspos4j:0.0.10'
+    compile 'info.nukoneko:kidspos4j:0.0.11'
 
     compile 'io.reactivex:rxandroid:1.1.0'
 

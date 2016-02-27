@@ -2,7 +2,11 @@ package info.nukoneko.cuc.kidspos.activity;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.support.annotation.StringRes;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -11,23 +15,30 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import butterknife.Bind;
 import butterknife.OnClick;
 import info.nukoneko.cuc.kidspos.R;
+import info.nukoneko.cuc.kidspos.common.AsyncAPI;
+import info.nukoneko.cuc.kidspos.common.AsyncAPICallback;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
-import info.nukoneko.cuc.kidspos.event.EventAccountFinish;
 import info.nukoneko.cuc.kidspos.event.EventBusHolder;
 import info.nukoneko.cuc.kidspos.event.EventItemAdapterChange;
 import info.nukoneko.cuc.kidspos.itemlist.ItemListView;
 import info.nukoneko.cuc.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.kidspos.navigation.NavigationItems;
 import info.nukoneko.cuc.kidspos.navigation.NavigationView;
-import info.nukoneko.cuc.kidspos.util.KPLogger;
+import info.nukoneko.cuc.kidspos.setting.SettingActivity;
 import info.nukoneko.cuc.kidspos.util.KPToast;
 import info.nukoneko.kidspos4j.model.DataBase;
 import info.nukoneko.kidspos4j.model.ItemFactory;
 import info.nukoneko.kidspos4j.model.ModelItem;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * created at 2015/06/13.
@@ -132,6 +143,28 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
             case STAFF:
                 break;
 
+            case SETTING:
+                SettingActivity.startActivity(this);
+                break;
+
+            case UPDATE:
+                StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+                new AsyncAPI.Builder(this, new AsyncAPICallback() {
+                    @Override
+                    public Object doFunc(Object... params) {
+                        update("http://localhost:8080/", "test.app");
+                        return "";
+                    }
+
+                    @Override
+                    public void onResult(Object result) {
+                        System.exit(0);
+                    }
+                })
+                        .setProgress(TopPageActivity.this, "アップデートしてます", false)
+                        .build().run();
+                break;
+
             case TEST_ADD_DUMMY: // dummy
                 ModelItem dummyItem = new ModelItem();
                 dummyItem.setName("ダミー");
@@ -169,5 +202,34 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     @Subscribe
     public void OnItemAdapterChange(EventItemAdapterChange itemAdapterChange){
         setSumPrice(itemAdapterChange.getSum());
+    }
+
+    private void update(String apkUrl, String apkName) {
+        try {
+            URL url = new URL(apkUrl);
+            HttpURLConnection c = (HttpURLConnection) url.openConnection();
+            c.setRequestMethod("GET");
+            c.connect();
+            String PATH = Environment.getExternalStorageDirectory() + "/download/";
+            File file = new File(PATH);
+            if ( !file.exists()){
+                file.mkdirs();
+            }
+            File outputFile = new File(file, apkName);
+            FileOutputStream fos = new FileOutputStream(outputFile);
+            InputStream is = c.getInputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, len);
+            }
+            fos.close();
+            is.close();
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(new File(PATH + apkName)), "application/vnd.android.package-archive");
+            startActivity(intent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

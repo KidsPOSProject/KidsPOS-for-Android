@@ -13,6 +13,8 @@
     <string name="drawer_sales">売上表</string>
     <string name="drawer_items">商品表</string>
     <string name="drawer_employee">従業員表</string>
+    <string name="drawer_setting">設定</string>
+    <string name="drawer_update">更新チェック</string>
     <!-- Debug -->
     <string name="debug_drawer_add_item">ダミーデータ</string>
 

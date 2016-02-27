@@ -24,7 +24,11 @@
         <activity
             android:name=".activity.TopPageActivity"
             android:label="@string/label_toppage"/>
+
         <activity android:name=".activity.CalculatorActivity" android:label="@string/label_calc" />
+
+        <activity android:name=".setting.SettingActivity"
+            android:label="@string/drawer_setting" />
     </application>
 
 </manifest>
