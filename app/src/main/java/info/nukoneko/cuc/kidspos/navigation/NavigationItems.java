@@ -11,6 +11,8 @@ public enum NavigationItems {
     SALES(R.string.drawer_sales),
     ITEMS(R.string.drawer_items),
     STAFF(R.string.drawer_employee),
+    SETTING(R.string.drawer_setting),
+    UPDATE(R.string.drawer_update),
     TEST_ADD_DUMMY(R.string.debug_drawer_add_item);
 
     public final @StringRes int val;
