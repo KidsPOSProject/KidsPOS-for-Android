@@ -20,10 +20,12 @@ public class AppController extends Application {
         mInstance = this;
 
         StoreManager.Initialize(this);
+        KidsPos4jConfig.setDebug(true);
 
         SQLiteSetting.setSqlProvider(new SQLiteAdapter());
 
-        KidsPos4jConfig.setBaseUrl("http://192.168.11.36:8080/api/");
+//        KidsPos4jConfig.setBaseUrl("http://localhost:8080/api/");
+        KidsPos4jConfig.setBaseUrl("http://192.168.0.3:8080/api/");
     }
 
     @Override

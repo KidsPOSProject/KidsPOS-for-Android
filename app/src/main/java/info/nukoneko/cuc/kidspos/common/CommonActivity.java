@@ -39,7 +39,7 @@ abstract public class CommonActivity extends AppCompatActivity {
     public boolean dispatchKeyEvent(KeyEvent event) {
 
         if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
-            if (inputValue.length() == 13){
+            if (inputValue.length() == 10){
                 KPLogger.d("READ-END", inputValue);
                 onInputBarcode(inputValue);
 

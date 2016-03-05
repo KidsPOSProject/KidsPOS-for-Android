@@ -25,9 +25,14 @@ public class SplashActivity extends CommonActivity {
         setContentView(R.layout.activity_splash);
         handler = new Handler();
         task = new myRunnable();
-        handler.postDelayed(task, 2000);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        handler.postDelayed(task, 2000);
+    }
 
     @Override
     public void onPause(){
