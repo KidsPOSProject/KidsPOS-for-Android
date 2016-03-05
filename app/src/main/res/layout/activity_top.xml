@@ -62,7 +62,6 @@
                 android:layout_toLeftOf="@id/account"
                 android:gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:
                 android:textSize="30sp" />
             <Button
                 android:id="@+id/account"
