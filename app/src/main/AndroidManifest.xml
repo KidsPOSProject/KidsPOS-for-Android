@@ -15,7 +15,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.SplashActivity"
-            android:label="@string/label_splash">
+            android:label="@string/label_splash"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -23,12 +24,17 @@
         </activity>
         <activity
             android:name=".activity.TopPageActivity"
-            android:label="@string/label_toppage"/>
+            android:label="@string/label_toppage"
+            android:screenOrientation="landscape"/>
 
-        <activity android:name=".activity.CalculatorActivity" android:label="@string/label_calc" />
+        <activity android:name=".activity.CalculatorActivity" android:label="@string/label_calc"
+            android:screenOrientation="landscape"/>
 
-        <activity android:name=".setting.SettingActivity"
-            android:label="@string/drawer_setting" />
+        <activity android:name=".setting.SettingActivity" android:label="@string/drawer_setting"
+            android:screenOrientation="landscape"/>
+
+        <activity android:name=".activity.ItemListActivity"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

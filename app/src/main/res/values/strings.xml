@@ -16,7 +16,9 @@
     <string name="drawer_setting">設定</string>
     <string name="drawer_update">更新チェック</string>
     <!-- Debug -->
-    <string name="debug_drawer_add_item">ダミーデータ</string>
+    <string name="debug_drawer_add_item">ぬいぐるみ</string>
+    <string name="debug_drawer_add_staff">ふく泉さん</string>
+    <string name="dummy_uriage">売上捏造</string>
 
     <string name="dialog_kakunin">かくにん</string>
 </resources>

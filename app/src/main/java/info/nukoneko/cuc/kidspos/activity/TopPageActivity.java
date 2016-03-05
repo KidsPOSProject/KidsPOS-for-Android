@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
@@ -21,10 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
 import info.nukoneko.cuc.kidspos.R;
+import info.nukoneko.cuc.kidspos.StoreManager;
 import info.nukoneko.cuc.kidspos.common.AsyncAPI;
 import info.nukoneko.cuc.kidspos.common.AsyncAPICallback;
 import info.nukoneko.cuc.kidspos.common.CommonActivity;
@@ -35,10 +38,21 @@ import info.nukoneko.cuc.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.kidspos.navigation.NavigationItems;
 import info.nukoneko.cuc.kidspos.navigation.NavigationView;
 import info.nukoneko.cuc.kidspos.setting.SettingActivity;
+import info.nukoneko.cuc.kidspos.util.KPLogger;
 import info.nukoneko.cuc.kidspos.util.KPToast;
+import info.nukoneko.kidspos4j.KidsPos4jConfig;
+import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.DataBase;
 import info.nukoneko.kidspos4j.model.ItemFactory;
 import info.nukoneko.kidspos4j.model.ModelItem;
+import info.nukoneko.kidspos4j.model.ModelSale;
+import info.nukoneko.kidspos4j.model.ModelStaff;
+import info.nukoneko.kidspos4j.util.config.BarcodeCreatetor;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * created at 2015/06/13.
@@ -55,6 +69,8 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     @Bind(R.id.item_list)
     ItemListView mItemListView;
     @Bind(R.id.price) TextView priceView;
+
+    @Bind(R.id.staff_name) TextView staffName;
 
     ActionBarDrawerToggle mDrawerToggle;
 
@@ -76,10 +92,16 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 this.mItemListView.getAdapter().getItems());
     }
 
+    @OnClick(R.id.clear)
+    public void onClickClear(){
+        mItemListView.getAdapter().clear();
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_top);
 
         setSupportActionBar(toolbar);
@@ -91,8 +113,6 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
         mDrawerToggle = getDrawerToggle();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
-
-        ItemFactory.getInstance();
     }
 
     @Override
@@ -114,12 +134,39 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
 
     @Override
     protected void onInputBarcode(String barcode) {
-        DataBase<ModelItem> itemModel = ItemFactory.getInstance();
-        ModelItem item = itemModel.find(String.format("barcode = '%s'", barcode)).get(0);
-        if (item == null) {
-            KPToast.showToast("登録されていない商品です");
-        } else {
-            this.mItemListView.getAdapter().add(item);
+        // staff
+        if (barcode.startsWith("1000")) {
+            Object a = APIManager.Staff().getStaff(barcode)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .onErrorReturn(new Func1<Throwable, ModelStaff>() {
+                        @Override
+                        public ModelStaff call(Throwable throwable) {
+                            return null;
+                        }
+                    })
+                    .subscribe(item -> {
+                        StoreManager.setStoreStaff(item);
+                        staffName.setText(item.getName());
+                    });
+            if (a == null){
+                KPToast.showToast("登録されていないスタッフです");
+            }
+        }
+
+        /// item
+        if (barcode.startsWith("1001")) {
+            APIManager.Item().readItem(barcode)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .onErrorResumeNext(throwable -> null)
+                    .subscribe(item -> {
+                        if (item == null) {
+                            KPToast.showToast("登録されていない商品です");
+                        } else {
+                            mItemListView.getAdapter().add(item);
+                        }
+                    });
         }
     }
 
@@ -134,14 +181,15 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     @Override
     public void onItemClick(NavigationAdapter adapter, NavigationItems selectedItem) {
         switch (selectedItem){
-            case SALES:
-                break;
-
-            case ITEMS:
-                break;
-
-            case STAFF:
-                break;
+//            case SALES:
+//                break;
+//
+//            case ITEMS:
+//
+//                break;
+//
+//            case STAFF:
+//                break;
 
             case SETTING:
                 SettingActivity.startActivity(this);
@@ -166,10 +214,11 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 break;
 
             case TEST_ADD_DUMMY: // dummy
-                ModelItem dummyItem = new ModelItem();
-                dummyItem.setName("ダミー");
-                dummyItem.setPrice(300);
-                this.mItemListView.getAdapter().add(dummyItem);
+                onInputBarcode("1001010003");
+                break;
+
+            case TEST_ADD_USER:
+                onInputBarcode("1000150001");
                 break;
         }
     }

@@ -22,29 +22,67 @@
             android:id="@+id/price"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_red_light"
             android:layout_toEndOf="@id/tool_bar"
             android:layout_alignTop="@id/tool_bar"
             android:layout_alignBottom="@id/tool_bar"
-            android:textSize="35sp"
+            android:textSize="40sp"
             android:gravity="center_vertical|right"
             android:padding="8dp"/>
-        <Button
-            android:id="@+id/account"
+        <RelativeLayout
+            android:id="@+id/footer_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:padding="32dp"
-            android:layout_margin="8dp"
-            android:text="か　い　け　い"
-            android:background="@drawable/toast_corner_rect"
-            android:textSize="30sp"/>
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:background="@drawable/button_circle"
+                android:text="けす"
+                android:textSize="30sp" />
+            <TextView
+                android:id="@+id/staff_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@id/clear"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:textSize="30sp"
+                android:text="担当者"/>
+            <TextView
+                android:id="@+id/staff_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@id/staff_title"
+                android:layout_toLeftOf="@id/account"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/account"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:gravity="center_vertical"
+                android:text="かいけい"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/button_rect"
+                android:textSize="30sp"/>
+        </RelativeLayout>
         <info.nukoneko.cuc.kidspos.itemlist.ItemListView
             android:id="@+id/item_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/price"
-            android:layout_above="@id/account"
+            android:layout_above="@id/footer_layout"
             android:padding="8dp"/>
     </RelativeLayout>
     <info.nukoneko.cuc.kidspos.navigation.NavigationView
