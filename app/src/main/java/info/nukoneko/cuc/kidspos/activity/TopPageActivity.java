@@ -136,30 +136,47 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     protected void onInputBarcode(String barcode) {
         // staff
         if (barcode.startsWith("1000")) {
-            Object a = APIManager.Staff().getStaff(barcode)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .onErrorReturn(new Func1<Throwable, ModelStaff>() {
-                        @Override
-                        public ModelStaff call(Throwable throwable) {
-                            return null;
-                        }
-                    })
-                    .subscribe(item -> {
-                        StoreManager.setStoreStaff(item);
-                        staffName.setText(item.getName());
-                    });
-            if (a == null){
+            try {
+                APIManager.Staff().getStaff(barcode)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .onErrorReturn(new Func1<Throwable, ModelStaff>() {
+                            @Override
+                            public ModelStaff call(Throwable throwable) {
+                                return null;
+                            }
+                        })
+                        .subscribe(item -> {
+                            try {
+                                if (item != null) {
+                                    StoreManager.setStoreStaff(item);
+                                    staffName.setText(item.getName());
+                                } else {
+                                    KPToast.showToast("正しく読み取りが行われませんでした");
+                                }
+                            }
+                            catch (Exception ignored) {
+                                KPToast.showToast("正しく読み取りが行われませんでした");
+                            }
+                        });
+            }
+            catch (Exception ignored) {
                 KPToast.showToast("登録されていないスタッフです");
             }
         }
 
         /// item
         if (barcode.startsWith("1001")) {
-            APIManager.Item().readItem(barcode)
+             APIManager.Item().readItem(barcode)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .onErrorResumeNext(throwable -> null)
+                    .onErrorReturn(new Func1<Throwable, ModelItem>() {
+                        @Override
+                        public ModelItem call(Throwable throwable) {
+                            System.out.println(throwable.getLocalizedMessage());
+                            return null;
+                        }
+                    })
                     .subscribe(item -> {
                         if (item == null) {
                             KPToast.showToast("登録されていない商品です");
@@ -192,34 +209,36 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
 //                break;
 
             case SETTING:
-                SettingActivity.startActivity(this);
+                onInputBarcode("1001030010");
+//                KPToast.showToast("現在は開けません");
+//                SettingActivity.startActivity(this);
                 break;
 
-            case UPDATE:
-                StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
-                new AsyncAPI.Builder(this, new AsyncAPICallback() {
-                    @Override
-                    public Object doFunc(Object... params) {
-                        update("http://localhost:8080/", "test.app");
-                        return "";
-                    }
-
-                    @Override
-                    public void onResult(Object result) {
-                        System.exit(0);
-                    }
-                })
-                        .setProgress(TopPageActivity.this, "アップデートしてます", false)
-                        .build().run();
-                break;
-
-            case TEST_ADD_DUMMY: // dummy
-                onInputBarcode("1001010003");
-                break;
-
-            case TEST_ADD_USER:
-                onInputBarcode("1000150001");
-                break;
+//            case UPDATE:
+//                StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+//                new AsyncAPI.Builder(this, new AsyncAPICallback() {
+//                    @Override
+//                    public Object doFunc(Object... params) {
+//                        update("http://localhost:8080/", "test.app");
+//                        return "";
+//                    }
+//
+//                    @Override
+//                    public void onResult(Object result) {
+//                        System.exit(0);
+//                    }
+//                })
+//                        .setProgress(TopPageActivity.this, "アップデートしてます", false)
+//                        .build().run();
+//                break;
+//
+//            case TEST_ADD_DUMMY: // dummy
+//                onInputBarcode("1001010003");
+//                break;
+//
+//            case TEST_ADD_USER:
+//                onInputBarcode("1000150001");
+//                break;
         }
     }
 
