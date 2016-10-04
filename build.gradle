@@ -2,30 +2,17 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
-        }
+        maven { url "https://github.com/layerhq/releases-gradle/raw/master/releases" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.2.0'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+        classpath 'com.layer:git-repo-plugin:1.0.0'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
-        maven {
-            credentials {
-                username "nukomvn"
-                password "Cy+FviFRKEG3"
-            }
-            url "http://mvn.nukoneko.info/"
-        }
-        maven {
-            url 'http://oss.jfrog.org/artifactory/oss-snapshot-local'
-        }
     }
 }
-
-
