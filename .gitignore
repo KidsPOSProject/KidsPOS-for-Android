@@ -1,9 +1,9 @@
-/.gradle/
+.gradle/*
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
-*.iml
 /build
-app/mapping.txt
+
 /captures
+.externalNativeBuild
