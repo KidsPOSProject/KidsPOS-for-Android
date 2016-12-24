@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.view;
+package info.nukoneko.cuc.android.kidspos.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

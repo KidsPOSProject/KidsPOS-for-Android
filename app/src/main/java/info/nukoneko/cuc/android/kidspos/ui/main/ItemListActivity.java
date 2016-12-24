@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.activity;
+package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.app.Activity;
 import android.content.Intent;

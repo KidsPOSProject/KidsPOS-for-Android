@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.activity;
+package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,8 +16,8 @@ import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPLogger;
 import info.nukoneko.cuc.android.kidspos.util.KPToast;
-import info.nukoneko.cuc.android.kidspos.view.CalcView;
-import info.nukoneko.cuc.android.kidspos.view.YesNoDialog;
+import info.nukoneko.cuc.android.kidspos.ui.view.CalcView;
+import info.nukoneko.cuc.android.kidspos.ui.view.YesNoDialog;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.JSONConvertor;
 import info.nukoneko.kidspos4j.model.ModelItem;

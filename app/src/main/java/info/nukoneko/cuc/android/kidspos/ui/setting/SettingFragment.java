@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.setting;
+package info.nukoneko.cuc.android.kidspos.ui.setting;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
