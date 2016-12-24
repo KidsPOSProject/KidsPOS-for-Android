@@ -2,15 +2,13 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
@@ -21,42 +19,25 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import butterknife.Bind;
 import butterknife.OnClick;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
+import info.nukoneko.cuc.android.kidspos.databinding.ActivityTopBinding;
 import info.nukoneko.cuc.android.kidspos.event.EventBusHolder;
 import info.nukoneko.cuc.android.kidspos.event.EventItemAdapterChange;
-import info.nukoneko.cuc.android.kidspos.itemlist.ItemListView;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationItems;
-import info.nukoneko.cuc.android.kidspos.navigation.NavigationView;
 import info.nukoneko.cuc.android.kidspos.util.KPToast;
 import info.nukoneko.kidspos4j.api.APIManager;
-import info.nukoneko.kidspos4j.model.ModelItem;
-import info.nukoneko.kidspos4j.model.ModelStaff;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-/**
- * created at 2015/06/13.
- */
-public class TopPageActivity extends CommonActivity implements NavigationAdapter.OnItemClickListener {
+public class TopPageActivity extends CommonActivity
+        implements NavigationAdapter.OnItemClickListener {
     public static final int REQUEST_CODE_CALCULATE = 100;
 
-    @Bind(R.id.tool_bar)
-    Toolbar toolbar;
-    @Bind(R.id.drawer_layout)
-    DrawerLayout mDrawerLayout;
-    @Bind(R.id.navigation_view)
-    NavigationView mNavigation;
-    @Bind(R.id.item_list)
-    ItemListView mItemListView;
-    @Bind(R.id.price) TextView priceView;
-
-    @Bind(R.id.staff_name) TextView staffName;
+    ActivityTopBinding binding;
 
     ActionBarDrawerToggle mDrawerToggle;
 
@@ -68,19 +49,19 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
 
     public void setSumPrice(Integer sumPrice) {
         this.sumPrice = sumPrice;
-        this.priceView.setText(String.valueOf(this.sumPrice));
+        binding.price.setText(String.valueOf(this.sumPrice));
     }
 
     @OnClick(R.id.account)
     public void onClickAccount(){
         CalculatorActivity.startActivity(this, REQUEST_CODE_CALCULATE,
                 this.getSumPrice(),
-                this.mItemListView.getAdapter().getItems());
+                binding.itemList.getAdapter().getItems());
     }
 
     @OnClick(R.id.clear)
     public void onClickClear(){
-        mItemListView.getAdapter().clear();
+        binding.itemList.getAdapter().clear();
     }
 
 
@@ -88,22 +69,23 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_top);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_top);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_launcher);
 
-        this.mNavigation.setOnItemClickListener(this);
+        binding.navigationView.setOnItemClickListener(this);
 
         mDrawerToggle = getDrawerToggle();
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        binding.drawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        return mDrawerToggle.onOptionsItemSelected(item)
+                || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -126,17 +108,12 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
                 APIManager.Staff().getStaff(barcode)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .onErrorReturn(new Func1<Throwable, ModelStaff>() {
-                            @Override
-                            public ModelStaff call(Throwable throwable) {
-                                return null;
-                            }
-                        })
+                        .onErrorReturn(throwable -> null)
                         .subscribe(item -> {
                             try {
                                 if (item != null) {
                                     StoreManager.setStoreStaff(item);
-                                    staffName.setText(item.getName());
+                                    binding.staffName.setText(item.getName());
                                 } else {
                                     KPToast.showToast("正しく読み取りが行われませんでした");
                                 }
@@ -156,18 +133,15 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
              APIManager.Item().readItem(barcode)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .onErrorReturn(new Func1<Throwable, ModelItem>() {
-                        @Override
-                        public ModelItem call(Throwable throwable) {
-                            System.out.println(throwable.getLocalizedMessage());
-                            return null;
-                        }
+                    .onErrorReturn(throwable -> {
+                        System.out.println(throwable.getLocalizedMessage());
+                        return null;
                     })
                     .subscribe(item -> {
                         if (item == null) {
                             KPToast.showToast("登録されていない商品です");
                         } else {
-                            mItemListView.getAdapter().add(item);
+                            binding.itemList.getAdapter().add(item);
                         }
                     });
         }
@@ -176,7 +150,7 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
     private ActionBarDrawerToggle getDrawerToggle() {
         return new ActionBarDrawerToggle(
                 this,
-                mDrawerLayout,
+                binding.drawerLayout,
                 R.string.navigation_open,
                 R.string.navigation_close);
     }
@@ -245,7 +219,7 @@ public class TopPageActivity extends CommonActivity implements NavigationAdapter
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CODE_CALCULATE:
-                this.mItemListView.getAdapter().clear();
+                binding.itemList.getAdapter().clear();
                 this.setSumPrice(0);
                 break;
             default:
