@@ -14,7 +14,7 @@
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme">
         <activity
-            android:name="info.nukoneko.cuc.android.kidspos.activity.SplashActivity"
+            android:name="info.nukoneko.cuc.android.kidspos.ui.main.SplashActivity"
             android:label="キッズビジネスタウンいちかわ"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -23,17 +23,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="info.nukoneko.cuc.android.kidspos.activity.TopPageActivity"
+            android:name="info.nukoneko.cuc.android.kidspos.ui.main.TopPageActivity"
             android:label="@string/label_toppage"
             android:screenOrientation="landscape"/>
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.activity.CalculatorActivity" android:label="@string/label_calc"
+        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.main.CalculatorActivity" android:label="@string/label_calc"
             android:screenOrientation="landscape"/>
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.setting.SettingActivity" android:label="@string/drawer_setting"
+        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity" android:label="@string/drawer_setting"
             android:screenOrientation="landscape"/>
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.activity.ItemListActivity"
+        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.main.ItemListActivity"
             android:screenOrientation="landscape" />
     </application>
 

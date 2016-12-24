@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.view;
+package info.nukoneko.cuc.android.kidspos.ui.view;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
