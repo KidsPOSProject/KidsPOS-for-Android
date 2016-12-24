@@ -18,6 +18,10 @@ android {
         enabled true
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
