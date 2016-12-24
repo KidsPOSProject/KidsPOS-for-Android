@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <variable
+            name="buttonClickListener"
+            type="android.view.View.OnClickListener" />
+    </data>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -116,3 +123,4 @@
             android:layout_weight="1"/>
     </LinearLayout>
 </LinearLayout>
+</layout>
