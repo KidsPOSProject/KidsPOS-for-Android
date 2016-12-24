@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.navigation;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -12,14 +13,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
-import butterknife.Bind;
 import info.nukoneko.cuc.android.kidspos.AppController;
 import info.nukoneko.cuc.android.kidspos.R;
+import info.nukoneko.cuc.android.kidspos.databinding.ItemNaviMenuBinding;
 
-/**
- * created at 2015/06/13.
- */
 public class NavigationAdapter
         extends RecyclerView.Adapter<NavigationAdapter.ViewHolder>
         implements View.OnClickListener {
@@ -66,15 +63,15 @@ public class NavigationAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (position == 0) {
-            holder.getView().setClickable(false);
-            holder.headView.setVisibility(View.VISIBLE);
-            holder.menuView.setVisibility(View.GONE);
-            holder.storeName.setText(items.get(position));
+            holder.getBinding().getRoot().setClickable(false);
+            holder.getBinding().head.setVisibility(View.VISIBLE);
+            holder.getBinding().menu.setVisibility(View.GONE);
+            holder.getBinding().store.setText(items.get(position));
         } else {
-            holder.getView().setClickable(true);
-            holder.headView.setVisibility(View.GONE);
-            holder.menuView.setVisibility(View.VISIBLE);
-            holder.itemName.setText(items.get(position));
+            holder.getBinding().getRoot().setClickable(true);
+            holder.getBinding().head.setVisibility(View.GONE);
+            holder.getBinding().menu.setVisibility(View.VISIBLE);
+            holder.getBinding().title.setText(items.get(position));
         }
     }
 
@@ -106,23 +103,17 @@ public class NavigationAdapter
         }
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
-        @Bind(R.id.head) LinearLayout headView;
-        @Bind(R.id.store) TextView storeName;
+    class ViewHolder extends RecyclerView.ViewHolder{
 
-        // TODO いつかわける。
-        @Bind(R.id.menu) LinearLayout menuView;
-        @Bind(R.id.title) TextView itemName;
+        private final ItemNaviMenuBinding binding;
 
-        public View v;
-        public ViewHolder(View view) {
+        ViewHolder(@NonNull View view) {
             super(view);
-            v = view;
-            ButterKnife.bind(this, view);
+            binding = ItemNaviMenuBinding.bind(view);
         }
 
-        public View getView(){
-            return v;
+        public ItemNaviMenuBinding getBinding() {
+            return binding;
         }
     }
 

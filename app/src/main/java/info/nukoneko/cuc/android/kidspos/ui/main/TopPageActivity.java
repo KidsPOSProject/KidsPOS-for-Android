@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.squareup.otto.Subscribe;
@@ -19,7 +20,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import butterknife.OnClick;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
@@ -34,10 +34,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class TopPageActivity extends CommonActivity
-        implements NavigationAdapter.OnItemClickListener {
+        implements NavigationAdapter.OnItemClickListener,
+        TopPageActivityViewModel.Listener {
     public static final int REQUEST_CODE_CALCULATE = 100;
 
     ActivityTopBinding binding;
+    TopPageActivityViewModel viewModel;
 
     ActionBarDrawerToggle mDrawerToggle;
 
@@ -52,24 +54,14 @@ public class TopPageActivity extends CommonActivity
         binding.price.setText(String.valueOf(this.sumPrice));
     }
 
-    @OnClick(R.id.account)
-    public void onClickAccount(){
-        CalculatorActivity.startActivity(this, REQUEST_CODE_CALCULATE,
-                this.getSumPrice(),
-                binding.itemList.getAdapter().getItems());
-    }
-
-    @OnClick(R.id.clear)
-    public void onClickClear(){
-        binding.itemList.getAdapter().clear();
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_top);
+        viewModel = new TopPageActivityViewModel();
+        binding.setViewModel(viewModel);
+        binding.setListener(this);
 
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -259,5 +251,17 @@ public class TopPageActivity extends CommonActivity
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onClickAccount(View view) {
+        CalculatorActivity.startActivity(this, REQUEST_CODE_CALCULATE,
+                this.getSumPrice(),
+                binding.itemList.getAdapter().getItems());
+    }
+
+    @Override
+    public void onClickClear(View view) {
+        binding.itemList.getAdapter().clear();
     }
 }

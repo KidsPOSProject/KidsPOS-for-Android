@@ -4,6 +4,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="info.nukoneko.cuc.android.kidspos.ui.main.TopPageActivityViewModel" />
+        <variable
+            name="listener"
+            type="info.nukoneko.cuc.android.kidspos.ui.main.TopPageActivityViewModel.Listener" />
+    </data>
 <android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -46,7 +54,8 @@
                 android:paddingRight="20dp"
                 android:background="@drawable/button_circle"
                 android:text="けす"
-                android:textSize="30sp" />
+                android:textSize="30sp"
+                android:onClick="@{listener::onClickClear}"/>
             <TextView
                 android:id="@+id/staff_title"
                 android:layout_width="wrap_content"
@@ -76,7 +85,8 @@
                 android:text="かいけい"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/button_rect"
-                android:textSize="30sp"/>
+                android:textSize="30sp"
+                android:onClick="@{listener::onClickAccount}"/>
         </RelativeLayout>
         <info.nukoneko.cuc.android.kidspos.itemlist.ItemListView
             android:id="@+id/item_list"

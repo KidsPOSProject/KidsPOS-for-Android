@@ -6,16 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import info.nukoneko.cuc.android.kidspos.R;
+import info.nukoneko.cuc.android.kidspos.databinding.ItemDbItemListBinding;
 import info.nukoneko.kidspos4j.model.ModelItem;
 
-/**
- * Created by atsumi on 2016/03/05.
- */
 public class DBModelItemAdapter extends ArrayAdapter<ModelItem>{
 
     private Context context;
@@ -38,18 +33,20 @@ public class DBModelItemAdapter extends ArrayAdapter<ModelItem>{
             holder = (ViewHolder) convertView.getTag();
         }
         final ModelItem item = getItem(position);
-        holder.name.setText(item.getName());
-        holder.price.setText(item.getPrice());
+        holder.binding.itemName.setText(item.getName());
+        holder.binding.itemPrice.setText(item.getPrice());
         return convertView;
     }
 
     static class ViewHolder {
-        @Bind(R.id.item_name)
-        TextView name;
-        @Bind(R.id.item_price)
-        TextView price;
-        public ViewHolder(View view){
-            ButterKnife.bind(this, view);
+        private ItemDbItemListBinding binding;
+
+        ViewHolder(View view){
+            binding = ItemDbItemListBinding.bind(view);
+        }
+
+        public ItemDbItemListBinding getBinding() {
+            return binding;
         }
     }
 }

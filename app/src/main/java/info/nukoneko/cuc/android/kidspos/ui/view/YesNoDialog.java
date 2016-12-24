@@ -13,9 +13,6 @@ import android.widget.TextView;
 
 import info.nukoneko.cuc.android.kidspos.R;
 
-/**
- * Created by TEJNEK on 2015/10/12.
- */
 public class YesNoDialog extends DialogFragment {
     final static String ARG_TITLE = "ARG_TITLE";
 

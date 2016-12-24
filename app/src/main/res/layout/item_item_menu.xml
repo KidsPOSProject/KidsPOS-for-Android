@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/item_height"
     android:background="@android:color/holo_green_dark">
     <TextView
-        android:id="@id/price"
+        android:id="@+id/price"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:padding="8dp"
@@ -30,3 +32,4 @@
         android:layout_toStartOf="@id/price"
         android:layout_toLeftOf="@id/price"/>
 </RelativeLayout>
+</layout>
