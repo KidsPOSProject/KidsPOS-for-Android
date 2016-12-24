@@ -3,30 +3,26 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import java.util.List;
 
-import butterknife.Bind;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
-import info.nukoneko.cuc.android.kidspos.util.KPLogger;
-import info.nukoneko.cuc.android.kidspos.util.KPToast;
+import info.nukoneko.cuc.android.kidspos.databinding.ActivityCalculatorBinding;
 import info.nukoneko.cuc.android.kidspos.ui.view.CalcView;
 import info.nukoneko.cuc.android.kidspos.ui.view.YesNoDialog;
+import info.nukoneko.cuc.android.kidspos.util.KPLogger;
+import info.nukoneko.cuc.android.kidspos.util.KPToast;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.JSONConvertor;
 import info.nukoneko.kidspos4j.model.ModelItem;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
-/**
- * Created by TEJNEK on 2015/10/12.
- */
 
 public class CalculatorActivity extends CommonActivity implements CalcView.OnItemClickListener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
@@ -34,32 +30,26 @@ public class CalculatorActivity extends CommonActivity implements CalcView.OnIte
 
     public static final String RESULT_KEY = "EXTRA_BOOLEAN";
 
-    @Bind(R.id.account)
-    TextView mAccount;
-
-    @Bind(R.id.money) TextView mMoney;
-
-    @Bind(R.id.calc)
-    CalcView mCalc;
-
     private Integer sumPrice = 0;
 
     int receiveMoney = 0;
 
     ModelItem[] items;
 
+    ActivityCalculatorBinding binding;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_calculator);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_calculator);
 
-        this.mCalc.setOnItemClickListener(this);
+        binding.calc.setOnItemClickListener(this);
 
         Bundle extras = getIntent().getExtras();
         this.sumPrice = extras.getInt(EXTRA_VALUE);
         this.items = (ModelItem[]) extras.getSerializable(EXTRA_MODEL_SALES);
-        this.mAccount.setText(String.valueOf(this.sumPrice));
+        binding.account.setText(String.valueOf(this.sumPrice));
     }
 
     public static void startActivity(Activity activity,
@@ -87,7 +77,7 @@ public class CalculatorActivity extends CommonActivity implements CalcView.OnIte
         }else {
             this.receiveMoney = this.receiveMoney * 10 + number;
         }
-        this.mMoney.setText(String.valueOf(this.receiveMoney));
+        binding.money.setText(String.valueOf(this.receiveMoney));
     }
 
     @Override
@@ -97,7 +87,7 @@ public class CalculatorActivity extends CommonActivity implements CalcView.OnIte
         }else {
             this.receiveMoney = (int)Math.floor(this.receiveMoney / 10);
         }
-        this.mMoney.setText(String.valueOf(this.receiveMoney));
+        binding.money.setText(String.valueOf(this.receiveMoney));
     }
 
     @Override
