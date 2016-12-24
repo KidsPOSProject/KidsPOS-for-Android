@@ -6,7 +6,6 @@
 -verbose
 -dontnote
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
-
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
 -keep public class * extends android.app.Service
@@ -34,73 +33,104 @@
 }
 -keep public class * extends android.view.View {
     public <init>(android.content.Context);
-    public <init>(android.content.Context, android.util.AttributeSet.AttributeSet);
-    public <init>(android.content.Context, android.util.AttributeSet.AttributeSet, int);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
     public void set*(...);
 }
 -keep public class **.R
+
+-dontwarn java.**
+-dontnote java.**
+-keep class java.** { *; }
+
+-dontwarn javax.**
+-dontnote javax.**
 -keep class javax.** { *; }
+
+-dontwarn org.**
+-dontnote org.**
 -keep class org.** { *; }
+
+-dontwarn android.**
+-dontnote android.**
+-keep class android.** { *; }
+
+-dontwarn com.google.**
+-dontnote com.google.**
+-keep class com.google.** { *; }
+
+-dontnote com.google.vending.**
+-dontnote com.android.vending.licensing.**
+
+-dontwarn android.databinding.**
+
 ##---------------End: Default Settings  ----------
-##--------------- Gson  ----------
--keepattributes Signature
--keepattributes *Annotation*
--keep class sun.misc.Unsafe { *; }
--keep class com.google.gson.examples.android.model.** { *; }
-
-##--------------- Jackson  ----------
--keep class com.fasterxml.** { *; }
--keep interface com.fasterxml.** {*;}
--dontwarn com.fasterxml.**
--dontwarn org.w3c**
--keep class org.w3c**
-
-##--------------- Butterknife  ----------
--dontwarn butterknife.internal.**
--keep class **$$ViewInjector { *; }
--keepnames class * { @butterknife.InjectView *;}
-
-##--------------- HttpClient  ----------
--keep class org.apache.** { *; }
--dontwarn org.apache.**
 
 ##--------------- square Product ----------
--keep class com.squareup**
--dontwarn com.squareup**
--keepattributes *Annotation*,EnclosingMethod
+-dontwarn com.squareup.**
+-dontnote com.squareup.**
+-keep class com.squareup.** { *; }
+
+-dontwarn okhttp3.**
+-dontnote okhttp3.**
+-keep class okhttp3.** { *; }
+
 -dontwarn okio.**
--keepclassmembers class ** {
-    @com.squareup.otto.Subscribe public *;
-    @com.squareup.otto.Produce public *;
-}
+-dontnote okio.**
+-keep class okio.**  { *; }
 
 ##--------------- Android Support Library ----------
--dontwarn android.support.v4.**
--dontwarn android.support.v7.**
--keep class android.support.v4.** { *; }
--keep class android.support.v7.** {*;}
+-dontwarn android.**
+-dontnote android.**
+-keep class android.** { *; }
+
+-dontwarn com.facebook.**
+-dontnote com.facebook.**
 -keep class com.facebook.** { *; }
--keep class android.webkit.WebViewClient
+
 -keep class * extends android.webkit.WebViewClient
 -keepclassmembers class * extends android.webkit.WebViewClient {
     <methods>;
 }
 
-##-------------- Log ----------------
--assumenosideeffects class * android.util.Log {
+#-------------- Log ----------------
+-assumenosideeffects class android.util.Log {
     <methods>;
 }
--assumenosideeffects class * info.nukoneko.cuc.kidspos.util.KPLogger {
-    <methods>;
-}
-
-##-------------- retrolambda ----------------
--dontwarn java.lang.invoke.*
-
-
 -keepattributes Signature
 
--dontwarn java.nio.file.Files
--dontwarn java.nio.file.Path
--dontwarn java.nio.file.OpenOption
--dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+#------------- Retrolambda ----------
+-dontwarn java.lang.invoke.*
+
+#------------- RxJava ------------
+-dontwarn rx.**
+-dontnote rx.**
+-keep class rx.**  { *; }
+
+-dontwarn sun.misc.Unsafe
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+   long producerIndex;
+   long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+   long producerNode;
+   long consumerNode;
+}
+
+#------------- OkHttp3 Picasso -----------
+-dontwarn com.squareup.okhttp3.**
+-keep class com.squareup.okhttp3.**  { *; }
+
+-dontwarn com.squareup.okio.**
+-keep class com.squareup.okio.**  { *; }
+
+#------------- Twitter4j -----------
+-dontwarn twitter4j.**
+-dontnote twitter4j.**
+-keep class twitter4j.**  { *; }
+
+#------------- Retrolambda -----------
+-dontwarn *.$$Lambda$*.**
+-dontnote *.$$Lambda$*.**
+-keep class *.$$Lambda$*.**  { *; }
+
