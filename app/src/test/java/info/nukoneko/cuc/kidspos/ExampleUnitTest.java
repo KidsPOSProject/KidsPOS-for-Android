@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.kidspos;
+package info.nukoneko.cuc.android.kidspos;
 
 import org.junit.Test;
 

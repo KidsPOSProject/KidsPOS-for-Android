@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.kidspos;
+package info.nukoneko.cuc.android.kidspos;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -16,6 +16,6 @@ public class ApplicationTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("info.nukoneko.cuc.kidspos", appContext.getPackageName());
+        assertEquals("info.nukoneko.cuc.android.kidspos", appContext.getPackageName());
     }
 }
