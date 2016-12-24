@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-/**
- * Created by atsumi on 2016/02/20.
- */
 public class SettingActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
