@@ -5,9 +5,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-/**
- * created at 2015/06/13.
- */
 public class NavigationView extends RecyclerView {
     NavigationAdapter mAdapter = new NavigationAdapter();
     public NavigationView(Context context) {

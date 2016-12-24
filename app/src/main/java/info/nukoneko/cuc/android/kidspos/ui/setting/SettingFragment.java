@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.setting;
+package info.nukoneko.cuc.android.kidspos.ui.setting;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,10 +11,8 @@ import android.widget.ListView;
 
 import info.nukoneko.cuc.android.kidspos.R;
 
-/**
- * Created by atsumi on 2016/02/20.
- */
-public class SettingFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingFragment extends PreferenceFragment
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

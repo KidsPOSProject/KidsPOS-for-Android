@@ -7,12 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-import butterknife.ButterKnife;
 import info.nukoneko.cuc.android.kidspos.util.KPLogger;
 
-/**
- * created at 2015/06/13.
- */
 abstract public class CommonActivity extends AppCompatActivity {
     String TAG = "CommonActivity";
     @Override
@@ -24,12 +20,6 @@ abstract public class CommonActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public void setContentView(@LayoutRes int layoutResID) {
-        super.setContentView(layoutResID);
-        ButterKnife.bind(this);
     }
 
     String inputValue = "";

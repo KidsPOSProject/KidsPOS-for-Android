@@ -14,6 +14,10 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    dataBinding {
+        enabled true
+    }
+
     buildTypes {
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
@@ -58,9 +62,6 @@ dependencies {
     // SupportLibrary
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
-
-    // VI
-    compile 'com.jakewharton:butterknife:7.0.1'
 
     // Zxing
     compile 'com.google.zxing:core:3.2.1'
