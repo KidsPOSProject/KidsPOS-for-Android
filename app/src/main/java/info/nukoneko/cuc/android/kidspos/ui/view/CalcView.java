@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import butterknife.OnClick;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ViewCalculatorBinding;
 
@@ -59,16 +58,6 @@ public class CalcView extends LinearLayout {
         }
     };
 
-    @OnClick(R.id.calc_num_C) void onClickClear(){
-        if (this.mListener == null) return;
-        this.mListener.onClickClear();
-    }
-
-    @OnClick(R.id.calc_num_end) void onClickEnd(){
-        if (this.mListener == null) return;
-        this.mListener.onClickEnd();
-    }
-
     private ViewCalculatorBinding binding;
 
     public CalcView(Context context) {
@@ -86,6 +75,18 @@ public class CalcView extends LinearLayout {
                 R.layout.view_calculator, this, false);
 
         binding.setButtonClickListener(numberClickListener);
+
+        binding.calcNumC.setOnClickListener(view -> {
+            if (mListener != null) {
+                mListener.onClickClear();
+            }
+        });
+
+        binding.calcNumEnd.setOnClickListener(view -> {
+            if (mListener != null) {
+                mListener.onClickEnd();
+            }
+        });
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){

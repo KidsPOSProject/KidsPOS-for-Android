@@ -5,21 +5,16 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import info.nukoneko.cuc.android.kidspos.R;
+import info.nukoneko.cuc.android.kidspos.databinding.ItemItemMenuBinding;
 import info.nukoneko.cuc.android.kidspos.event.EventBusHolder;
 import info.nukoneko.cuc.android.kidspos.event.EventItemAdapterChange;
 import info.nukoneko.kidspos4j.model.ModelItem;
 import rx.Observable;
 
-/**
- * Created by TEJNEK on 2015/10/04.
- */
 public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
 
     private ArrayList<ModelItem> items = new ArrayList<>();
@@ -37,8 +32,10 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.price.setText(String.valueOf(this.items.get(position).getPrice()));
-        holder.name.setText(this.items.get(position).getName());
+        holder.binding.price
+                .setText(String.valueOf(this.items.get(position).getPrice()));
+        holder.binding.name
+                .setText(this.items.get(position).getName());
     }
 
     @Override
@@ -78,19 +75,17 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHo
         notifyDataChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
-        @Bind(R.id.price) TextView price;
-        @Bind(R.id.name) TextView name;
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        public View v;
-        public ViewHolder(View view) {
+        private final ItemItemMenuBinding binding;
+
+        ViewHolder(View view) {
             super(view);
-            v = view;
-            ButterKnife.bind(this, view);
+            binding = ItemItemMenuBinding.bind(view);
         }
 
-        public View getView(){
-            return v;
+        public ItemItemMenuBinding getBinding() {
+            return binding;
         }
     }
 }
