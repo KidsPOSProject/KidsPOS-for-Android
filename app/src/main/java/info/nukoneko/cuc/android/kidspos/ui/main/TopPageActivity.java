@@ -28,8 +28,10 @@ import info.nukoneko.cuc.android.kidspos.event.EventBusHolder;
 import info.nukoneko.cuc.android.kidspos.event.EventItemAdapterChange;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationItems;
+import info.nukoneko.cuc.android.kidspos.util.KPLogger;
 import info.nukoneko.cuc.android.kidspos.util.KPToast;
 import info.nukoneko.kidspos4j.api.APIManager;
+import info.nukoneko.kidspos4j.model.JSONConvertor;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -72,6 +74,17 @@ public class TopPageActivity extends CommonActivity
         mDrawerToggle = getDrawerToggle();
         binding.drawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
+
+        APIManager.Staff().getList()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorReturn(throwable -> {
+                    KPToast.showToast("送信に失敗しました");
+                    return null;
+                })
+                .subscribe(modelSale -> {
+                    KPToast.showToast("受信しました");
+                });
     }
 
     @Override
