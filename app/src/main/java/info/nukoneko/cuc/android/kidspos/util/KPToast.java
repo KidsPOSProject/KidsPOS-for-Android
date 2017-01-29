@@ -35,6 +35,6 @@ public class KPToast {
         showToast(context.getString(textID), Toast.LENGTH_SHORT);
     }
     public static void showToast(String text){
-        showToast(text, Toast.LENGTH_SHORT);
+        showToast(text, Toast.LENGTH_LONG);
     }
 }
