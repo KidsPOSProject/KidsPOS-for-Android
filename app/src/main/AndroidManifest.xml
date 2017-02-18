@@ -33,8 +33,6 @@
         <activity android:name="info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity" android:label="@string/drawer_setting"
             android:screenOrientation="landscape"/>
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.main.ItemListActivity"
-            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

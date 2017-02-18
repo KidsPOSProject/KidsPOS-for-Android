@@ -1,9 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.itemlist;
 
-/**
- * Created by TEJNEK on 2015/10/12.
- */
-
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +7,6 @@ import android.util.AttributeSet;
 
 import info.nukoneko.cuc.android.kidspos.adapter.ItemListAdapter;
 
-/**
- * Created by TEJNEK on 2015/10/04.
- */
 public class ItemListView extends RecyclerView {
     ItemListAdapter mAdapter = new ItemListAdapter();
     public ItemListView(Context context) {
