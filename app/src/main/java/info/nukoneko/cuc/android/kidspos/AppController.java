@@ -24,7 +24,7 @@ public class AppController extends Application {
         SQLiteSetting.setSqlProvider(new SQLiteAdapter());
 
 //        KidsPos4jConfig.setBaseUrl("localhost:8080");
-        KidsPos4jConfig.setDefaultUrl(false, "10.99.8.86:8080");
+        KidsPos4jConfig.setDefaultUrl(false, "192.168.0.220:9500");
     }
 
     @Override
