@@ -2,18 +2,14 @@ package info.nukoneko.cuc.android.kidspos.navigation;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import info.nukoneko.cuc.android.kidspos.AppController;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemNaviMenuBinding;
 
@@ -27,10 +23,8 @@ public class NavigationAdapter
 
     private OnItemClickListener mListener;
 
-    public NavigationAdapter() {
+    public NavigationAdapter(final Context context) {
         this.items.add("");
-
-        Context context = AppController.get().getApplicationContext();
 
         for (NavigationItems i : NavigationItems.values()){
             this.items.add(context.getString(i.val));
@@ -80,12 +74,7 @@ public class NavigationAdapter
         return items.size();
     }
 
-    public void replaceItem(int position, @StringRes int itemResID){
-        this.items.remove(position);
-        this.items.add(position, AppController.get().getString(itemResID));
-    }
-
-    public void replaceItem(int position, String item){
+    void replaceItem(int position, String item){
         this.items.remove(position);
         this.items.add(position, item);
     }
@@ -118,7 +107,7 @@ public class NavigationAdapter
     }
 
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
+    void setOnItemClickListener(OnItemClickListener listener) {
         this.mListener = listener;
     }
 

@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
-
 import android.view.View;
 
 public final class TopPageActivityViewModel {

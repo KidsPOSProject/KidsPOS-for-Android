@@ -3,7 +3,6 @@
     <PreferenceCategory android:title="サーバー設定">
         <EditTextPreference
             android:key="serverIP"
-            android:title="接続先サーバー"
-            android:summary="192" />
+            android:title="接続先サーバー" />
     </PreferenceCategory>
 </PreferenceScreen>

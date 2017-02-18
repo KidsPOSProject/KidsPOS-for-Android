@@ -2,7 +2,6 @@ package info.nukoneko.cuc.android.kidspos.ui.setting;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,30 +22,20 @@ public class SettingFragment extends PreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Preference p = getPreferenceScreen().findPreference(key);
-//        if(p instanceof EditTextPreference)
-//        {
-//            setEdited(!((EditTextPreference) p).getText().equals(p.getSummary()));
-//            setPrefData(key, ((EditTextPreference) p).getText());
-//        }else if(p instanceof ListPreference){
-//            setEdited(!((ListPreference) p).getValue().equals(p.getSummary()));
-//            setPrefData(key, ((ListPreference) p).getValue());
-//        }
     }
+
     @Override
     public void onResume() {
         super.onResume();
-        // Set up a listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPause() {
-        super.onPause();
-        // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
     }
 
     @Override
