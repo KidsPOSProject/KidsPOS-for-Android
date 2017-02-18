@@ -67,6 +67,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
 
+    compile 'com.jakewharton:butterknife:7.0.1'
+
     // Zxing
     compile 'com.google.zxing:core:3.2.1'
     compile 'com.google.zxing:javase:3.2.1'
