@@ -5,9 +5,6 @@ import android.util.Log;
 
 import info.nukoneko.cuc.android.kidspos.BuildConfig;
 
-/**
- * created at 2015/06/13.
- */
 public class KPLogger {
     private static final String TAG = "[KidsPOS]";
     private static final String TAG2 = "[KidsPOS %s]";

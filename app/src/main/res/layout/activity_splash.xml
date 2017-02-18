@@ -20,7 +20,6 @@
         android:padding="30dp"
         android:gravity="center_horizontal"
         android:text="@string/project_name"
-        android:textSize="30sp"
-        android:textColor="@color/medium_text"/>
+        android:textSize="30sp"/>
 </RelativeLayout>
 </layout>

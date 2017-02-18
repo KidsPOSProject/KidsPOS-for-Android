@@ -66,7 +66,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHo
                     .reduce((integer, integer2) -> integer + integer2)
                     .toBlocking().first();
         }
-        EventBusHolder.EVENT_BUS.post(new EventItemAdapterChange(sum, this.items.size()));
+        EventBusHolder.EVENT_BUS.post(new EventItemAdapterChange(sum));
         this.notifyDataSetChanged();
     }
 

@@ -10,25 +10,24 @@ import android.view.WindowManager;
 
 import java.util.List;
 
+import info.nukoneko.cuc.android.kidspos.AppController;
 import info.nukoneko.cuc.android.kidspos.R;
-import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityCalculatorBinding;
 import info.nukoneko.cuc.android.kidspos.ui.view.CalcView;
 import info.nukoneko.cuc.android.kidspos.ui.view.YesNoDialog;
 import info.nukoneko.cuc.android.kidspos.util.KPLogger;
-import info.nukoneko.cuc.android.kidspos.util.KPToast;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.JSONConvertor;
 import info.nukoneko.kidspos4j.model.ModelItem;
+import info.nukoneko.kidspos4j.model.ModelStaff;
+import info.nukoneko.kidspos4j.model.ModelStore;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class CalculatorActivity extends CommonActivity implements CalcView.OnItemClickListener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
     private static final String EXTRA_MODEL_SALES = "EXTRA_MODEL_SALES";
-
-    public static final String RESULT_KEY = "EXTRA_BOOLEAN";
 
     private Integer sumPrice = 0;
 
@@ -56,10 +55,7 @@ public class CalculatorActivity extends CommonActivity implements CalcView.OnIte
                                      int requestCode,
                                      @NonNull Integer price,
                                      @NonNull List<ModelItem> items) {
-        if (price == 0) {
-            KPToast.showToast("値段が正しく読み込まれませんでした");
-            return;
-        }
+        if (price == 0) return;
 
         Intent intent = new Intent(activity, CalculatorActivity.class);
         intent.putExtra(EXTRA_VALUE, price);
@@ -107,33 +103,29 @@ public class CalculatorActivity extends CommonActivity implements CalcView.OnIte
     }
 
     public boolean isValueCheck(){
-        if (sumPrice > this.receiveMoney){
-            KPToast.showToast("うけとったかずがおかしいよ?");
-            return false;
-        }
-        return true;
+        return sumPrice <= this.receiveMoney;
     }
 
-    public void send(){
-
+    public void send() {
         String sum = "";
         for (ModelItem item : this.items) {
             sum += String.valueOf(item.getId()) + ",";
         }
         sum = sum.substring(0, sum.length() - 1);
-        String staffBarcode = StoreManager.getStoreStaff() == null ? "" : StoreManager.getStoreStaff().getBarcode();
-        APIManager.Sale().createSale(this.receiveMoney, this.items.length, this.sumPrice, sum,
-                StoreManager.getStore().getId(), staffBarcode
-                )
+        final ModelStaff staff = AppController.get(this).getStoreManager().getCurrentStaff();
+        final ModelStore store = AppController.get(this).getStoreManager().getCurrentStore();
+        String staffBarcode = staff == null ? "" : staff.getBarcode();
+        APIManager.Sale()
+                .createSale(this.receiveMoney,
+                        this.items.length,
+                        this.sumPrice,
+                        sum,
+                        store.getId(), staffBarcode)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .onErrorReturn(throwable -> {
-                    KPToast.showToast("送信に失敗しました");
-                    return null;
-                })
                 .subscribe(modelSale -> {
                     KPLogger.i(JSONConvertor.toJSON(modelSale));
-                });
+                }, Throwable::printStackTrace);
     }
 
     private void setActivityResult(Boolean result){

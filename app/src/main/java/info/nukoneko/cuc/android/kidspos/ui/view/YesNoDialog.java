@@ -128,7 +128,7 @@ public class YesNoDialog extends DialogFragment {
         return dialog;
     }
 
-    private class SimpleDialogInterface{
+    private class SimpleDialogInterface {
         DialogOnClickListener listener;
         public SimpleDialogInterface(DialogOnClickListener c){
             this.listener = c;

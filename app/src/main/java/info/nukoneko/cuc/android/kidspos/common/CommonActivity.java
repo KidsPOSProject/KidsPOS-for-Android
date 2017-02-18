@@ -2,7 +2,6 @@ package info.nukoneko.cuc.android.kidspos.common;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -52,9 +51,5 @@ abstract public class CommonActivity extends AppCompatActivity {
 
     protected void onInputBarcode(String barcode){
         // Stub
-    }
-
-    public String getTAG(){
-        return this.TAG;
     }
 }

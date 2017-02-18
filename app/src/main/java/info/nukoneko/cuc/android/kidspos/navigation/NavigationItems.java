@@ -4,9 +4,6 @@ import android.support.annotation.StringRes;
 
 import info.nukoneko.cuc.android.kidspos.R;
 
-/**
- * Created by atsumi on 2016/02/20.
- */
 public enum NavigationItems {
 //    SALES(R.string.drawer_sales),
 //    ITEMS(R.string.drawer_items),

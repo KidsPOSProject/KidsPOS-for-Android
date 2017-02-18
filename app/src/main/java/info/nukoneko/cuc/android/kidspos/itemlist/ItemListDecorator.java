@@ -8,9 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-/**
- * Created by TEJNEK on 2015/10/12.
- */
 public class ItemListDecorator extends RecyclerView.ItemDecoration {
 
     private static final int[] ATTRS = new int[]{

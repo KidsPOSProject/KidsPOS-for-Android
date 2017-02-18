@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import info.nukoneko.cuc.android.kidspos.AppController;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
@@ -28,11 +30,10 @@ import info.nukoneko.cuc.android.kidspos.event.EventBusHolder;
 import info.nukoneko.cuc.android.kidspos.event.EventItemAdapterChange;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationAdapter;
 import info.nukoneko.cuc.android.kidspos.navigation.NavigationItems;
-import info.nukoneko.cuc.android.kidspos.util.KPLogger;
-import info.nukoneko.cuc.android.kidspos.util.KPToast;
+import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity;
 import info.nukoneko.kidspos4j.api.APIManager;
-import info.nukoneko.kidspos4j.model.JSONConvertor;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class TopPageActivity extends CommonActivity
@@ -78,12 +79,10 @@ public class TopPageActivity extends CommonActivity
         APIManager.Staff().getList()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .onErrorReturn(throwable -> {
-                    KPToast.showToast("送信に失敗しました");
-                    return null;
-                })
                 .subscribe(modelSale -> {
-                    KPToast.showToast("受信しました");
+                    Toast.makeText(this, "受信しました", Toast.LENGTH_SHORT).show();
+                }, throwable -> {
+                    Toast.makeText(this, "送信に失敗しました", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -109,28 +108,19 @@ public class TopPageActivity extends CommonActivity
     protected void onInputBarcode(String barcode) {
         // staff
         if (barcode.startsWith("1000")) {
-            try {
-                APIManager.Staff().getStaff(barcode)
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .onErrorReturn(throwable -> null)
-                        .subscribe(item -> {
-                            try {
-                                if (item != null) {
-                                    StoreManager.setStoreStaff(item);
-                                    binding.staffName.setText(item.getName());
-                                } else {
-                                    KPToast.showToast("正しく読み取りが行われませんでした");
-                                }
-                            }
-                            catch (Exception ignored) {
-                                KPToast.showToast("正しく読み取りが行われませんでした");
-                            }
-                        });
-            }
-            catch (Exception ignored) {
-                KPToast.showToast("登録されていないスタッフです");
-            }
+            APIManager.Staff().getStaff(barcode)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(staff -> {
+                        if (staff != null) {
+                            AppController.get(this).getStoreManager().setCurrentStaff(staff);
+                            binding.staffName.setText(staff.getName());
+                        } else {
+                            Toast.makeText(this, "正しく読み取りが行われませんでした", Toast.LENGTH_SHORT).show();
+                        }
+                    }, throwable -> {
+                        Toast.makeText(this, "何かがおかしいよ", Toast.LENGTH_SHORT).show();
+                    });
         }
 
         /// item
@@ -138,16 +128,14 @@ public class TopPageActivity extends CommonActivity
              APIManager.Item().readItem(barcode)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .onErrorReturn(throwable -> {
-                        System.out.println(throwable.getLocalizedMessage());
-                        return null;
-                    })
                     .subscribe(item -> {
-                        if (item == null) {
-                            KPToast.showToast("登録されていない商品です");
-                        } else {
+                        if (item != null) {
                             binding.itemList.getAdapter().add(item);
+                        } else {
+                            Toast.makeText(this, "登録されていない商品です", Toast.LENGTH_SHORT).show();
                         }
+                    }, throwable -> {
+                        Toast.makeText(this, "何かがおかしいよ", Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -174,9 +162,7 @@ public class TopPageActivity extends CommonActivity
 //                break;
 
             case SETTING:
-                onInputBarcode("1001030010");
-//                KPToast.showToast("現在は開けません");
-//                SettingActivity.startActivity(this);
+                SettingActivity.startActivity(this);
                 break;
 
 //            case UPDATE:

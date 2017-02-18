@@ -6,16 +6,16 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 public class NavigationView extends RecyclerView {
-    NavigationAdapter mAdapter = new NavigationAdapter();
+    final NavigationAdapter mAdapter;
     public NavigationView(Context context) {
-        this(context, null);
+        this(context, null, 0);
     }
     public NavigationView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
     public NavigationView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mAdapter = new NavigationAdapter(context);
         init();
     }
 
@@ -30,10 +30,6 @@ public class NavigationView extends RecyclerView {
     @Override
     public NavigationAdapter getAdapter(){
         return mAdapter;
-    }
-
-    public void setStoreName(String text){
-        getAdapter().replaceItem(0, text);
     }
 
     public void setOnItemClickListener(NavigationAdapter.OnItemClickListener listener){
