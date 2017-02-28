@@ -3,14 +3,15 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
+import android.view.View;
 
 import info.nukoneko.kidspos4j.model.ModelStaff;
 import info.nukoneko.kidspos4j.model.ModelStore;
 
 public final class MainActivityViewModel {
     public interface Listener {
-        void onClickClear();
-        void onClickAccount();
+        void onClickClear(View view);
+        void onClickAccount(View view);
     }
 
     private ObservableInt mSumPrice = new ObservableInt(0);
@@ -41,7 +42,7 @@ public final class MainActivityViewModel {
         this.mSumPrice.set(mSumPrice.get() + price);
     }
 
-    public void setmCurrentStore(ModelStore currentStore) {
+    public void setCurrentStore(ModelStore currentStore) {
         this.mCurrentStore.set(currentStore);
     }
 

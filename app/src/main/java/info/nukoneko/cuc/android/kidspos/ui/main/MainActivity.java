@@ -9,11 +9,15 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import info.nukoneko.cuc.android.kidspos.BR;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.databinding.NavHeaderMainBinding;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
+import info.nukoneko.kidspos4j.model.ModelStore;
 
 public final class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding binding;
@@ -34,11 +38,19 @@ public final class MainActivity extends BaseActivity implements NavigationView.O
         toggle.syncState();
         binding.navView.setNavigationItemSelectedListener(this);
 
-        headerMainBinding = NavHeaderMainBinding.bind(
-                binding.navView.inflateHeaderView(R.layout.nav_header_main)
-        );
+        headerMainBinding = NavHeaderMainBinding.bind(binding.navView.getHeaderView(0));
         headerMainBinding.setViewModel(viewModel);
-//        binding.appBarLayout.contentMain.
+        binding.appBarLayout.contentMain.setVariable(BR.viewModel, viewModel);
+        binding.appBarLayout.contentMain.setVariable(BR.listener, this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final ModelStore dummyStore = new ModelStore();
+        dummyStore.setId(1);
+        dummyStore.setName("ダミーのお店だよ");
+        viewModel.setCurrentStore(dummyStore);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -52,17 +64,17 @@ public final class MainActivity extends BaseActivity implements NavigationView.O
     }
 
     @Override
-    protected void onInputBarcode(@NonNull String barcode) {
-
+    public void onClickClear(View view) {
+        Toast.makeText(this, "けすよ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onClickClear() {
-
+    public void onClickAccount(View view) {
+        Toast.makeText(this, "かいけいするよ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onClickAccount() {
-
+    protected void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
+        
     }
 }

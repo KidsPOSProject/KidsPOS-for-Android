@@ -23,7 +23,6 @@ import java.net.URL;
 
 import info.nukoneko.cuc.android.kidspos.AppController;
 import info.nukoneko.cuc.android.kidspos.R;
-import info.nukoneko.cuc.android.kidspos.StoreManager;
 import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityTopBinding;
 import info.nukoneko.cuc.android.kidspos.event.EventBusHolder;
@@ -33,7 +32,6 @@ import info.nukoneko.cuc.android.kidspos.navigation.NavigationItems;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity;
 import info.nukoneko.kidspos4j.api.APIManager;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class TopPageActivity extends CommonActivity
