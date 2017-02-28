@@ -1,5 +1,6 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="info.nukoneko.cuc.android.kidspos">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -9,10 +10,11 @@
 
     <application
         android:name="info.nukoneko.cuc.android.kidspos.AppController"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="info.nukoneko.cuc.android.kidspos.ui.main.SplashActivity"
             android:label="キッズビジネスタウンいちかわ"
