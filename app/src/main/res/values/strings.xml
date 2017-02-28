@@ -11,4 +11,11 @@
     <string name="drawer_setting">設定</string>
 
     <string name="dialog_kakunin">かくにん</string>
+    <string name="delete">けす</string>
+    <string name="account">かいけい</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="DrawerTitleSettings">設定</string>
 </resources>
