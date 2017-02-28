@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">KidsPOS</string>
-    <string name="label_splash">起動画面</string>
     <string name="label_toppage">トップ画面</string>
     <string name="label_calc">電卓</string>
 
@@ -9,11 +8,7 @@
     <string name="navigation_open">open drawer</string>
     <string name="navigation_close">close drawer</string>
 
-    <string name="drawer_sales">売上表</string>
-    <string name="drawer_items">商品表</string>
-    <string name="drawer_employee">従業員表</string>
     <string name="drawer_setting">設定</string>
-    <string name="drawer_update">更新チェック</string>
 
     <string name="dialog_kakunin">かくにん</string>
 </resources>

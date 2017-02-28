@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import info.nukoneko.cuc.android.kidspos.R;
 
 public class YesNoDialog extends DialogFragment {
@@ -69,12 +71,7 @@ public class YesNoDialog extends DialogFragment {
         try {
             view = getActivity().getLayoutInflater().inflate(R.layout.dialog_yesno, null, false);
         } catch (Exception ignore) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dismiss();
-                }
-            });
+            getActivity().runOnUiThread(() -> dismiss());
         }
 
         assert view != null;
@@ -88,38 +85,27 @@ public class YesNoDialog extends DialogFragment {
 
         vTitle.setText(title);
 
-        vPriceView.setText(String.valueOf(price) + "円");
-        vReceiveView.setText(String.valueOf(receive) + "円");
+        vPriceView.setText(String.format(Locale.getDefault(),
+                "%d円", price));
+        vReceiveView.setText(String.format(Locale.getDefault(),
+                "%d円", receive));
 
         if (hasListener()) {
             button.setVisibility(View.VISIBLE);
             if (this.positive != null) {
                 bPositive.setVisibility(View.VISIBLE);
                 if(positive.getListener() == null){
-                    bPositive.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dismiss();
-                        }
-                    });
+                    bPositive.setOnClickListener(view1 -> dismiss());
                 }else {
-                    bPositive.setOnClickListener(new View.OnClickListener() {
-                        @Override public void onClick(View v) { positive.getListener().onClick(dialog);}
-                    });
+                    bPositive.setOnClickListener(v -> positive.getListener().onClick(dialog));
                 }
             }
             if (this.negative != null) {
                 bNegative.setVisibility(View.VISIBLE);
                 if(negative.getListener() == null){
-                    bNegative.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {dismiss();}
-                    });
+                    bNegative.setOnClickListener(view12 -> dismiss());
                 }else {
-                    bNegative.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) { negative.getListener().onClick(dialog);}
-                    });
+                    bNegative.setOnClickListener(v -> negative.getListener().onClick(dialog));
                 }
             }
         }

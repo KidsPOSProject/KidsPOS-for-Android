@@ -17,8 +17,8 @@
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
         android:ellipsize="end"
-        android:singleLine="true"
-        android:gravity="center_vertical|right"/>
+        android:gravity="center_vertical|right"
+        android:maxLines="1" />
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
@@ -26,10 +26,10 @@
         android:text="あいてむあいてむあいてむあいてむあいてむ"
         android:padding="8dp"
         android:ellipsize="end"
-        android:singleLine="true"
         android:gravity="center"
         android:textSize="30sp"
         android:layout_toStartOf="@id/price"
-        android:layout_toLeftOf="@id/price"/>
+        android:layout_toLeftOf="@id/price"
+        android:maxLines="1" />
 </RelativeLayout>
 </layout>

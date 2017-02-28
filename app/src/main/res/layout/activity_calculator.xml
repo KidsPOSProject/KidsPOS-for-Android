@@ -17,7 +17,7 @@
             android:text="きんがく"
             android:textSize="30sp"
             android:gravity="center|center_vertical"
-            android:singleLine="true"/>
+            android:maxLines="1" />
         <TextView
             android:id="@+id/account"
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:textSize="30sp"
             android:padding="8dp"
             android:gravity="center_vertical|right"
-            android:singleLine="true"/>
+            android:maxLines="1" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
             android:text="うけとり"
             android:textSize="30sp"
             android:gravity="center|center_vertical"
-            android:singleLine="true"/>
+            android:maxLines="1" />
         <TextView
             android:id="@+id/money"
             android:layout_width="match_parent"
@@ -50,7 +50,7 @@
             android:textSize="30sp"
             android:padding="8dp"
             android:gravity="center_vertical|right"
-            android:singleLine="true"/>
+            android:maxLines="1" />
     </LinearLayout>
     <info.nukoneko.cuc.android.kidspos.ui.view.CalcView
         android:id="@+id/calc"
