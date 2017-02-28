@@ -49,6 +49,6 @@ public class SplashActivity extends CommonActivity {
     }
     void startActivity(){
         if(isFinishing()) return;
-        startActivity(new Intent(getApplicationContext(), TopPageActivity.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
     }
 }
