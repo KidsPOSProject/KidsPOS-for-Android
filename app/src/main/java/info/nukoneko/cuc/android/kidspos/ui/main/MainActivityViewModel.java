@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
 
+import android.databinding.BaseObservable;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.view.View;
@@ -8,7 +9,7 @@ import android.view.View;
 import info.nukoneko.kidspos4j.model.ModelStaff;
 import info.nukoneko.kidspos4j.model.ModelStore;
 
-public final class MainActivityViewModel {
+public final class MainActivityViewModel extends BaseObservable {
     public interface Listener {
         void onClickClear(View view);
         void onClickAccount(View view);
@@ -32,6 +33,7 @@ public final class MainActivityViewModel {
 
     public void setSumPrice(int sumPrice) {
         this.mSumPrice.set(sumPrice);
+        notifyChange();
     }
 
     public void initSumPrice() {

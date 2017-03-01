@@ -3,11 +3,9 @@ package info.nukoneko.cuc.android.kidspos;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
-import info.nukoneko.cuc.android.kidspos.util.SQLiteAdapter;
+import info.nukoneko.cuc.android.kidspos.manager.StoreManager;
 import info.nukoneko.kidspos4j.KidsPos4jConfig;
-import info.nukoneko.kidspos4j.util.config.SQLiteSetting;
 
 public class AppController extends Application {
 
@@ -17,9 +15,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        KidsPos4jConfig.setDebug(true);
-
-        SQLiteSetting.setSqlProvider(new SQLiteAdapter());
+        KidsPos4jConfig.setDebug(false);
 
         KidsPos4jConfig.setDefaultUrl(false, "192.168.0.220:9500");
 

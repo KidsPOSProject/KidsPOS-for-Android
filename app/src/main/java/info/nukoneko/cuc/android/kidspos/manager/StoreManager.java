@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos;
+package info.nukoneko.cuc.android.kidspos.manager;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
