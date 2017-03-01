@@ -8,10 +8,10 @@ import android.support.v7.app.ActionBar;
 import android.view.Window;
 
 import info.nukoneko.cuc.android.kidspos.R;
-import info.nukoneko.cuc.android.kidspos.common.CommonActivity;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivitySplashBinding;
+import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
 
-public class SplashActivity extends CommonActivity {
+public class SplashActivity extends BaseActivity {
     Handler handler;
     myRunnable task;
 

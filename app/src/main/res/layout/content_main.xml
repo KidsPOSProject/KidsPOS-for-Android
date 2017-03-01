@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:textSize="24sp"
-            android:text="15312 リバー"
+            android:text='@{String.format("%d リバー", viewModel.sumPrice)}'
             android:gravity="end"
             android:layout_alignParentTop="true"
             android:background="#E0E0E0"/>
@@ -63,6 +63,7 @@
                 android:onClick="@{listener::onClickAccount}" />
         </LinearLayout>
         <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/price_view"

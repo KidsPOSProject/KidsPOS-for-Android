@@ -1,12 +1,12 @@
 package info.nukoneko.cuc.android.kidspos.ui.common;
 
-
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
-public abstract class BaseActivity extends AppCompatActivity {
+import com.trello.rxlifecycle.components.support.RxAppCompatActivity;
+
+public abstract class BaseActivity extends RxAppCompatActivity {
     private String mInputValue = "";
     private boolean mFlip = false;
 

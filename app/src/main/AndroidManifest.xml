@@ -24,10 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="info.nukoneko.cuc.android.kidspos.ui.main.TopPageActivity"
-            android:label="@string/label_toppage"
-            android:screenOrientation="landscape"/>
 
         <activity android:name="info.nukoneko.cuc.android.kidspos.ui.main.CalculatorActivity" android:label="@string/label_calc"
             android:screenOrientation="landscape"/>

@@ -85,10 +85,8 @@ public class YesNoDialog extends DialogFragment {
 
         vTitle.setText(title);
 
-        vPriceView.setText(String.format(Locale.getDefault(),
-                "%d円", price));
-        vReceiveView.setText(String.format(Locale.getDefault(),
-                "%d円", receive));
+        vPriceView.setText(String.format(Locale.getDefault(), "%d円", price));
+        vReceiveView.setText(String.format(Locale.getDefault(), "%d円", receive));
 
         if (hasListener()) {
             button.setVisibility(View.VISIBLE);
