@@ -3,18 +3,19 @@ package info.nukoneko.cuc.android.kidspos.ui.setting;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 
-public class SettingActivity extends PreferenceActivity {
+import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
+
+public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SettingFragment()).commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, new SettingsFragment()).commit();
     }
 
     public static void startActivity(Context context) {
-        context.startActivity(new Intent(context, SettingActivity.class));
+        context.startActivity(new Intent(context, SettingsActivity.class));
     }
 }

@@ -1,10 +1,10 @@
 package info.nukoneko.cuc.android.kidspos.ui.view;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;

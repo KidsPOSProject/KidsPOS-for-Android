@@ -3,19 +3,23 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.util.List;
 
-import info.nukoneko.cuc.android.kidspos.AppController;
+import info.nukoneko.cuc.android.kidspos.KPApplicationController;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityCalculatorBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
+import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
 import info.nukoneko.cuc.android.kidspos.ui.view.CalcView;
 import info.nukoneko.cuc.android.kidspos.ui.view.YesNoDialog;
@@ -86,50 +90,55 @@ public class CalculatorActivity extends BaseActivity implements CalcView.OnItemC
         binding.money.setText(String.valueOf(this.mReceiveMoney));
     }
 
+    private DialogFragment mDialogFragment = null;
+
     @Override
     public void onClickEnd() {
         if(!this.isValueCheck()) return;
 
-        YesNoDialog dialog = YesNoDialog.newInstance(R.string.dialog_kakunin, this.sumPrice, this.mReceiveMoney);
-        dialog.setNegativeInterface(Dialog::cancel);
-
-        dialog.setPositiveInterface(dialog1 -> {
-            send();
-            dialog1.cancel();
-            setActivityResult(true);
-        });
-        dialog.show(getFragmentManager(), "yesno");
+        mDialogFragment = YesNoDialog.newInstance(R.string.dialog_kakunin, this.sumPrice, this.mReceiveMoney);
+        ((YesNoDialog)mDialogFragment).setNegativeInterface(Dialog::cancel);
+        ((YesNoDialog)mDialogFragment).setPositiveInterface(dialog1 -> send());
+        mDialogFragment.setCancelable(false);
+        mDialogFragment.show(getSupportFragmentManager(), "yesNoDialog");
     }
 
     public boolean isValueCheck(){
         return sumPrice <= this.mReceiveMoney;
     }
 
+    private int mErrorCount = 0;
     public void send() {
         String sum = "";
         for (ModelItem item : this.mItems) {
             sum += String.valueOf(item.getId()) + ",";
         }
         sum = sum.substring(0, sum.length() - 1);
-        final ModelStaff staff = AppController.get(this).getStoreManager().getCurrentStaff();
-        final ModelStore store = AppController.get(this).getStoreManager().getCurrentStore();
+        final ModelStaff staff = getApp().getCurrentStaff();
+        final ModelStore store = getApp().getCurrentStore();
         String staffBarcode = staff == null ? "" : staff.getBarcode();
 
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setTitle("送信しています");
-        RxWrap.create(APIManager.Sale().createSale(mReceiveMoney, mItems.length,
-                this.sumPrice,
-                sum,
-                store.getId(), staffBarcode), dialog, bindToLifecycle())
-                .subscribe(modelSale -> {
-                    KPEventBusProvider.getInstance().send(new KPEventSendFinish());
-                }, throwable -> {
-                    throwable.printStackTrace();
-                    KPEventBusProvider.getInstance().send(new KPEventSendFinish());
-                });
+        if (getApp().isPracticeModeEnabled()) {
+            Toast.makeText(this, "練習モードのためレシートは出ません", Toast.LENGTH_SHORT).show();
+            finishActivity();
+        } else {
+            final ProgressDialog dialog = new ProgressDialog(this);
+            dialog.setTitle("送信しています");
+            RxWrap.create(APIManager.Sale().createSale(mReceiveMoney, mItems.length,
+                    this.sumPrice, sum,
+                    store.getId(), staffBarcode), dialog, bindToLifecycle())
+                    .subscribe(modelSale -> {
+                        finishActivity();
+                    }, throwable -> {
+                        AlertUtil.showErrorDialog(this, throwable,
+                                1 > mErrorCount ? null : (DialogInterface.OnClickListener) (dialog1, which) -> finishActivity());
+                    });
+        }
     }
 
-    private void setActivityResult(Boolean result){
+    private void finishActivity() {
+        if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
+        KPEventBusProvider.getInstance().send(new KPEventSendFinish());
         finish();
     }
 }

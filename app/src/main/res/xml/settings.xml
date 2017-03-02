@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="基本設定">
+        <EditTextPreference
+            android:key="settings_server_ip"
+            android:title="@string/settings_server_ip" />
+        <SwitchPreferenceCompat
+            android:key="settings_enable_practice_mode"
+            android:title="@string/settings_enable_practice_mode" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="特別な設定">
+        <SwitchPreferenceCompat
+            android:key="settings_enable_debug_mode"
+            android:title="@string/settings_enable_debug_mode" />
+    </PreferenceCategory>
+</PreferenceScreen>
