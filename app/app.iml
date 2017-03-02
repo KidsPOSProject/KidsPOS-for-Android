@@ -96,6 +96,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/appcompat-v7/25.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/cardview-v7/25.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/25.1.1/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/preference-v7/25.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/25.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-compat/25.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.1/jars" />
@@ -167,6 +168,7 @@
     <orderEntry type="library" exported="" name="baseLibrary-2.2.3" level="project" />
     <orderEntry type="library" exported="" name="support-core-utils-25.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-fragment-25.1.1" level="project" />
+    <orderEntry type="library" exported="" name="preference-v7-25.1.1" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.8.7" level="project" />
     <orderEntry type="library" exported="" name="sqlite-jdbc-3.16.1" level="project" />
     <orderEntry type="library" exported="" name="adapter-rxjava-2.2.0" level="project" />

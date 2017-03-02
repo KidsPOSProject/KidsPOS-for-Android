@@ -20,14 +20,15 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSubPrice;
-import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
+import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
+import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.ModelItem;
 import info.nukoneko.kidspos4j.model.ModelStore;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public final class MainActivity extends BaseActivity
+public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
     private ActivityMainBinding mBinding;
     private NavHeaderMainBinding mHeaderMainBinding;
@@ -85,7 +86,9 @@ public final class MainActivity extends BaseActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-
+            case R.id.setting:
+                SettingsActivity.startActivity(this);
+                break;
         }
         mBinding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -103,7 +106,7 @@ public final class MainActivity extends BaseActivity
     }
 
     @Override
-    protected void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
+    public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
         if (mIsDebugMode) {
             final ModelItem item = new ModelItem();
             item.setName("ダミー");

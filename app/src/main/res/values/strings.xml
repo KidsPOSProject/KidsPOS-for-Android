@@ -18,4 +18,10 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="DrawerTitleSettings">設定</string>
+
+    <!-- Settings -->
+    <string name="settings_server_ip">サーバーIPアドレス</string>
+    <string name="settings_enable_practice_mode">練習モード</string>
+
+    <string name="settings_enable_debug_mode">デバッグモード</string>
 </resources>
