@@ -27,6 +27,7 @@ import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import info.nukoneko.cuc.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.util.config.BarcodeRule;
 import rx.android.schedulers.AndroidSchedulers;
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -144,10 +145,10 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      * @param type barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
+    public void onInputBarcode(@NonNull String barcode, BarcodeRule.BARCODE_PREFIX type) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
-            if (type == BARCODE_TYPE.UNKNOWN) {
+            if (type == BarcodeRule.BARCODE_PREFIX.UNKNOWN) {
                 mAdapter.add(KPPracticeTool.findModelItem(barcode));
                 mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
                 return;
@@ -185,7 +186,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                                 AlertUtil.showAlert(this, "登録されてないスタッフ", "当日に登録したスタッフの場合、別途登録が必要です");
                             });
                     break;
-                case SALE_INFO:
+                case SALE:
                     Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
                     break;
                 case UNKNOWN:
