@@ -1,4 +1,3 @@
-.gradle/*
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
@@ -7,3 +6,9 @@
 
 /captures
 .externalNativeBuild
+
+/projectFilesBackup
+.gradle/
+.idea/fileTemplates/code/
+.idea/fileTemplates/internal/
+.idea/fileTemplates/j2ee/
