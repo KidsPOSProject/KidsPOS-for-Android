@@ -3,8 +3,8 @@ package info.nukoneko.cuc.android.kidspos.util;
 
 import android.support.annotation.NonNull;
 
-import info.nukoneko.kidspos4j.model.ModelItem;
-import info.nukoneko.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.model.ModelItem;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 
 public final class KPPracticeTool {
     public static ModelItem findModelItem(@NonNull String barcode) {
