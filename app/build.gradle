@@ -8,8 +8,8 @@ android {
         applicationId "info.nukoneko.cuc.android.kidspos"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -73,7 +73,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'com.trello:rxlifecycle-components:1.0'
     // Core
-    compile 'com.github.KidsPOSProject:KidsPOS4j:1.0.1'
+    compile 'com.github.KidsPOSProject:KidsPOS4j:1.0.3'
     testCompile 'junit:junit:4.12'
 }
 
