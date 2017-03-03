@@ -1,6 +1,5 @@
-package info.nukoneko.cuc.android.kidspos.ui.main;
+package info.nukoneko.cuc.android.kidspos.ui.calculator;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -21,15 +20,13 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
-import info.nukoneko.cuc.android.kidspos.ui.view.CalcView;
-import info.nukoneko.cuc.android.kidspos.ui.view.YesNoDialog;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.ModelItem;
 import info.nukoneko.kidspos4j.model.ModelStaff;
 import info.nukoneko.kidspos4j.model.ModelStore;
 
-public class CalculatorActivity extends BaseActivity implements CalcView.OnItemClickListener {
+public class CalculatorActivity extends BaseActivity implements CalcView.Listener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
     private static final String EXTRA_MODEL_SALES = "EXTRA_MODEL_SALES";
 
@@ -46,8 +43,6 @@ public class CalculatorActivity extends BaseActivity implements CalcView.OnItemC
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_calculator);
-
-        binding.calc.setOnItemClickListener(this);
 
         Bundle extras = getIntent().getExtras();
         this.sumPrice = extras.getInt(EXTRA_VALUE);
