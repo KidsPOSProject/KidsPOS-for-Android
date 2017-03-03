@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.MainActivityViewModel" />
@@ -45,13 +46,26 @@
                 android:textColor="@android:color/white"
                 style="?buttonBarButtonStyle"
                 android:onClick="@{listener::onClickClear}" />
-            <TextView
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.8"
                 android:layout_margin="4dp"
-                android:gravity="center_vertical"
-                android:text="たんとうしゃ： \nたなか"/>
+                android:orientation="vertical"
+                android:visibility="@{viewModel.currentStaff == null ? View.INVISIBLE : View.VISIBLE}">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.4"
+                    android:gravity="center_vertical"
+                    android:text="たんとう:"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.6"
+                    android:gravity="center_vertical"
+                    android:text='@{viewModel.currentStaff == null ? "" : viewModel.currentStaff.name}'/>
+            </LinearLayout>
             <Button
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -60,13 +74,17 @@
                 android:layout_margin="4dp"
                 android:text="@string/account"
                 style="?buttonBarButtonStyle"
-                android:onClick="@{listener::onClickAccount}" />
+                android:onClick="@{listener::onClickAccount}"
+                android:enabled="@{viewModel.sumPrice > 0}"/>
         </LinearLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/price_view"
-            android:layout_above="@id/bottom_layout"/>
+            android:layout_above="@id/bottom_layout"
+            android:background="#303030"
+            app:layoutManager="GridLayoutManager"
+            app:spanCount="3"/>
     </RelativeLayout>
 </layout>

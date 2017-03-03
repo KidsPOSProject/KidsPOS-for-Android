@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
+import info.nukoneko.kidspos4j.KidsPos4jConfig;
+import info.nukoneko.kidspos4j.util.config.BarcodeCreator;
+
 public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     private String mInputValue = "";
     private boolean mFlip = false;
@@ -34,7 +37,10 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if (TextUtils.isEmpty(mInputValue)) return false;
             if (mInputValue.length() == 10) {
+                onInputBarcode(mInputValue, BARCODE_TYPE.typeOf(mInputValue));
+            } else if (getApp().isPracticeModeEnabled()) {
                 onInputBarcode(mInputValue, BARCODE_TYPE.typeOf(mInputValue));
             }
             mInputValue = "";

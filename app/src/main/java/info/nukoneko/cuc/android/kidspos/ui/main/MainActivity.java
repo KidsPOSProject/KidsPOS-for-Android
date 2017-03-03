@@ -57,7 +57,6 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
         mAdapter = new MainItemViewAdapter(this);
         mBinding.appBarLayout.contentMain.recyclerView.setAdapter(mAdapter);
-        mBinding.appBarLayout.contentMain.recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         KPEventBusProvider.getInstance().toObservable()
                 .compose(bindToLifecycle())
@@ -67,6 +66,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
                     } else if (event instanceof KPEventUpdateSumPrice) {
                         mViewModel.setSumPrice(((KPEventUpdateSumPrice) event).getCurrentValue());
+                        mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
                     } else if (event instanceof KPEventSendFinish) {
                         mAdapter.clear();
                     }
