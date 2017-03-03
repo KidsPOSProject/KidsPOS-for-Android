@@ -1,6 +1,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="info.nukoneko.cuc.kidspos">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="info.nukoneko.cuc.android.kidspos">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -8,33 +9,40 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".AppController"
+        android:name=".KPApplicationController"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:logo="@drawable/river_kun1"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
-            android:name=".activity.SplashActivity"
-            android:label="キッズビジネスタウンいちかわ"
+            android:name=".ui.main.LaunchActivity"
+            android:label="@string/app_name"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".activity.TopPageActivity"
-            android:label="@string/label_toppage"
-            android:screenOrientation="landscape"/>
-
-        <activity android:name=".activity.CalculatorActivity" android:label="@string/label_calc"
-            android:screenOrientation="landscape"/>
-
-        <activity android:name=".setting.SettingActivity" android:label="@string/drawer_setting"
-            android:screenOrientation="landscape"/>
-
-        <activity android:name=".activity.ItemListActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:icon="@drawable/river_kun1"
+            android:name=".ui.main.MainActivity"
+            android:label="@string/app_name"
             android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".ui.calculator.CalculatorActivity"
+            android:label="@string/label_calc"
+            android:screenOrientation="landscape"/>
+
+        <activity
+            android:name=".ui.setting.SettingsActivity"
+            android:label="@string/drawer_setting"
+            android:screenOrientation="landscape"/>
+
     </application>
 
 </manifest>
