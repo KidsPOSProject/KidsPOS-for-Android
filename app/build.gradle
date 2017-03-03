@@ -2,26 +2,25 @@ apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    signingConfigs {
-        config {
-        }
-    }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     dataBinding {
         enabled true
     }
+
     lintOptions {
         abortOnError false
     }
+
     buildTypes {
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
@@ -41,6 +40,7 @@ android {
             proguardFiles 'proguard-rules.pro'
         }
     }
+    
     packagingOptions {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/LICENSE.txt'
