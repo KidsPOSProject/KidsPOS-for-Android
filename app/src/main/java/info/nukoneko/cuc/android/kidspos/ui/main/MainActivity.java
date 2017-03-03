@@ -26,7 +26,9 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.util.config.BarcodeRule;
 import rx.android.schedulers.AndroidSchedulers;
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -144,53 +146,47 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      * @param type barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
+    public void onInputBarcode(@NonNull String barcode, BarcodeRule.BARCODE_PREFIX type) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
-            if (type == BARCODE_TYPE.UNKNOWN) {
+            if (type == BarcodeRule.BARCODE_PREFIX.UNKNOWN) {
                 mAdapter.add(KPPracticeTool.findModelItem(barcode));
                 mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
                 return;
             }
         }
-        if (getApp().isPracticeModeEnabled()) {
-            // 練習モードが有効な場合、データはアプリ内から取得する
-            switch (type) {
-                case ITEM:
-                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
-                    break;
-                case STAFF:
-                    mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
-                    break;
-                case UNKNOWN:
-                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
-                    break;
-            }
-        } else {
-            // サーバから取得する
-            switch (type) {
-                case ITEM:
-                    RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
-                            .subscribe(item -> {
-                                mAdapter.add(item);
-                            }, throwable -> {
-                                Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
-                            });
-                    break;
-                case STAFF:
-                    RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
-                            .subscribe(modelStaff -> {
-                                getApp().updateCurrentStaff(modelStaff);
-                            }, throwable -> {
-                                AlertUtil.showAlert(this, "登録されてないスタッフ", "当日に登録したスタッフの場合、別途登録が必要です");
-                            });
-                    break;
-                case SALE_INFO:
-                    Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
-                    break;
-                case UNKNOWN:
-                    break;
-            }
+
+        // サーバから取得する
+        switch (type) {
+            case ITEM:
+                RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
+                        .subscribe(item -> {
+                            mAdapter.add(item);
+                        }, throwable -> {
+                            Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                        });
+                break;
+            case STAFF:
+                RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
+                        .subscribe(modelStaff -> {
+                            getApp().updateCurrentStaff(modelStaff);
+                        }, throwable -> {
+                            Toast.makeText(this, "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
+                            getApp().updateCurrentStaff(getDummyStaff(barcode));
+                        });
+                break;
+            case SALE:
+                Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
+                break;
+            case UNKNOWN:
+                break;
         }
+    }
+
+    private ModelStaff getDummyStaff(String barcode) {
+        final ModelStaff staff = new ModelStaff();
+        staff.setBarcode(barcode);
+        staff.setName("スタッフ");
+        return staff;
     }
 }

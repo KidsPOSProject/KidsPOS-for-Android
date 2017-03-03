@@ -15,9 +15,9 @@ import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 import info.nukoneko.cuc.android.kidspos.util.manager.KPSettingsManager;
 import info.nukoneko.cuc.android.kidspos.util.manager.KPStoreManager;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.KidsPos4jConfig;
-import info.nukoneko.kidspos4j.model.ModelStaff;
-import info.nukoneko.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.kidspos4j.KidsPos4jConfig;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 import rx.Observable;
 
 public class KPApplicationController extends Application {

@@ -15,7 +15,7 @@ import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
-import info.nukoneko.kidspos4j.model.ModelItem;
+import info.nukoneko.cuc.kidspos4j.model.ModelItem;
 
 @SuppressWarnings("WeakerAccess")
 public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
