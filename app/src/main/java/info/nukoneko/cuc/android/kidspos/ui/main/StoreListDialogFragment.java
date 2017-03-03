@@ -24,8 +24,8 @@ import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.api.APIManager;
-import info.nukoneko.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
 public final class StoreListDialogFragment extends BaseDialogFragment {
     public static StoreListDialogFragment newInstance() {

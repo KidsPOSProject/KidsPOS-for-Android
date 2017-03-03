@@ -26,7 +26,7 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.api.APIManager;
 import rx.android.schedulers.AndroidSchedulers;
 
 @SuppressWarnings("FieldCanBeLocal")
