@@ -26,7 +26,7 @@ import info.nukoneko.kidspos4j.model.ModelItem;
 import info.nukoneko.kidspos4j.model.ModelStaff;
 import info.nukoneko.kidspos4j.model.ModelStore;
 
-public class CalculatorActivity extends BaseActivity implements CalcView.Listener {
+public class CalculatorActivity extends BaseActivity implements CalcView.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
     private static final String EXTRA_MODEL_SALES = "EXTRA_MODEL_SALES";
 
@@ -90,9 +90,7 @@ public class CalculatorActivity extends BaseActivity implements CalcView.Listene
     public void onClickEnd() {
         if(!this.isValueCheck()) return;
 
-        mDialogFragment = YesNoDialog.newInstance(R.string.dialog_kakunin, this.sumPrice, this.mReceiveMoney);
-        ((YesNoDialog)mDialogFragment).setNegativeInterface(Dialog::cancel);
-        ((YesNoDialog)mDialogFragment).setPositiveInterface(dialog1 -> send());
+        mDialogFragment = AccountResultDialogFragment.newInstance(R.string.dialog_kakunin, this.sumPrice, this.mReceiveMoney);
         mDialogFragment.setCancelable(false);
         mDialogFragment.show(getSupportFragmentManager(), "yesNoDialog");
     }
@@ -134,5 +132,15 @@ public class CalculatorActivity extends BaseActivity implements CalcView.Listene
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
         KPEventBusProvider.getInstance().send(new KPEventSendFinish());
         finish();
+    }
+
+    @Override
+    public void onClickPositiveButton(Dialog dialog) {
+        send();
+    }
+
+    @Override
+    public void onClickNegativeButton(Dialog dialog) {
+        dialog.cancel();
     }
 }
