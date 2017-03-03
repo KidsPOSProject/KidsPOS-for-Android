@@ -9,15 +9,15 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name="info.nukoneko.cuc.android.kidspos.KPApplicationController"
+        android:name=".KPApplicationController"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
         android:logo="@drawable/river_kun1"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
-            android:name="info.nukoneko.cuc.android.kidspos.ui.main.SplashActivity"
+            android:name=".ui.main.LaunchActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -26,19 +26,22 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.main.CalculatorActivity" android:label="@string/label_calc"
-            android:screenOrientation="landscape"/>
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:icon="@drawable/river_kun1"
+            android:name=".ui.main.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" />
 
-        <activity android:name="info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity" android:label="@string/drawer_setting"
+        <activity
+            android:name=".ui.calculator.CalculatorActivity"
+            android:label="@string/label_calc"
             android:screenOrientation="landscape"/>
 
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="landscape"
-            android:label="POSシステム"
-            android:name=".ui.main.MainActivity" />
-
-        <service android:name=".util.service.PracticeModeViewService" />
+            android:name=".ui.setting.SettingsActivity"
+            android:label="@string/drawer_setting"
+            android:screenOrientation="landscape"/>
 
     </application>
 

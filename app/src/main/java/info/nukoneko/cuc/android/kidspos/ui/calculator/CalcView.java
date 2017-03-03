@@ -1,6 +1,7 @@
-package info.nukoneko.cuc.android.kidspos.ui.view;
+package info.nukoneko.cuc.android.kidspos.ui.calculator;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +13,18 @@ import butterknife.OnClick;
 import info.nukoneko.cuc.android.kidspos.R;
 
 public class CalcView extends LinearLayout {
-
-    OnItemClickListener mListener;
+    public interface Listener {
+        void onClickNumber(int number);
+        void onClickClear();
+        void onClickEnd();
+    }
 
     @OnClick({
             R.id.calc_num_0, R.id.calc_num_1, R.id.calc_num_2, R.id.calc_num_3, R.id.calc_num_4,
             R.id.calc_num_5, R.id.calc_num_6, R.id.calc_num_7, R.id.calc_num_8, R.id.calc_num_9,
     }) void onClickNumber(Button numberButton){
-        if (this.mListener == null) return;
-        int number = 0;
+        if (getListener() == null) return;
+        final int number;
         switch (numberButton.getId()){
             case R.id.calc_num_0:
                 number = 0;
@@ -52,18 +56,23 @@ public class CalcView extends LinearLayout {
             case R.id.calc_num_9:
                 number = 9;
                 break;
+            default:
+                number = 0;
+                break;
         }
-        this.mListener.onClickNumber(number);
+        getListener().onClickNumber(number);
     }
 
     @OnClick(R.id.calc_num_C) void onClickClear(){
-        if (this.mListener == null) return;
-        this.mListener.onClickClear();
+        if (getListener() != null) {
+            getListener().onClickClear();
+        }
     }
 
     @OnClick(R.id.calc_num_end) void onClickEnd(){
-        if (this.mListener == null) return;
-        this.mListener.onClickEnd();
+        if (getListener() != null) {
+            getListener().onClickEnd();
+        }
     }
 
     public CalcView(Context context) {
@@ -80,13 +89,8 @@ public class CalcView extends LinearLayout {
         ButterKnife.bind(this, view);
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener){
-        this.mListener = listener;
-    }
-
-    public interface OnItemClickListener{
-        void onClickNumber(int number);
-        void onClickClear();
-        void onClickEnd();
+    @Nullable
+    private Listener getListener() {
+        return (getContext() instanceof Listener) ? (Listener) getContext() : null;
     }
 }

@@ -52,7 +52,7 @@
             android:gravity="center_vertical|right"
             android:maxLines="1" />
     </LinearLayout>
-    <info.nukoneko.cuc.android.kidspos.ui.view.CalcView
+    <info.nukoneko.cuc.android.kidspos.ui.calculator.CalcView
         android:id="@+id/calc"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

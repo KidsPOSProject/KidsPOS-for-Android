@@ -20,19 +20,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.settings);
-
-        {
-            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_IP);
-            pref.setSummary(pref.getText());
-        }
-        {
-            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_PORT);
-            pref.setSummary(pref.getText());
-        }
-        {
-            SwitchPreferenceCompat pref = (SwitchPreferenceCompat) findPreference(KPSettingsManager.KEY_ENABLE_PRACTICE_MODE);
-            pref.setSummary(pref.isChecked() ? "練習モード" : "通常モード");
-        }
+        updateSummaries();
     }
 
     @Override
@@ -44,23 +32,35 @@ public class SettingsFragment extends PreferenceFragmentCompat
             case KPSettingsManager.KEY_SERVER_IP:
                 final String ip = sharedPreferences.getString(key, "");
                 if (TextUtils.isEmpty(ip) || !MiscUtil.isIpAddressValid(ip)) {
-                    AlertUtil.showErrorDialog(getContext(), "IPアドレスが間違っています", false,
-                            (dialog, which) -> {
-                                sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_IP).apply();
-                            });
+                    AlertUtil.showErrorDialog(getContext(), "IPアドレスが間違っています", false, null);
+                    sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_IP).apply();
                     return;
                 }
                 break;
             case KPSettingsManager.KEY_SERVER_PORT:
                 final String port = sharedPreferences.getString(key, "");
                 if (TextUtils.isEmpty(port) || !MiscUtil.isPortValid(port)) {
-                    AlertUtil.showErrorDialog(getContext(), "ポートが間違っています", false,
-                            (dialog, which) -> {
-                                sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_PORT).apply();
-                            });
+                    AlertUtil.showErrorDialog(getContext(), "ポートが間違っています", false, null);
+                    sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_PORT).apply();
                     return;
                 }
                 break;
+        }
+        updateSummaries();
+    }
+
+    private void updateSummaries() {
+        {
+            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_IP);
+            pref.setSummary(pref.getText());
+        }
+        {
+            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_PORT);
+            pref.setSummary(pref.getText());
+        }
+        {
+            SwitchPreferenceCompat pref = (SwitchPreferenceCompat) findPreference(KPSettingsManager.KEY_ENABLE_PRACTICE_MODE);
+            pref.setSummary(pref.isChecked() ? "練習モード" : "通常モード");
         }
     }
 

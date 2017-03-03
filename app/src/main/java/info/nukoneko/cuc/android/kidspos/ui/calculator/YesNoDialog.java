@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui.view;
+package info.nukoneko.cuc.android.kidspos.ui.calculator;
 
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
@@ -86,7 +86,7 @@ public class YesNoDialog extends DialogFragment {
         vTitle.setText(title);
 
         vPriceView.setText(String.format(Locale.getDefault(), "%d リバー", price));
-        vReceiveView.setText(String.format(Locale.getDefault(), "% リバー", receive));
+        vReceiveView.setText(String.format(Locale.getDefault(), "%d リバー", receive));
 
         if (hasListener()) {
             button.setVisibility(View.VISIBLE);

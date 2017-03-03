@@ -19,6 +19,7 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
+import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
