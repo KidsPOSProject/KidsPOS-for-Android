@@ -94,8 +94,8 @@ public class KPApplicationController extends Application {
                 subscriber.onNext(true);
             } catch (IOException e) {
                 e.printStackTrace();
+                subscriber.onNext(false);
             }
-            subscriber.onNext(false);
             subscriber.onCompleted();
         }));
     }
