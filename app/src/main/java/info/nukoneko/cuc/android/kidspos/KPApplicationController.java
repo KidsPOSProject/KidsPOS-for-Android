@@ -92,7 +92,7 @@ public class KPApplicationController extends Application {
                 sock.connect(new InetSocketAddress(settingsManager.getServerIP(), Integer.parseInt(settingsManager.getServerPort())), 2000);
                 sock.close();
                 subscriber.onNext(true);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 subscriber.onNext(false);
             }
