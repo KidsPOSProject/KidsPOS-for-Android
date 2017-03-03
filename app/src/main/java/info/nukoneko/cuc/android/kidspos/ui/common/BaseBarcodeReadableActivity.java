@@ -4,9 +4,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
-import info.nukoneko.kidspos4j.KidsPos4jConfig;
-import info.nukoneko.kidspos4j.util.config.BarcodeCreator;
-
 public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     private String mInputValue = "";
     private boolean mFlip = false;
