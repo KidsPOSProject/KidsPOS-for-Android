@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Locale;
@@ -33,12 +32,7 @@ public class KPApplicationController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        storeManager = new KPStoreManager(this) {{
-            final ModelStore store = new ModelStore();
-            store.setId(1);
-            store.setName("おみせ");
-            setCurrentStore(store);
-        }};
+        storeManager = new KPStoreManager(this);
         settingsManager = new KPSettingsManager(this) {{
             if (TextUtils.isEmpty(getServerIP()) || !MiscUtil.isIpAddressValid(getServerIP())) {
                 backToDefaultIpSetting();
@@ -57,7 +51,7 @@ public class KPApplicationController extends Application {
         return (KPApplicationController) context.getApplicationContext();
     }
 
-    @NonNull
+    @Nullable
     public ModelStore getCurrentStore() {
         return storeManager.getCurrentStore();
     }
@@ -65,6 +59,14 @@ public class KPApplicationController extends Application {
     @Nullable
     public ModelStaff getCurrentStaff() {
         return storeManager.getCurrentStaff();
+    }
+
+    public void updateCurrentStore(ModelStore store) {
+        storeManager.setCurrentStore(store);
+    }
+
+    public void updateCurrentStaff(ModelStaff staff) {
+        storeManager.setCurrentStaff(staff);
     }
 
     public boolean isPracticeModeEnabled() {
