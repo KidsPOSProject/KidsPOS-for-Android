@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
-import info.nukoneko.cuc.android.kidspos.databinding.NavHeaderMainBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;

@@ -1,7 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
