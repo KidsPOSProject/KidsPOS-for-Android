@@ -38,9 +38,11 @@ public final class MainActivityViewModel extends BaseObservable {
 
     public void setCurrentStore(ModelStore currentStore) {
         this.mCurrentStore.set(currentStore);
+        notifyChange();
     }
 
     public void setCurrentStaff(ModelStaff currentStaff) {
         this.mCurrentStaff.set(currentStaff);
+        notifyChange();
     }
 }
