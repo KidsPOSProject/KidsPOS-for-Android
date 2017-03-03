@@ -18,6 +18,8 @@ import info.nukoneko.cuc.android.kidspos.databinding.NavHeaderMainBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStaff;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStore;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
 import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
@@ -28,6 +30,7 @@ import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import info.nukoneko.kidspos4j.api.APIManager;
 import rx.android.schedulers.AndroidSchedulers;
 
+@SuppressWarnings("FieldCanBeLocal")
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding mBinding;
@@ -57,6 +60,9 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         mAdapter = new MainItemViewAdapter(this);
         mBinding.appBarLayout.contentMain.recyclerView.setAdapter(mAdapter);
 
+        mViewModel.setCurrentStore(getApp().getCurrentStore());
+        mViewModel.setCurrentStaff(getApp().getCurrentStaff());
+
         KPEventBusProvider.getInstance().toObservable()
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -70,6 +76,10 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         }
                     } else if (event instanceof KPEventSendFinish) {
                         mAdapter.clear();
+                    } else if (event instanceof KPEventUpdateStore) {
+                        mViewModel.setCurrentStore(((KPEventUpdateStore) event).getStore());
+                    } else if (event instanceof KPEventUpdateStaff) {
+                        mViewModel.setCurrentStaff(((KPEventUpdateStaff) event).getStaff());
                     }
                 });
     }
@@ -77,8 +87,6 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mViewModel.setCurrentStore(getApp().getCurrentStore());
-        mViewModel.setCurrentStaff(getApp().getCurrentStaff());
 
         String title = getString(R.string.app_name);
         if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
@@ -105,6 +113,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         switch (item.getItemId()) {
             case R.id.setting:
                 SettingsActivity.startActivity(this);
+                break;
+            case R.id.change_store:
                 break;
         }
         mBinding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -164,7 +174,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 case STAFF:
                     RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
                             .subscribe(modelStaff -> {
-                                mViewModel.setCurrentStaff(modelStaff);
+                                getApp().updateCurrentStaff(modelStaff);
                             }, throwable -> {
                                 AlertUtil.showAlert(this, "登録されてないスタッフ", "当日に登録したスタッフの場合、別途登録が必要です");
                             });
