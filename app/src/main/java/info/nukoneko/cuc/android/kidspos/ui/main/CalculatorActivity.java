@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import info.nukoneko.cuc.android.kidspos.KPApplicationController;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityCalculatorBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;

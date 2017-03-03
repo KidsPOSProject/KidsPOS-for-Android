@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSubPrice;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
 import info.nukoneko.kidspos4j.model.ModelItem;
 
 @SuppressWarnings("WeakerAccess")
@@ -58,13 +58,13 @@ public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemView
     public void add(@NonNull ModelItem item) {
         mData.add(0, item);
         notifyItemInserted(0);
-        KPEventBusProvider.getInstance().send(new KPEventUpdateSubPrice(getSumPrice()));
+        KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
     }
 
     public void clear() {
         mData.clear();
         notifyDataSetChanged();
-        KPEventBusProvider.getInstance().send(new KPEventUpdateSubPrice(getSumPrice()));
+        KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
     }
 
     public int getSumPrice() {

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name="info.nukoneko.cuc.android.kidspos.KPApplicationController"
@@ -36,6 +37,8 @@
             android:screenOrientation="landscape"
             android:label="POSシステム"
             android:name=".ui.main.MainActivity" />
+
+        <service android:name=".util.service.PracticeModeViewService" />
 
     </application>
 

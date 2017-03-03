@@ -20,8 +20,7 @@
     <string name="DrawerTitleSettings">設定</string>
 
     <!-- Settings -->
-    <string name="settings_server_ip">サーバーIPアドレス</string>
+    <string name="settings_server_ip">IPアドレス</string>
+    <string name="settings_server_port">接続ポート</string>
     <string name="settings_enable_practice_mode">練習モード</string>
-
-    <string name="settings_enable_debug_mode">デバッグモード</string>
 </resources>
