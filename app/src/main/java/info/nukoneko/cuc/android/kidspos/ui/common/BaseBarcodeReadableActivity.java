@@ -11,7 +11,10 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     public abstract void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type);
 
     public enum BARCODE_TYPE {
-        ITEM("1000"), STAFF("1001"), SALE_INFO("1002"), UNKNOWN("9999");
+        STAFF("1000"),
+        ITEM("1001"),
+        SALE_INFO("1002"),
+        UNKNOWN("9999");
 
         private final String prefix;
         BARCODE_TYPE(@NonNull final String prefix) {
