@@ -40,7 +40,7 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
             if (TextUtils.isEmpty(mInputValue)) return false;
             if (mInputValue.length() == 10) {
                 onInputBarcode(mInputValue, BARCODE_TYPE.typeOf(mInputValue));
-            } else if (getApp().isPracticeModeEnabled()) {
+            } else if (getApp().isPracticeModeEnabled() || getApp().isTestModeEnabled()) {
                 onInputBarcode(mInputValue, BARCODE_TYPE.typeOf(mInputValue));
             }
             mInputValue = "";

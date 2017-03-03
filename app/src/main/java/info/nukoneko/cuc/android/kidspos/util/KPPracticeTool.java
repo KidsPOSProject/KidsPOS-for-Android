@@ -4,6 +4,7 @@ package info.nukoneko.cuc.android.kidspos.util;
 import android.support.annotation.NonNull;
 
 import info.nukoneko.kidspos4j.model.ModelItem;
+import info.nukoneko.kidspos4j.model.ModelStaff;
 
 public final class KPPracticeTool {
     public static ModelItem findModelItem(@NonNull String barcode) {
@@ -12,5 +13,11 @@ public final class KPPracticeTool {
         item.setPrice(300);
         item.setBarcode(barcode);
         return item;
+    }
+    public static ModelStaff findModelStaff(@NonNull String barcode) {
+        final ModelStaff staff = new ModelStaff();
+        staff.setName("スタッフ");
+        staff.setBarcode(barcode);
+        return staff;
     }
 }

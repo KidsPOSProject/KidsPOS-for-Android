@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.GridLayoutManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -24,13 +23,12 @@ import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
+import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import info.nukoneko.kidspos4j.api.APIManager;
-import info.nukoneko.kidspos4j.model.ModelItem;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
+        implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding mBinding;
     private NavHeaderMainBinding mHeaderMainBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
@@ -80,8 +78,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         mViewModel.setCurrentStaff(getApp().getCurrentStaff());
 
         String title = getString(R.string.app_name);
-        if (getApp().isPracticeModeEnabled()) title += "(練習モード)";
-        if (getApp().isTestModeEnabled()) title += "(デバッグ中)";
+        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
+        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
 
         mBinding.appBarLayout.toolbar.setTitle(title);
 
@@ -89,7 +87,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             getApp().checkServerReachable().subscribe(reachable -> {
                 if (reachable) return;
 
-                AlertUtil.showErrorDialog(this, "サーバーとの接続に失敗しました\nネットワーク接続を確認してください\n設定画面で設定を確認をしてください",
+                AlertUtil.showErrorDialog(this, "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
                         false,
                         (dialog, which) -> {
                             SettingsActivity.startActivity(this);
@@ -117,30 +115,63 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
     @Override
     public void onClickAccount(View view) {
-        CalculatorActivity.startActivity(this, 1000, mAdapter.getSumPrice(), mAdapter.getData());
+        CalculatorActivity.startActivity(this, mAdapter.getSumPrice(), mAdapter.getData());
     }
 
+    /**
+     * 読み取ったバーコードを用いてデータを取得する。
+     * スタッフの登録作業が必要になる可能性がある
+     * @param barcode barcode
+     * @param type barcode type
+     */
     @Override
     public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
+            if (type == BARCODE_TYPE.UNKNOWN) {
+                mAdapter.add(KPPracticeTool.findModelItem(barcode));
+                mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
+                return;
+            }
         }
         if (getApp().isPracticeModeEnabled()) {
-            mAdapter.add(KPPracticeTool.findModelItem(barcode));
+            // 練習モードが有効な場合、データはアプリ内から取得する
+            switch (type) {
+                case ITEM:
+                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
+                    break;
+                case STAFF:
+                    mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
+                    break;
+                case UNKNOWN:
+                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
+                    break;
+            }
         } else {
-            APIManager.Item().readItem(barcode)
-                    .observeOn(Schedulers.newThread())
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(item -> {
-                        mAdapter.add(item);
-                    }, throwable -> {
-                        Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
-                    });
+            // サーバから取得する
+            switch (type) {
+                case ITEM:
+                    RxWrap.create(APIManager.Item().readItem(barcode))
+                            .subscribe(item -> {
+                                mAdapter.add(item);
+                            }, throwable -> {
+                                Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                            });
+                    break;
+                case STAFF:
+                    RxWrap.create(APIManager.Staff().getStaff(barcode))
+                            .subscribe(modelStaff -> {
+                                mViewModel.setCurrentStaff(modelStaff);
+                            }, throwable -> {
+                                AlertUtil.showAlert(this, "登録されてないスタッフ", "当日に登録したスタッフの場合、別途登録が必要です");
+                            });
+                    break;
+                case SALE_INFO:
+                    Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
+                    break;
+                case UNKNOWN:
+                    break;
+            }
         }
-    }
-
-    @Override
-    public void onClickItem(@NonNull ModelItem item) {
-
     }
 }

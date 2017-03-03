@@ -3,6 +3,7 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -54,16 +55,15 @@ public class CalculatorActivity extends BaseActivity implements CalcView.OnItemC
         binding.account.setText(String.valueOf(this.sumPrice));
     }
 
-    public static void startActivity(Activity activity,
-                                     int requestCode,
+    public static void startActivity(final Context context,
                                      @NonNull Integer price,
                                      @NonNull List<ModelItem> items) {
         if (price == 0) return;
 
-        Intent intent = new Intent(activity, CalculatorActivity.class);
+        Intent intent = new Intent(context, CalculatorActivity.class);
         intent.putExtra(EXTRA_VALUE, price);
         intent.putExtra(EXTRA_MODEL_SALES, items.toArray(new ModelItem[items.size()]));
-        activity.startActivityForResult(intent, requestCode);
+        context.startActivity(intent);
     }
 
     @Override
