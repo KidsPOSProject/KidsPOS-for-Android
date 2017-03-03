@@ -5,8 +5,8 @@ import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.view.View;
 
-import info.nukoneko.kidspos4j.model.ModelStaff;
-import info.nukoneko.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
 @SuppressWarnings("WeakerAccess")
 public final class MainActivityViewModel extends BaseObservable {
@@ -38,9 +38,11 @@ public final class MainActivityViewModel extends BaseObservable {
 
     public void setCurrentStore(ModelStore currentStore) {
         this.mCurrentStore.set(currentStore);
+        notifyChange();
     }
 
     public void setCurrentStaff(ModelStaff currentStaff) {
         this.mCurrentStaff.set(currentStaff);
+        notifyChange();
     }
 }

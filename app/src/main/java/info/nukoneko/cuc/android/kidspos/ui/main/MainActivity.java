@@ -14,10 +14,11 @@ import android.widget.Toast;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
-import info.nukoneko.cuc.android.kidspos.databinding.NavHeaderMainBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStaff;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStore;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
 import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
@@ -25,13 +26,15 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.util.config.BarcodeRule;
 import rx.android.schedulers.AndroidSchedulers;
 
+@SuppressWarnings("FieldCanBeLocal")
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding mBinding;
-    private NavHeaderMainBinding mHeaderMainBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
 
@@ -49,13 +52,14 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         toggle.syncState();
         mBinding.navView.setNavigationItemSelectedListener(this);
 
-        mHeaderMainBinding = NavHeaderMainBinding.bind(mBinding.navView.getHeaderView(0));
-        mHeaderMainBinding.setViewModel(mViewModel);
         mBinding.appBarLayout.contentMain.setViewModel(mViewModel);
         mBinding.appBarLayout.contentMain.setListener(this);
 
         mAdapter = new MainItemViewAdapter(this);
         mBinding.appBarLayout.contentMain.recyclerView.setAdapter(mAdapter);
+
+        mViewModel.setCurrentStore(getApp().getCurrentStore());
+        mViewModel.setCurrentStaff(getApp().getCurrentStaff());
 
         KPEventBusProvider.getInstance().toObservable()
                 .compose(bindToLifecycle())
@@ -70,6 +74,12 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         }
                     } else if (event instanceof KPEventSendFinish) {
                         mAdapter.clear();
+                    } else if (event instanceof KPEventUpdateStore) {
+                        mViewModel.setCurrentStore(((KPEventUpdateStore) event).getStore());
+                        updateTitle();
+                    } else if (event instanceof KPEventUpdateStaff) {
+                        mViewModel.setCurrentStaff(((KPEventUpdateStaff) event).getStaff());
+                        updateTitle();
                     }
                 });
     }
@@ -77,14 +87,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mViewModel.setCurrentStore(getApp().getCurrentStore());
-        mViewModel.setCurrentStaff(getApp().getCurrentStaff());
 
-        String title = getString(R.string.app_name);
-        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
-        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
-
-        mBinding.appBarLayout.toolbar.setTitle(title);
+        updateTitle();
 
         if (!getApp().isPracticeModeEnabled()) {
             getApp().checkServerReachable().subscribe(reachable -> {
@@ -99,12 +103,26 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         }
     }
 
+    private void updateTitle() {
+        String title = getString(R.string.app_name);
+        if (getApp().getCurrentStore() != null) title += String.format(" [%s]", getApp().getCurrentStore().getName());
+        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
+        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
+
+        mBinding.appBarLayout.toolbar.setTitle(title);
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.setting:
                 SettingsActivity.startActivity(this);
+                break;
+            case R.id.change_store:
+                final StoreListDialogFragment fragment = StoreListDialogFragment.newInstance();
+                fragment.setCancelable(false);
+                fragment.show(getSupportFragmentManager(), "changeStore");
                 break;
         }
         mBinding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -128,53 +146,47 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      * @param type barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
+    public void onInputBarcode(@NonNull String barcode, BarcodeRule.BARCODE_PREFIX type) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
-            if (type == BARCODE_TYPE.UNKNOWN) {
+            if (type == BarcodeRule.BARCODE_PREFIX.UNKNOWN) {
                 mAdapter.add(KPPracticeTool.findModelItem(barcode));
                 mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
                 return;
             }
         }
-        if (getApp().isPracticeModeEnabled()) {
-            // 練習モードが有効な場合、データはアプリ内から取得する
-            switch (type) {
-                case ITEM:
-                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
-                    break;
-                case STAFF:
-                    mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
-                    break;
-                case UNKNOWN:
-                    mAdapter.add(KPPracticeTool.findModelItem(barcode));
-                    break;
-            }
-        } else {
-            // サーバから取得する
-            switch (type) {
-                case ITEM:
-                    RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
-                            .subscribe(item -> {
-                                mAdapter.add(item);
-                            }, throwable -> {
-                                Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
-                            });
-                    break;
-                case STAFF:
-                    RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
-                            .subscribe(modelStaff -> {
-                                mViewModel.setCurrentStaff(modelStaff);
-                            }, throwable -> {
-                                AlertUtil.showAlert(this, "登録されてないスタッフ", "当日に登録したスタッフの場合、別途登録が必要です");
-                            });
-                    break;
-                case SALE_INFO:
-                    Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
-                    break;
-                case UNKNOWN:
-                    break;
-            }
+
+        // サーバから取得する
+        switch (type) {
+            case ITEM:
+                RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
+                        .subscribe(item -> {
+                            mAdapter.add(item);
+                        }, throwable -> {
+                            Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                        });
+                break;
+            case STAFF:
+                RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
+                        .subscribe(modelStaff -> {
+                            getApp().updateCurrentStaff(modelStaff);
+                        }, throwable -> {
+                            Toast.makeText(this, "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
+                            getApp().updateCurrentStaff(getDummyStaff(barcode));
+                        });
+                break;
+            case SALE:
+                Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
+                break;
+            case UNKNOWN:
+                break;
         }
+    }
+
+    private ModelStaff getDummyStaff(String barcode) {
+        final ModelStaff staff = new ModelStaff();
+        staff.setBarcode(barcode);
+        staff.setName("スタッフ");
+        return staff;
     }
 }
