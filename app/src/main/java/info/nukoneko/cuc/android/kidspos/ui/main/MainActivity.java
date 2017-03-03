@@ -34,7 +34,6 @@ import rx.android.schedulers.AndroidSchedulers;
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding mBinding;
-    private NavHeaderMainBinding mHeaderMainBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
 
@@ -52,8 +51,6 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         toggle.syncState();
         mBinding.navView.setNavigationItemSelectedListener(this);
 
-        mHeaderMainBinding = NavHeaderMainBinding.bind(mBinding.navView.getHeaderView(0));
-        mHeaderMainBinding.setViewModel(mViewModel);
         mBinding.appBarLayout.contentMain.setViewModel(mViewModel);
         mBinding.appBarLayout.contentMain.setListener(this);
 
@@ -78,8 +75,10 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         mAdapter.clear();
                     } else if (event instanceof KPEventUpdateStore) {
                         mViewModel.setCurrentStore(((KPEventUpdateStore) event).getStore());
+                        updateTitle();
                     } else if (event instanceof KPEventUpdateStaff) {
                         mViewModel.setCurrentStaff(((KPEventUpdateStaff) event).getStaff());
+                        updateTitle();
                     }
                 });
     }
@@ -88,11 +87,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     protected void onResume() {
         super.onResume();
 
-        String title = getString(R.string.app_name);
-        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
-        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
-
-        mBinding.appBarLayout.toolbar.setTitle(title);
+        updateTitle();
 
         if (!getApp().isPracticeModeEnabled()) {
             getApp().checkServerReachable().subscribe(reachable -> {
@@ -107,6 +102,15 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         }
     }
 
+    private void updateTitle() {
+        String title = getString(R.string.app_name);
+        if (getApp().getCurrentStore() != null) title += String.format(" [%s]", getApp().getCurrentStore().getName());
+        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
+        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
+
+        mBinding.appBarLayout.toolbar.setTitle(title);
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -115,6 +119,9 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 SettingsActivity.startActivity(this);
                 break;
             case R.id.change_store:
+                final StoreListDialogFragment fragment = StoreListDialogFragment.newInstance();
+                fragment.setCancelable(false);
+                fragment.show(getSupportFragmentManager(), "changeStore");
                 break;
         }
         mBinding.drawerLayout.closeDrawer(GravityCompat.START);
