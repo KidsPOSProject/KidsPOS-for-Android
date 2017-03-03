@@ -1,5 +1,4 @@
 /local.properties
-/.idea/workspace.xml
 /.idea/libraries
 .DS_Store
 /build
@@ -9,6 +8,19 @@
 
 /projectFilesBackup
 .gradle/
-.idea/fileTemplates/code/
-.idea/fileTemplates/internal/
-.idea/fileTemplates/j2ee/
+.idea/fileTemplates/*
+
+*.iml
+bin/
+gen/
+.classpath
+.project
+proguard/
+*.ipr
+*.iws
+app/build/
+
+.idea/*.xml
+
+!.idea/gradle.xml
+!.idea/runConfigurations/*.xml
