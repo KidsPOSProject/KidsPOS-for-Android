@@ -12,8 +12,8 @@ import java.util.Set;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStaff;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStore;
-import info.nukoneko.kidspos4j.model.ModelStaff;
-import info.nukoneko.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class KPStoreManager {

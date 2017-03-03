@@ -73,7 +73,7 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'com.trello:rxlifecycle-components:1.0'
     // Core
-    compile 'com.github.KidsPOSProject:KidsPOS4j:1.0.1'
+    compile 'com.github.KidsPOSProject:KidsPOS4j:1.0.3'
     testCompile 'junit:junit:4.12'
 }
 

@@ -21,10 +21,10 @@ import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.kidspos4j.api.APIManager;
-import info.nukoneko.kidspos4j.model.ModelItem;
-import info.nukoneko.kidspos4j.model.ModelStaff;
-import info.nukoneko.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.kidspos4j.api.APIManager;
+import info.nukoneko.cuc.kidspos4j.model.ModelItem;
+import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
+import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
 public class CalculatorActivity extends BaseActivity implements CalcView.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
