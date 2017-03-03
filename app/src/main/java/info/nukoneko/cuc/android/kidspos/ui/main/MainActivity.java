@@ -65,7 +65,9 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
                     } else if (event instanceof KPEventUpdateSumPrice) {
                         mViewModel.setSumPrice(((KPEventUpdateSumPrice) event).getCurrentValue());
-                        mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
+                        if (mAdapter.getItemCount() > 0) {
+                            mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
+                        }
                     } else if (event instanceof KPEventSendFinish) {
                         mAdapter.clear();
                     }
@@ -152,7 +154,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             // サーバから取得する
             switch (type) {
                 case ITEM:
-                    RxWrap.create(APIManager.Item().readItem(barcode))
+                    RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
                             .subscribe(item -> {
                                 mAdapter.add(item);
                             }, throwable -> {
@@ -160,7 +162,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                             });
                     break;
                 case STAFF:
-                    RxWrap.create(APIManager.Staff().getStaff(barcode))
+                    RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
                             .subscribe(modelStaff -> {
                                 mViewModel.setCurrentStaff(modelStaff);
                             }, throwable -> {
