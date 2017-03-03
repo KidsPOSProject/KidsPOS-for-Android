@@ -32,11 +32,7 @@ public final class AlertUtil {
 
     public static void showErrorDialog(@NonNull Context context, Throwable throwable,
                                        DialogInterface.OnClickListener onClickListener) {
-        throwable.printStackTrace();
-        if (KPApplicationController.get(context).isDebugModeEnabled()) {
-            showErrorDialog(context, throwable.getLocalizedMessage(), true, onClickListener);
-        } else {
-            showErrorDialog(context, "エラーが発生しました", true, onClickListener);
-        }
+        showErrorDialog(context, "エラーが発生しました", true, onClickListener);
+        KPApplicationController.get(context).sendErrorReport(throwable.getLocalizedMessage());
     }
 }

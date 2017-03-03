@@ -7,4 +7,5 @@
     android:gravity="center_horizontal"
     android:text="練習モードで\n起動中！"
     android:textSize="20sp"
+    android:textColor="#7F000000"
     android:background="@drawable/layout_button_rect_hasf_transparent"/>

@@ -19,12 +19,13 @@ import info.nukoneko.cuc.android.kidspos.databinding.NavHeaderMainBinding;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSubPrice;
+import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
+import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
+import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
 import info.nukoneko.kidspos4j.api.APIManager;
 import info.nukoneko.kidspos4j.model.ModelItem;
-import info.nukoneko.kidspos4j.model.ModelStore;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -34,7 +35,6 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     private NavHeaderMainBinding mHeaderMainBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
-    private boolean mIsDebugMode = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,8 +65,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 .subscribe(event -> {
                     if (event instanceof KPEventAvailableUpdate) {
                         Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
-                    } else if (event instanceof KPEventUpdateSubPrice) {
-                        mViewModel.setSumPrice(((KPEventUpdateSubPrice) event).getCurrentValue());
+                    } else if (event instanceof KPEventUpdateSumPrice) {
+                        mViewModel.setSumPrice(((KPEventUpdateSumPrice) event).getCurrentValue());
                     } else if (event instanceof KPEventSendFinish) {
                         mAdapter.clear();
                     }
@@ -76,10 +76,26 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     @Override
     protected void onResume() {
         super.onResume();
-        final ModelStore dummyStore = new ModelStore();
-        dummyStore.setId(1);
-        dummyStore.setName("ダミーのお店だよ");
-        mViewModel.setCurrentStore(dummyStore);
+        mViewModel.setCurrentStore(getApp().getCurrentStore());
+        mViewModel.setCurrentStaff(getApp().getCurrentStaff());
+
+        String title = getString(R.string.app_name);
+        if (getApp().isPracticeModeEnabled()) title += "(練習モード)";
+        if (getApp().isTestModeEnabled()) title += "(デバッグ中)";
+
+        mBinding.appBarLayout.toolbar.setTitle(title);
+
+        if (!getApp().isPracticeModeEnabled()) {
+            getApp().checkServerReachable().subscribe(reachable -> {
+                if (reachable) return;
+
+                AlertUtil.showErrorDialog(this, "サーバーとの接続に失敗しました\nネットワーク接続を確認してください\n設定画面で設定を確認をしてください",
+                        false,
+                        (dialog, which) -> {
+                            SettingsActivity.startActivity(this);
+                        });
+            });
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -96,9 +112,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
     @Override
     public void onClickClear(View view) {
-        onInputBarcode("1001000001", BARCODE_TYPE.ITEM);
+        mAdapter.clear();
     }
-
 
     @Override
     public void onClickAccount(View view) {
@@ -107,18 +122,20 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
     @Override
     public void onInputBarcode(@NonNull String barcode, BARCODE_TYPE type) {
-        if (mIsDebugMode) {
-            final ModelItem item = new ModelItem();
-            item.setName("ダミー");
-            item.setPrice(300);
-            mAdapter.add(item);
+        if (getApp().isTestModeEnabled()) {
+            Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
+        }
+        if (getApp().isPracticeModeEnabled()) {
+            mAdapter.add(KPPracticeTool.findModelItem(barcode));
         } else {
             APIManager.Item().readItem(barcode)
                     .observeOn(Schedulers.newThread())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(item -> {
                         mAdapter.add(item);
-                    }, Throwable::printStackTrace);
+                    }, throwable -> {
+                        Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                    });
         }
     }
 
