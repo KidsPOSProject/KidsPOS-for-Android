@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
-            name="listener"
+            name="onClickListener"
             type="android.view.View.OnClickListener" />
+        <variable
+            name="listener"
+            type="info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorLayout.Listener" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,30 +22,30 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <Button
-                android:id="@+id/calc_num_7"
-                android:text="7"
-                android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/calc_num_8"
-                android:text="8"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="7" />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/calc_num_9"
-                android:text="9"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="8" />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
+                android:textSize="@dimen/text_size_button_calc"
+                app:number="9" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,30 +53,30 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <Button
-                android:id="@+id/calc_num_4"
-                android:text="4"
-                android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/calc_num_5"
-                android:text="5"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="4" />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/calc_num_6"
-                android:text="6"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="5" />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
+                android:textSize="@dimen/text_size_button_calc"
+                app:number="6" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,30 +84,30 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <Button
-                android:id="@+id/calc_num_1"
-                android:text="1"
-                android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/calc_num_2"
-                android:text="2"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="1"  />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/calc_num_3"
-                android:text="3"
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+                app:number="2" />
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
+                android:textSize="@dimen/text_size_button_calc"
+                app:number="3" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -111,29 +115,31 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <Button
-                android:id="@+id/calc_num_0"
-                android:text="0"
-                android:textSize="@dimen/text_size_button_calc"
-                android:layout_width="wrap_content"
+            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:onClick="@{listener}"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                style="?attr/buttonStyle"
+                android:onClick="@{onClickListener}"
+                android:textSize="@dimen/text_size_button_calc"
+                app:number="0" />
             <Button
                 android:id="@+id/calc_num_C"
-                android:text="1桁消"
-                android:textSize="20sp"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:onClick="@{listener::onClickClear}"
+                android:text="1桁消"
+                android:textSize="20sp" />
             <Button
                 android:id="@+id/calc_num_end"
-                android:text="売る"
-                android:textSize="20sp"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:onClick="@{listener::onClickEnd}"
                 android:background="@android:color/holo_red_light"
-                android:layout_weight="1"/>
+                android:text="売る"
+                android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
 </layout>
