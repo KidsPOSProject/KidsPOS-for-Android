@@ -49,19 +49,6 @@
 -keep class android.support.** { *; }
 -keep interface android.support.** { *; }
 
-#------ ButterKnife -------
--keep class butterknife.** { *; }
--dontwarn butterknife.internal.**
--keep class **$$ViewBinder { *; }
-
--keepclasseswithmembernames class * {
-    @butterknife.* <fields>;
-}
-
--keepclasseswithmembernames class * {
-    @butterknife.* <methods>;
-}
-
 #------ Retrolambda -------
 -dontwarn java.lang.invoke.*
 -dontwarn **$$Lambda$*
