@@ -8,7 +8,6 @@ import android.view.View;
 import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
-@SuppressWarnings("WeakerAccess")
 public final class MainActivityViewModel extends BaseObservable {
     public interface Listener {
         void onClickClear(View view);
@@ -31,17 +30,17 @@ public final class MainActivityViewModel extends BaseObservable {
         return mCurrentStaff.get();
     }
 
-    public void setSumPrice(int sumPrice) {
+    void setSumPrice(int sumPrice) {
         this.mSumPrice.set(sumPrice);
         notifyChange();
     }
 
-    public void setCurrentStore(ModelStore currentStore) {
+    void setCurrentStore(ModelStore currentStore) {
         this.mCurrentStore.set(currentStore);
         notifyChange();
     }
 
-    public void setCurrentStaff(ModelStaff currentStaff) {
+    void setCurrentStaff(ModelStaff currentStaff) {
         this.mCurrentStaff.set(currentStaff);
         notifyChange();
     }

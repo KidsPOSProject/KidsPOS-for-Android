@@ -63,7 +63,6 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                 }).create();
     }
 
-    @SuppressWarnings("WeakerAccess")
     static class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
 
         private ArrayList<ModelStore> mData = new ArrayList<>();
@@ -72,9 +71,9 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
 
         private final Context mContext;
 
-        public ViewAdapter(@NonNull final Context context, @Nullable ModelStore currentStore) {
-            this.mContext = context;
-            this.mCurrentStore = currentStore;
+        ViewAdapter(@NonNull final Context context, @Nullable ModelStore currentStore) {
+            mContext = context;
+            mCurrentStore = currentStore;
         }
 
         @Override
@@ -103,17 +102,17 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
             return mData.size();
         }
 
-        public void addAll(Collection<ModelStore> stores) {
+        void addAll(Collection<ModelStore> stores) {
             mData.addAll(stores);
             notifyDataSetChanged();
         }
 
         @Nullable
-        public ModelStore getCurrentStore() {
+        ModelStore getCurrentStore() {
             return mCurrentStore;
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        static final class ViewHolder extends RecyclerView.ViewHolder {
             private ItemStoreListBinding binding;
 
             ViewHolder(View itemView) {
