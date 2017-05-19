@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import info.nukoneko.cuc.android.kidspos.KPApplicationController;
+import info.nukoneko.cuc.android.kidspos.KidPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
@@ -41,7 +41,7 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                 .inflate(R.layout.fragment_dialog_store_list, null, false));
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        mAdapter = new ViewAdapter(getContext(), KPApplicationController.get(getContext()).getCurrentStore());
+        mAdapter = new ViewAdapter(getContext(), KidPOSApplication.get(getContext()).getCurrentStore());
         binding.recyclerView.setAdapter(mAdapter);
 
         binding.setStatus("読み込み中...");
@@ -58,7 +58,7 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                 .setTitle("おみせの変更")
                 .setView(binding.getRoot())
                 .setPositiveButton("決定", (d, w) -> {
-                    KPApplicationController.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
+                    KidPOSApplication.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
                     d.dismiss();
                 }).create();
     }

@@ -12,7 +12,7 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventChangePracticeModeState;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
-import info.nukoneko.cuc.android.kidspos.util.manager.KPSettingsManager;
+import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
 
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -26,22 +26,22 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case KPSettingsManager.KEY_ENABLE_PRACTICE_MODE:
+            case SettingsManager.KEY_ENABLE_PRACTICE_MODE:
                 KPEventBusProvider.getInstance().send(new KPEventChangePracticeModeState());
                 break;
-            case KPSettingsManager.KEY_SERVER_IP:
+            case SettingsManager.KEY_SERVER_IP:
                 final String ip = sharedPreferences.getString(key, "");
                 if (TextUtils.isEmpty(ip) || !MiscUtil.isIpAddressValid(ip)) {
                     AlertUtil.showErrorDialog(getContext(), "IPアドレスが間違っています", false, null);
-                    sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_IP).apply();
+                    sharedPreferences.edit().putString(key, SettingsManager.DEFAULT_IP).apply();
                     return;
                 }
                 break;
-            case KPSettingsManager.KEY_SERVER_PORT:
+            case SettingsManager.KEY_SERVER_PORT:
                 final String port = sharedPreferences.getString(key, "");
                 if (TextUtils.isEmpty(port) || !MiscUtil.isPortValid(port)) {
                     AlertUtil.showErrorDialog(getContext(), "ポートが間違っています", false, null);
-                    sharedPreferences.edit().putString(key, KPSettingsManager.DEFAULT_PORT).apply();
+                    sharedPreferences.edit().putString(key, SettingsManager.DEFAULT_PORT).apply();
                     return;
                 }
                 break;
@@ -51,15 +51,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     private void updateSummaries() {
         {
-            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_IP);
+            EditTextPreference pref = (EditTextPreference) findPreference(SettingsManager.KEY_SERVER_IP);
             pref.setSummary(pref.getText());
         }
         {
-            EditTextPreference pref = (EditTextPreference) findPreference(KPSettingsManager.KEY_SERVER_PORT);
+            EditTextPreference pref = (EditTextPreference) findPreference(SettingsManager.KEY_SERVER_PORT);
             pref.setSummary(pref.getText());
         }
         {
-            SwitchPreferenceCompat pref = (SwitchPreferenceCompat) findPreference(KPSettingsManager.KEY_ENABLE_PRACTICE_MODE);
+            SwitchPreferenceCompat pref = (SwitchPreferenceCompat) findPreference(SettingsManager.KEY_ENABLE_PRACTICE_MODE);
             pref.setSummary(pref.isChecked() ? "練習モード" : "通常モード");
         }
     }
