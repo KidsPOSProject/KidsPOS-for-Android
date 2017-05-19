@@ -9,7 +9,7 @@ public final class KPEventBus {
     private final Subject<KPEvent, KPEvent> mBus =
             new SerializedSubject<>(PublishSubject.create());
 
-    public KPEventBus() {
+    KPEventBus() {
 
     }
 
@@ -19,9 +19,5 @@ public final class KPEventBus {
 
     public Observable<KPEvent> toObservable() {
         return mBus;
-    }
-
-    public boolean hasObservers()  {
-        return mBus.hasObservers();
     }
 }
