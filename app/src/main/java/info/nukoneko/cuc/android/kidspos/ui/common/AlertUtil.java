@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
-import info.nukoneko.cuc.android.kidspos.KPApplicationController;
+import info.nukoneko.cuc.android.kidspos.KidPOSApplication;
 
 public final class AlertUtil {
     private AlertUtil(){}
@@ -23,6 +23,6 @@ public final class AlertUtil {
     public static void showErrorDialog(@NonNull Context context, Throwable throwable,
                                        DialogInterface.OnClickListener onClickListener) {
         showErrorDialog(context, "エラーが発生しました", false, onClickListener);
-        KPApplicationController.get(context).sendErrorReport(throwable.getLocalizedMessage());
+        KidPOSApplication.get(context).sendErrorReport(throwable.getLocalizedMessage());
     }
 }

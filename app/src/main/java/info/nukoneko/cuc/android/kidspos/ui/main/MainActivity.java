@@ -23,7 +23,7 @@ import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
-import info.nukoneko.cuc.android.kidspos.util.KPPracticeTool;
+import info.nukoneko.cuc.android.kidspos.util.DummyModelCreator;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import info.nukoneko.cuc.kidspos4j.api.APIManager;
 import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
@@ -148,8 +148,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             if (type == BarcodeRule.BARCODE_PREFIX.UNKNOWN) {
-                mAdapter.add(KPPracticeTool.findModelItem(barcode));
-                mViewModel.setCurrentStaff(KPPracticeTool.findModelStaff(barcode));
+                mAdapter.add(DummyModelCreator.getFakeItem(barcode));
+                mViewModel.setCurrentStaff(DummyModelCreator.getFakeStaff(barcode));
                 return;
             }
         }

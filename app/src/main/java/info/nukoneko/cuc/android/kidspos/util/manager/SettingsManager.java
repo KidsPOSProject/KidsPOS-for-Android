@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
-public class KPSettingsManager {
+public class SettingsManager {
     public final static String DEFAULT_IP = "192.168.0.220";
     public final static String DEFAULT_PORT = "9500";
 
@@ -14,7 +14,7 @@ public class KPSettingsManager {
 
     private final Context mContext;
 
-    public KPSettingsManager(@NonNull Context context) {
+    public SettingsManager(@NonNull Context context) {
         this.mContext = context;
     }
 

@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="info.nukoneko.cuc.android.kidspos.ui.calculator.AccountResultDialogFragmentViewModel" />
+    </data>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_margin="8dp"
         android:background="@drawable/toast_corner_rect"
         android:orientation="vertical">
         <TextView
-            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@{viewModel.title}"
             android:textSize="30sp"
             android:padding="8dp"
             android:gravity="center"/>
@@ -27,17 +31,16 @@
             <TextView
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:textSize="30sp"
                 android:text="ねだん"
                 android:padding="8dp" />
             <TextView
-                android:id="@+id/price_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:textSize="30sp"
-                android:text="リバー"
+                android:text='@{String.format("%d リバー", viewModel.price)}'
                 android:padding="8dp"/>
         </LinearLayout>
         <LinearLayout
@@ -46,7 +49,7 @@
             <TextView
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:textSize="30sp"
                 android:text="うけとり"
                 android:padding="8dp"/>
@@ -54,9 +57,9 @@
                 android:id="@+id/receive_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
+                android:text='@{String.format("%d リバー", viewModel.receiveMoney)}'
                 android:textSize="30sp"
-                android:text="リバー"
                 android:padding="8dp" />
         </LinearLayout>
         <LinearLayout
@@ -73,12 +76,11 @@
                 android:textColor="#FF0000"
                 android:padding="8dp"/>
             <TextView
-                android:id="@+id/result_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:textSize="35sp"
-                android:text="リバー"
+                android:text='@{String.format("%d リバー", viewModel.receiveMoney - viewModel.price)}'
                 android:padding="8dp" />
         </LinearLayout>
 
@@ -89,13 +91,13 @@
             android:paddingRight="8dp"
             android:background="@android:color/black" />
         <LinearLayout
-            android:id="@+id/buttonArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="8dp">
             <Button
                 android:id="@+id/no"
+                style="?attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -104,6 +106,7 @@
                 android:textSize="30sp"/>
             <Button
                 android:id="@+id/yes"
+                style="?attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"

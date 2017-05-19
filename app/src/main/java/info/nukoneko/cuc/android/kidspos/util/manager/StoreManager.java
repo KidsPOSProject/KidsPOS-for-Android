@@ -16,7 +16,7 @@ import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class KPStoreManager {
+public class StoreManager {
     private static final String KEY_PREFERENCE_STORE_MANAGER = "preference_store_manager";
     private static final String KEY_LATEST_STORE = "LATEST_STORE";
     private static final String KEY_LATEST_STAFF = "LATEST_STAFF";
@@ -28,7 +28,7 @@ public class KPStoreManager {
     @Nullable private ModelStaff mCurrentStaff = null;
     private final Context mContext;
 
-    public KPStoreManager(final Context context) {
+    public StoreManager(final Context context) {
         this.mContext = context;
         this.mCurrentStaff = getLatestStaff();
         this.mCurrentStore = getLatestStore();
