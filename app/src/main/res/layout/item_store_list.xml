@@ -3,7 +3,7 @@
     <data>
         <variable
             name="store"
-            type="info.nukoneko.cuc.kidspos4j.model.ModelStore" />
+            type="info.nukoneko.cuc.android.kidspos.entity.Store" />
         <variable
             name="selected"
             type="java.lang.Boolean" />

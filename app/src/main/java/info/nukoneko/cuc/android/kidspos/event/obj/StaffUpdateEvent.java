@@ -2,19 +2,19 @@ package info.nukoneko.cuc.android.kidspos.event.obj;
 
 import android.support.annotation.Nullable;
 
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.event.KPEvent;
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 
-public class KPEventUpdateStaff implements KPEvent {
+public class StaffUpdateEvent implements KPEvent {
     @Nullable
-    private ModelStaff mStaff;
+    private Staff mStaff;
 
-    public KPEventUpdateStaff(@Nullable ModelStaff staff) {
+    public StaffUpdateEvent(@Nullable Staff staff) {
         mStaff = staff;
     }
 
     @Nullable
-    public ModelStaff getStaff() {
+    public Staff getStaff() {
         return mStaff;
     }
 }

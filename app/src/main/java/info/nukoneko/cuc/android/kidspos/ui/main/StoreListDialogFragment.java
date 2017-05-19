@@ -16,16 +16,18 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import info.nukoneko.cuc.android.kidspos.KidPOSApplication;
+import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
+import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.cuc.kidspos4j.api.APIManager;
-import info.nukoneko.cuc.kidspos4j.model.ModelStore;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public final class StoreListDialogFragment extends BaseDialogFragment {
     public static StoreListDialogFragment newInstance() {
@@ -41,37 +43,45 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                 .inflate(R.layout.fragment_dialog_store_list, null, false));
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        mAdapter = new ViewAdapter(getContext(), KidPOSApplication.get(getContext()).getCurrentStore());
+        mAdapter = new ViewAdapter(getContext(), KidsPOSApplication.get(getContext()).getCurrentStore());
         binding.recyclerView.setAdapter(mAdapter);
 
         binding.setStatus("読み込み中...");
-        RxWrap.create(APIManager.Store().getList(), bindToLifecycle())
-                .subscribe(modelStores -> {
-                    mAdapter.addAll(modelStores);
-                    binding.setStatus("完了");
-                }, throwable -> {
-                    binding.setStatus("失敗");
-                    AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, (dialog, which) -> getDialog().dismiss());
+
+        final KidsPOSApplication app = KidsPOSApplication.get(getContext());
+        app.getApiService().getStoreList()
+                .enqueue(new Callback<List<Store>>() {
+                    @Override
+                    public void onResponse(Call<List<Store>> call, Response<List<Store>> response) {
+                        mAdapter.addAll(response.body());
+                        binding.setStatus("完了");
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Store>> call, Throwable t) {
+                        binding.setStatus("失敗");
+                        AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, (dialog, which) -> getDialog().dismiss());
+                    }
                 });
 
         return new AlertDialog.Builder(getContext())
                 .setTitle("おみせの変更")
                 .setView(binding.getRoot())
                 .setPositiveButton("決定", (d, w) -> {
-                    KidPOSApplication.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
+                    KidsPOSApplication.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
                     d.dismiss();
                 }).create();
     }
 
     static class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
 
-        private ArrayList<ModelStore> mData = new ArrayList<>();
+        private List<Store> mData = new ArrayList<>();
         @Nullable
-        private ModelStore mCurrentStore;
+        private Store mCurrentStore;
 
         private final Context mContext;
 
-        ViewAdapter(@NonNull final Context context, @Nullable ModelStore currentStore) {
+        ViewAdapter(@NonNull final Context context, @Nullable Store currentStore) {
             mContext = context;
             mCurrentStore = currentStore;
         }
@@ -83,11 +93,11 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final ModelStore store = mData.get(position);
+            final Store store = mData.get(position);
             holder.getBinding().setStore(store);
             if (mCurrentStore == null) holder.getBinding().setSelected(false);
             else {
-                holder.getBinding().setSelected(mCurrentStore.getId().equals(store.getId()));
+                holder.getBinding().setSelected(mCurrentStore.getId() == store.getId());
             }
             holder.getBinding().radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
@@ -102,13 +112,13 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
             return mData.size();
         }
 
-        void addAll(Collection<ModelStore> stores) {
+        void addAll(Collection<Store> stores) {
             mData.addAll(stores);
             notifyDataSetChanged();
         }
 
         @Nullable
-        ModelStore getCurrentStore() {
+        Store getCurrentStore() {
             return mCurrentStore;
         }
 

@@ -6,26 +6,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.google.gson.Gson;
 
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
+import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStaff;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStore;
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
-import info.nukoneko.cuc.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.android.kidspos.event.obj.StaffUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.obj.StoreUpdateEvent;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
-public class StoreManager {
+public final class StoreManager {
     private static final String KEY_PREFERENCE_STORE_MANAGER = "preference_store_manager";
     private static final String KEY_LATEST_STORE = "LATEST_STORE";
     private static final String KEY_LATEST_STAFF = "LATEST_STAFF";
-    private static final String KEY_SET_ID = "set_id";
-    private static final String KEY_SET_NAME = "set_name";
-    private static final String KEY_SET_BARCODE = "set_barcode";
 
-    @Nullable private ModelStore mCurrentStore = null;
-    @Nullable private ModelStaff mCurrentStaff = null;
+    @Nullable private Store mCurrentStore = null;
+    @Nullable private Staff mCurrentStaff = null;
     private final Context mContext;
 
     public StoreManager(final Context context) {
@@ -40,80 +35,54 @@ public class StoreManager {
     }
 
     @Nullable
-    public ModelStore getCurrentStore() {
+    public Store getCurrentStore() {
         return mCurrentStore;
     }
 
     @Nullable
-    public ModelStaff getCurrentStaff() {
+    public Staff getCurrentStaff() {
         return mCurrentStaff;
     }
 
-    public void setCurrentStaff(ModelStaff currentStaff) {
-        this.mCurrentStaff = currentStaff;
-        saveLatestStaff(currentStaff);
-        KPEventBusProvider.getInstance().send(new KPEventUpdateStaff(currentStaff));
+    public void setCurrentStaff(Staff staff) {
+        mCurrentStaff = staff;
+        saveLatestStaff(staff);
+        KPEventBusProvider.getInstance().send(new StaffUpdateEvent(staff));
     }
 
-    public void setCurrentStore(ModelStore currentStore) {
-        this.mCurrentStore = currentStore;
-        saveLatestStore(currentStore);
-        KPEventBusProvider.getInstance().send(new KPEventUpdateStore(currentStore));
+    public void setCurrentStore(Store store) {
+        mCurrentStore = store;
+        saveLatestStore(store);
+        KPEventBusProvider.getInstance().send(new StoreUpdateEvent(store));
     }
 
-    private void saveLatestStaff(@Nullable ModelStaff modelStaff) {
+    private void saveLatestStaff(@Nullable Staff staff) {
         final SharedPreferences.Editor editor = getPreference().edit().remove(KEY_LATEST_STAFF);
-        if (modelStaff != null) {
-            editor.putStringSet(KEY_LATEST_STAFF, new HashSet<String>() {{
-                add(String.format("%s,%s", KEY_SET_BARCODE, modelStaff.getBarcode()));
-                add(String.format("%s,%s", KEY_SET_NAME, modelStaff.getName()));
-            }});
+        if (staff != null) {
+            editor.putString(KEY_LATEST_STAFF, new Gson().toJson(staff));
         }
         editor.apply();
     }
 
     @Nullable
-    private ModelStaff getLatestStaff() {
-        final String barcode = getValueFromKeySet(KEY_LATEST_STAFF, KEY_SET_ID);
-        final String name = getValueFromKeySet(KEY_LATEST_STAFF, KEY_SET_NAME);
-        if (TextUtils.isEmpty(barcode) || TextUtils.isEmpty(name)) return null;
-        final ModelStaff staff = new ModelStaff();
-        staff.setBarcode(barcode);
-        staff.setName(name);
-        return staff;
+    private Staff getLatestStaff() {
+        final String staff = getPreference().getString(KEY_LATEST_STAFF, "");
+        if (TextUtils.isEmpty(staff)) return null;
+        return new Gson().fromJson(staff, Staff.class);
     }
 
-    private void saveLatestStore(@Nullable ModelStore modelStore) {
+    private void saveLatestStore(@Nullable Store store) {
         final SharedPreferences.Editor editor = getPreference().edit().remove(KEY_LATEST_STORE);
-        if (modelStore != null) {
-            editor.putStringSet(KEY_LATEST_STORE, new HashSet<String>() {{
-                add(String.format("%s,%s", KEY_SET_ID, modelStore.getId()));
-                add(String.format("%s,%s", KEY_SET_NAME, modelStore.getName()));
-            }});
+        if (store != null) {
+            editor.putString(KEY_LATEST_STORE, new Gson().toJson(store));
         }
         editor.apply();
     }
 
     @Nullable
-    private ModelStore getLatestStore() {
-        final String id = getValueFromKeySet(KEY_LATEST_STORE, KEY_SET_ID);
-        final String name = getValueFromKeySet(KEY_LATEST_STORE, KEY_SET_NAME);
-        if (TextUtils.isEmpty(id) || TextUtils.isEmpty(name)) return null;
-        final ModelStore store = new ModelStore();
-        store.setId(Integer.parseInt(id));
-        store.setName(name);
-        return store;
-    }
-
-    private String getValueFromKeySet(@NonNull String key, @NonNull String hashText) {
-        String ret = "";
-        if (TextUtils.isEmpty(key)) return ret;
-        final Set<String> values = getPreference().getStringSet(key, new HashSet<>());
-        if (values.size() == 0) return ret;
-        for (String value : values) {
-            final String[] rows = value.split(",");
-            if (rows.length == 2 && rows[0].equals(hashText)) return rows[1];
-        }
-        return ret;
+    private Store getLatestStore() {
+        final String store = getPreference().getString(KEY_LATEST_STORE, "");
+        if (TextUtils.isEmpty(store)) return null;
+        return new Gson().fromJson(store, Store.class);
     }
 }

@@ -9,7 +9,7 @@ import android.text.TextUtils;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventChangePracticeModeState;
+import info.nukoneko.cuc.android.kidspos.event.obj.ChangeStateEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
@@ -27,7 +27,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case SettingsManager.KEY_ENABLE_PRACTICE_MODE:
-                KPEventBusProvider.getInstance().send(new KPEventChangePracticeModeState());
+                KPEventBusProvider.getInstance().send(new ChangeStateEvent());
                 break;
             case SettingsManager.KEY_SERVER_IP:
                 final String ip = sharedPreferences.getString(key, "");

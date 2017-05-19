@@ -5,6 +5,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
 public class SettingsManager {
+    public interface Listener {
+        void updateIpPort();
+    }
+
     public final static String DEFAULT_IP = "192.168.0.220";
     public final static String DEFAULT_PORT = "9500";
 
@@ -13,9 +17,11 @@ public class SettingsManager {
     public final static String KEY_ENABLE_PRACTICE_MODE = "settings_enable_practice_mode";
 
     private final Context mContext;
+    private final Listener mListener;
 
-    public SettingsManager(@NonNull Context context) {
-        this.mContext = context;
+    protected SettingsManager(@NonNull Context context, @NonNull Listener listener) {
+        mContext = context;
+        mListener = listener;
     }
 
     @NonNull
@@ -23,8 +29,9 @@ public class SettingsManager {
         return PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_SERVER_IP, "");
     }
 
-    public void setServerIp(@NonNull String ipAddress) {
+    private void setServerIp(@NonNull String ipAddress) {
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putString(KEY_SERVER_IP, ipAddress).apply();
+        mListener.updateIpPort();
     }
 
     public String getServerPort() {
@@ -36,24 +43,20 @@ public class SettingsManager {
         }
     }
 
-    public void setServerPort(String port) {
+    private void setServerPort(String port) {
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putString(KEY_SERVER_PORT, port).apply();
+        mListener.updateIpPort();
     }
 
     public boolean isPracticeModeEnabled() {
         return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(KEY_ENABLE_PRACTICE_MODE, true);
     }
 
-    public void backToDefaultIpSetting() {
+    protected void backToDefaultIpSetting() {
         setServerIp(DEFAULT_IP);
     }
 
-    public void backToDefaultPortSetting() {
-        setServerPort(DEFAULT_PORT);
-    }
-
-    public void backToDefaultIpPortSettings() {
-        setServerIp(DEFAULT_IP);
+    protected void backToDefaultPortSetting() {
         setServerPort(DEFAULT_PORT);
     }
 }
