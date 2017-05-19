@@ -22,7 +22,7 @@ import rx.Observable;
 public class KidPOSApplication extends Application {
 
     // こちらを有効にすると普通の動作ができなくなります
-    private final static boolean isTestMode = true;
+    private final static boolean isTestMode = false;
 
     private StoreManager mStoreManager = null;
     private SettingsManager mSettingsManager = null;
