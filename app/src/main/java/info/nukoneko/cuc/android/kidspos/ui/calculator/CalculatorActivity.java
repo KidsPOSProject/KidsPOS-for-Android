@@ -9,6 +9,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -26,7 +27,7 @@ import info.nukoneko.cuc.kidspos4j.model.ModelItem;
 import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 
-public class CalculatorActivity extends BaseActivity implements CalcView.Listener, AccountResultDialogFragment.Listener {
+public class CalculatorActivity extends BaseActivity implements CalculatorLayout.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_VALUE = "EXTRA_VALUE";
     private static final String EXTRA_MODEL_SALES = "EXTRA_MODEL_SALES";
 
@@ -37,6 +38,8 @@ public class CalculatorActivity extends BaseActivity implements CalcView.Listene
     ModelItem[] mItems;
 
     ActivityCalculatorBinding binding;
+
+    private DialogFragment mDialogFragment = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +78,7 @@ public class CalculatorActivity extends BaseActivity implements CalcView.Listene
     }
 
     @Override
-    public void onClickClear() {
+    public void onClickClear(View view) {
         if (10 > this.mReceiveMoney){
             this.mReceiveMoney = 0;
         }else {
@@ -84,10 +87,8 @@ public class CalculatorActivity extends BaseActivity implements CalcView.Listene
         binding.money.setText(String.valueOf(this.mReceiveMoney));
     }
 
-    private DialogFragment mDialogFragment = null;
-
     @Override
-    public void onClickEnd() {
+    public void onClickEnd(View view) {
         if(!this.isValueCheck()) return;
 
         mDialogFragment = AccountResultDialogFragment.newInstance(R.string.dialog_kakunin, this.sumPrice, this.mReceiveMoney);

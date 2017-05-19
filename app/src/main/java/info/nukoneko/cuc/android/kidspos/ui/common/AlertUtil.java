@@ -4,21 +4,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 
 import info.nukoneko.cuc.android.kidspos.KPApplicationController;
 
 public final class AlertUtil {
     private AlertUtil(){}
-
-    public static void showAlert(@NonNull Context context, String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, null);
-        if (!TextUtils.isEmpty(title)) builder.setTitle(title);
-        if (!TextUtils.isEmpty(message)) builder.setMessage(message);
-        builder.show();
-    }
 
     public static void showErrorDialog(@NonNull Context context,
                                        String message, boolean cancelable,

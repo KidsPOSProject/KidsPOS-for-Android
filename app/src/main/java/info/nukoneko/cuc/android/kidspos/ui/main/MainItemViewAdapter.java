@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
-
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
@@ -17,8 +16,7 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
 import info.nukoneko.cuc.kidspos4j.model.ModelItem;
 
-@SuppressWarnings("WeakerAccess")
-public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
+final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
     public interface Listener {
         void onClickItem(@NonNull ModelItem item);
     }
@@ -26,7 +24,7 @@ public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemView
     private final ArrayList<ModelItem> mData = new ArrayList<>();
     private final Context context;
 
-    public MainItemViewAdapter(@NonNull final Context context) {
+    MainItemViewAdapter(@NonNull final Context context) {
         this.context = context;
     }
 
@@ -55,19 +53,19 @@ public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemView
      *
      * @param item 読み込んだ商品
      */
-    public void add(@NonNull ModelItem item) {
+    void add(@NonNull ModelItem item) {
         mData.add(0, item);
         notifyItemInserted(0);
         KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
     }
 
-    public void clear() {
+    void clear() {
         mData.clear();
         notifyDataSetChanged();
         KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
     }
 
-    public int getSumPrice() {
+    int getSumPrice() {
         int sum = 0;
         for (ModelItem item : mData) {
             sum += item.getPrice();
@@ -79,16 +77,16 @@ public final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemView
         return mData;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        final private ItemListItemBinding binding;
+    static final class ViewHolder extends RecyclerView.ViewHolder {
+        final private ItemListItemBinding mBinding;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
-            binding = DataBindingUtil.bind(view);
+            mBinding = DataBindingUtil.bind(view);
         }
 
         public ItemListItemBinding getBinding() {
-            return binding;
+            return mBinding;
         }
     }
 }

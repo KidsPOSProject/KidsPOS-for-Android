@@ -15,7 +15,7 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            if (TextUtils.isEmpty(mInputValue)) return false;
+            if (TextUtils.isEmpty(mInputValue) || 5 > mInputValue.length()) return false;
             final String typeCode = mInputValue.substring(2, 4);
             if (mInputValue.length() == 10) {
                 onInputBarcode(mInputValue, BarcodeRule.BARCODE_PREFIX.typeOf(typeCode));
