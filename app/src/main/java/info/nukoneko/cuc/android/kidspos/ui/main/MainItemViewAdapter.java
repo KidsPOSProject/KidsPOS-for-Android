@@ -9,37 +9,38 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding;
+import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
-import info.nukoneko.cuc.kidspos4j.model.ModelItem;
+import info.nukoneko.cuc.android.kidspos.event.obj.SumPriceUpdateEvent;
 
 final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
     public interface Listener {
-        void onClickItem(@NonNull ModelItem item);
+        void onClickItem(@NonNull Item item);
     }
 
-    private final ArrayList<ModelItem> mData = new ArrayList<>();
-    private final Context context;
+    private final List<Item> mData = new ArrayList<>();
+    private final Context mContext;
 
     MainItemViewAdapter(@NonNull final Context context) {
-        this.context = context;
+        mContext = context;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_list_item, parent, false));
+        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_list_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final ModelItem item = mData.get(position);
+        final Item item = mData.get(position);
         if (item == null) return;
         holder.getBinding().setItem(item);
         holder.getBinding().getRoot().setOnClickListener(v -> {
-            if (context instanceof Listener) ((Listener) context).onClickItem(item);
+            if (mContext instanceof Listener) ((Listener) mContext).onClickItem(item);
         });
     }
 
@@ -53,27 +54,27 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
      *
      * @param item 読み込んだ商品
      */
-    void add(@NonNull ModelItem item) {
+    void add(@NonNull Item item) {
         mData.add(0, item);
         notifyItemInserted(0);
-        KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
+        KPEventBusProvider.getInstance().send(new SumPriceUpdateEvent(getSumPrice()));
     }
 
     void clear() {
         mData.clear();
         notifyDataSetChanged();
-        KPEventBusProvider.getInstance().send(new KPEventUpdateSumPrice(getSumPrice()));
+        KPEventBusProvider.getInstance().send(new SumPriceUpdateEvent(getSumPrice()));
     }
 
     int getSumPrice() {
         int sum = 0;
-        for (ModelItem item : mData) {
+        for (Item item : mData) {
             sum += item.getPrice();
         }
         return sum;
     }
 
-    public ArrayList<ModelItem> getData() {
+    public List<Item> getData() {
         return mData;
     }
 

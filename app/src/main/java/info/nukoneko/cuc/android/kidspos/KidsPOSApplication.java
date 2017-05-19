@@ -10,29 +10,32 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Locale;
 
+import info.nukoneko.cuc.android.kidspos.api.APIService;
+import info.nukoneko.cuc.android.kidspos.api.ApiManager;
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
+import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
 import info.nukoneko.cuc.android.kidspos.util.manager.StoreManager;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.cuc.kidspos4j.KidsPos4jConfig;
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
-import info.nukoneko.cuc.kidspos4j.model.ModelStore;
 import rx.Observable;
 
-public class KidPOSApplication extends Application {
+public class KidsPOSApplication extends Application {
 
     // こちらを有効にすると普通の動作ができなくなります
-    private final static boolean isTestMode = false;
+    private final static boolean isTestMode = true;
 
     private StoreManager mStoreManager = null;
     private SettingsManager mSettingsManager = null;
+    private ApiManager mApiManager = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         mStoreManager = new StoreManager(this);
-        mSettingsManager = new SettingsManager(this) {{
+        mApiManager = new ApiManager(this);
+        mSettingsManager = new SettingsManager(this, () -> mApiManager.updateApiService()) {{
             if (TextUtils.isEmpty(getServerIP()) || !MiscUtil.isIpAddressValid(getServerIP())) {
                 backToDefaultIpSetting();
             }
@@ -40,31 +43,28 @@ public class KidPOSApplication extends Application {
                 backToDefaultPortSetting();
             }
         }};
-
-        KidsPos4jConfig.setDebug(true);
-        KidsPos4jConfig.setDefaultUrl(false, getServerIpPortText());
     }
 
     @NonNull
-    public static KidPOSApplication get(@NonNull Context context){
-        return (KidPOSApplication) context.getApplicationContext();
+    public static KidsPOSApplication get(@NonNull Context context){
+        return (KidsPOSApplication) context.getApplicationContext();
     }
 
     @Nullable
-    public ModelStore getCurrentStore() {
+    public Store getCurrentStore() {
         return mStoreManager.getCurrentStore();
     }
 
     @Nullable
-    public ModelStaff getCurrentStaff() {
+    public Staff getCurrentStaff() {
         return mStoreManager.getCurrentStaff();
     }
 
-    public void updateCurrentStore(ModelStore store) {
+    public void updateCurrentStore(Store store) {
         mStoreManager.setCurrentStore(store);
     }
 
-    public void updateCurrentStaff(ModelStaff staff) {
+    public void updateCurrentStaff(Staff staff) {
         mStoreManager.setCurrentStaff(staff);
     }
 
@@ -83,6 +83,10 @@ public class KidPOSApplication extends Application {
 
     public void sendErrorReport(@NonNull String errorMessage) {
 
+    }
+
+    public APIService getApiService() {
+        return mApiManager.getApiService();
     }
 
     public Observable<Boolean> checkServerReachable() {

@@ -13,21 +13,22 @@ import android.widget.Toast;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
+import info.nukoneko.cuc.android.kidspos.entity.Item;
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventAvailableUpdate;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStaff;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateStore;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventUpdateSumPrice;
+import info.nukoneko.cuc.android.kidspos.event.obj.BinaryUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.obj.StaffUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.obj.StoreUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
+import info.nukoneko.cuc.android.kidspos.event.obj.SumPriceUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
-import info.nukoneko.cuc.android.kidspos.util.DummyModelCreator;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.cuc.kidspos4j.api.APIManager;
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
-import info.nukoneko.cuc.kidspos4j.util.config.BarcodeRule;
+import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import rx.android.schedulers.AndroidSchedulers;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
@@ -63,20 +64,20 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 .compose(bindToLifecycle())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> {
-                    if (event instanceof KPEventAvailableUpdate) {
+                    if (event instanceof BinaryUpdateEvent) {
                         Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
-                    } else if (event instanceof KPEventUpdateSumPrice) {
-                        mViewModel.setSumPrice(((KPEventUpdateSumPrice) event).getCurrentValue());
+                    } else if (event instanceof SumPriceUpdateEvent) {
+                        mViewModel.setSumPrice(((SumPriceUpdateEvent) event).getCurrentValue());
                         if (mAdapter.getItemCount() > 0) {
                             mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
                         }
-                    } else if (event instanceof KPEventSendFinish) {
+                    } else if (event instanceof SuccessSentSaleEvent) {
                         mAdapter.clear();
-                    } else if (event instanceof KPEventUpdateStore) {
-                        mViewModel.setCurrentStore(((KPEventUpdateStore) event).getStore());
+                    } else if (event instanceof StoreUpdateEvent) {
+                        mViewModel.setCurrentStore(((StoreUpdateEvent) event).getStore());
                         updateTitle();
-                    } else if (event instanceof KPEventUpdateStaff) {
-                        mViewModel.setCurrentStaff(((KPEventUpdateStaff) event).getStaff());
+                    } else if (event instanceof StaffUpdateEvent) {
+                        mViewModel.setCurrentStaff(((StaffUpdateEvent) event).getStaff());
                         updateTitle();
                     }
                 });
@@ -103,7 +104,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
     private void updateTitle() {
         String title = getString(R.string.app_name);
-        if (getApp().getCurrentStore() != null) title += String.format(" [%s]", getApp().getCurrentStore().getName());
+        if (getApp().getCurrentStore() != null)
+            title += String.format(" [%s]", getApp().getCurrentStore().getName());
         if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
         if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
 
@@ -140,37 +142,52 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     /**
      * 読み取ったバーコードを用いてデータを取得する。
      * スタッフの登録作業が必要になる可能性がある
+     *
      * @param barcode barcode
-     * @param type barcode type
+     * @param prefix  barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull String barcode, BarcodeRule.BARCODE_PREFIX type) {
+    public void onInputBarcode(@NonNull String barcode, BarcodePrefix prefix) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
-            if (type == BarcodeRule.BARCODE_PREFIX.UNKNOWN) {
-                mAdapter.add(DummyModelCreator.getFakeItem(barcode));
-                mViewModel.setCurrentStaff(DummyModelCreator.getFakeStaff(barcode));
+            if (prefix == BarcodePrefix.UNKNOWN) {
+                mAdapter.add(Item.createFake(barcode));
+                mViewModel.setCurrentStaff(Staff.createFake(barcode));
                 return;
             }
         }
 
         // サーバから取得する
-        switch (type) {
+        switch (prefix) {
             case ITEM:
-                RxWrap.create(APIManager.Item().readItem(barcode), bindToLifecycle())
-                        .subscribe(item -> {
-                            mAdapter.add(item);
-                        }, throwable -> {
-                            Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                getApp().getApiService().readItem(barcode)
+                        .enqueue(new Callback<Item>() {
+                            @Override
+                            public void onResponse(Call<Item> call, Response<Item> response) {
+                                mAdapter.add(response.body());
+                            }
+
+                            @Override
+                            public void onFailure(Call<Item> call, Throwable t) {
+                                Toast.makeText(MainActivity.this,
+                                        String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                            }
                         });
                 break;
             case STAFF:
-                RxWrap.create(APIManager.Staff().getStaff(barcode), bindToLifecycle())
-                        .subscribe(modelStaff -> {
-                            getApp().updateCurrentStaff(modelStaff);
-                        }, throwable -> {
-                            Toast.makeText(this, "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
-                            getApp().updateCurrentStaff(getDummyStaff(barcode));
+                getApp().getApiService().getStaff(barcode)
+                        .enqueue(new Callback<Staff>() {
+                            @Override
+                            public void onResponse(Call<Staff> call, Response<Staff> response) {
+                                getApp().updateCurrentStaff(response.body());
+                            }
+
+                            @Override
+                            public void onFailure(Call<Staff> call, Throwable t) {
+                                Toast.makeText(MainActivity.this,
+                                        "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
+                                getApp().updateCurrentStaff(Staff.createFake(barcode));
+                            }
                         });
                 break;
             case SALE:
@@ -179,12 +196,5 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             case UNKNOWN:
                 break;
         }
-    }
-
-    private ModelStaff getDummyStaff(String barcode) {
-        final ModelStaff staff = new ModelStaff();
-        staff.setBarcode(barcode);
-        staff.setName("スタッフ");
-        return staff;
     }
 }

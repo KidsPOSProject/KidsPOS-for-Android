@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -16,15 +17,17 @@ import java.util.List;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityCalculatorBinding;
+import info.nukoneko.cuc.android.kidspos.entity.Item;
+import info.nukoneko.cuc.android.kidspos.entity.Sale;
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
+import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.KPEventSendFinish;
+import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import info.nukoneko.cuc.kidspos4j.api.APIManager;
-import info.nukoneko.cuc.kidspos4j.model.ModelItem;
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
-import info.nukoneko.cuc.kidspos4j.model.ModelStore;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalculatorActivity extends BaseActivity implements CalculatorLayout.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_SUM_PRICE = "sum_price";
@@ -36,12 +39,12 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
 
     public static void startActivity(@NonNull final Context context,
                                      int sumPrice,
-                                     @NonNull List<ModelItem> saleItems) {
+                                     @NonNull List<Item> saleItems) {
         if (sumPrice == 0) return;
 
         final Intent intent = new Intent(context, CalculatorActivity.class) {{
             putExtra(EXTRA_SUM_PRICE, sumPrice);
-            putExtra(EXTRA_SALE_ITEMS, saleItems.toArray(new ModelItem[saleItems.size()]));
+            putExtra(EXTRA_SALE_ITEMS, saleItems.toArray(new Item[saleItems.size()]));
         }};
 
         context.startActivity(intent);
@@ -59,10 +62,15 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
         return getIntent().getExtras().getInt(EXTRA_SUM_PRICE);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @NonNull
-    private ModelItem[] getSaleItems() {
-        //noinspection ConstantConditions
-        return (ModelItem[]) getIntent().getExtras().getSerializable(EXTRA_SALE_ITEMS);
+    private Item[] getSaleItems() {
+        final Parcelable[] parcelables = getIntent().getExtras().getParcelableArray(EXTRA_SALE_ITEMS);
+        Item[] ret = new Item[parcelables.length];
+        for (int i = 0; i < parcelables.length; i++) {
+            ret[i] = (Item) parcelables[i];
+        }
+        return ret;
     }
 
     @Override
@@ -101,13 +109,14 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
 
     private void send() {
         String sum = "";
-        for (ModelItem item : getSaleItems()) {
+        for (Item item : getSaleItems()) {
             sum += String.valueOf(item.getId()) + ",";
         }
         sum = sum.substring(0, sum.length() - 1);
-        final ModelStaff staff = getApp().getCurrentStaff();
-        final ModelStore store = getApp().getCurrentStore();
+        final Staff staff = getApp().getCurrentStaff();
+        final Store store = getApp().getCurrentStore();
         final String staffBarcode = staff == null ? "" : staff.getBarcode();
+        final int storeId = store == null ? 0 : store.getId();
 
         if (getApp().isPracticeModeEnabled()) {
             Toast.makeText(this, "練習モードのためレシートは出ません", Toast.LENGTH_SHORT).show();
@@ -115,17 +124,27 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
         } else {
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setTitle("送信しています");
-            RxWrap.create(APIManager.Sale().createSale(mReceiveMoney, getSaleItems().length,
-                    getSumPrice(), sum, store.getId(), staffBarcode), dialog, bindToLifecycle())
-                    .subscribe(
-                            modelSale -> finishActivity(),
-                            throwable -> AlertUtil.showErrorDialog(this, throwable, (dialogInterface, i) -> finishActivity()));
+            dialog.show();
+            getApp().getApiService().createSale(mReceiveMoney, getSaleItems().length, getSumPrice(),
+                    sum, storeId, staffBarcode).enqueue(new Callback<Sale>() {
+                @Override
+                public void onResponse(Call<Sale> call, Response<Sale> response) {
+                    dialog.dismiss();
+                    finishActivity();
+                }
+
+                @Override
+                public void onFailure(Call<Sale> call, Throwable t) {
+                    dialog.dismiss();
+                    AlertUtil.showErrorDialog(CalculatorActivity.this, t, (dialogInterface, i) -> finishActivity());
+                }
+            });
         }
     }
 
     private void finishActivity() {
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
-        KPEventBusProvider.getInstance().send(new KPEventSendFinish());
+        KPEventBusProvider.getInstance().send(new SuccessSentSaleEvent());
         finish();
     }
 
