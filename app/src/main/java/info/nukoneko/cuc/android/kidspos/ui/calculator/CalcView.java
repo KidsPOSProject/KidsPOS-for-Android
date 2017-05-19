@@ -1,16 +1,14 @@
 package info.nukoneko.cuc.android.kidspos.ui.calculator;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.databinding.DataBindingUtil;
+import android.support.annotation.IdRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import info.nukoneko.cuc.android.kidspos.R;
+import info.nukoneko.cuc.android.kidspos.databinding.ViewCalculatorBinding;
 
 public class CalcView extends LinearLayout {
     public interface Listener {
@@ -19,13 +17,11 @@ public class CalcView extends LinearLayout {
         void onClickEnd();
     }
 
-    @OnClick({
-            R.id.calc_num_0, R.id.calc_num_1, R.id.calc_num_2, R.id.calc_num_3, R.id.calc_num_4,
-            R.id.calc_num_5, R.id.calc_num_6, R.id.calc_num_7, R.id.calc_num_8, R.id.calc_num_9,
-    }) void onClickNumber(Button numberButton){
-        if (getListener() == null) return;
+    private OnClickListener mOnValueClickListener = view -> {
+        // 応急処置
+        @IdRes final int id = view.getId();
         final int number;
-        switch (numberButton.getId()){
+        switch (id) {
             case R.id.calc_num_0:
                 number = 0;
                 break;
@@ -57,23 +53,12 @@ public class CalcView extends LinearLayout {
                 number = 9;
                 break;
             default:
-                number = 0;
-                break;
+                return;
         }
-        getListener().onClickNumber(number);
-    }
-
-    @OnClick(R.id.calc_num_C) void onClickClear(){
-        if (getListener() != null) {
-            getListener().onClickClear();
+        if (getContext() instanceof Listener) {
+            ((Listener) getContext()).onClickNumber(number);
         }
-    }
-
-    @OnClick(R.id.calc_num_end) void onClickEnd(){
-        if (getListener() != null) {
-            getListener().onClickEnd();
-        }
-    }
+    };
 
     public CalcView(Context context) {
         this(context, null, 0);
@@ -85,12 +70,19 @@ public class CalcView extends LinearLayout {
 
     public CalcView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        View view = LayoutInflater.from(context).inflate(R.layout.view_calculator, this);
-        ButterKnife.bind(this, view);
-    }
+        final ViewCalculatorBinding binding =
+                DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.view_calculator, this, true);
+        binding.setListener(mOnValueClickListener);
+        binding.calcNumC.setOnClickListener(view -> {
+            if (context instanceof Listener) {
+                ((Listener) context).onClickClear();
+            }
+        });
 
-    @Nullable
-    private Listener getListener() {
-        return (getContext() instanceof Listener) ? (Listener) getContext() : null;
+        binding.calcNumEnd.setOnClickListener(view -> {
+            if (context instanceof Listener) {
+                ((Listener) context).onClickEnd();
+            }
+        });
     }
 }
