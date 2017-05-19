@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
-
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,7 +30,6 @@ import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
 import info.nukoneko.cuc.kidspos4j.util.config.BarcodeRule;
 import rx.android.schedulers.AndroidSchedulers;
 
-@SuppressWarnings("FieldCanBeLocal")
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
     private ActivityMainBinding mBinding;
