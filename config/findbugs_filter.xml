@@ -25,8 +25,4 @@
         <Class name="~.*\.Manifest\$.*"/>
     </Match>
 
-    <Match>
-        <Class name="~.*\.*\$.*"/>
-    </Match>
-
 </FindBugsFilter>
