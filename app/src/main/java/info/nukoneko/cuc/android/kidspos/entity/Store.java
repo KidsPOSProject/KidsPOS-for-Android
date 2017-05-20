@@ -6,6 +6,15 @@ public final class Store {
     private int id;
     private String name;
 
+    public Store(){
+
+    }
+
+    public Store(String name) {
+        this.id = 0;
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }

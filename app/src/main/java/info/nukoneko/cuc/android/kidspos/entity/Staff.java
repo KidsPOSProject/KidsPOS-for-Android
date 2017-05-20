@@ -8,11 +8,9 @@ public final class Staff {
      * for fake
      * @param barcode barcode
      */
-    public static Staff createFake(String barcode) {
-        final Staff staff = new Staff();
-        staff.barcode = barcode;
-        staff.name = "FakeStaff";
-        return staff;
+    public Staff(String barcode) {
+        this.barcode = barcode;
+        this.name = "FakeStaff";
     }
 
     public String getBarcode() {

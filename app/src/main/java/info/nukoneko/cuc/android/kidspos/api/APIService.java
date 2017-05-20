@@ -13,12 +13,11 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import rx.Observable;
 
 public interface APIService {
     @FormUrlEncoded
     @POST("sale/create")
-    Observable<Sale> createSale(
+    Call<Sale> createSale(
             @Field("received") int receiveMoney,
             @Field("points") int saleItemCount,
             @Field("price") int sumPrice,
@@ -27,11 +26,11 @@ public interface APIService {
             @Field("staffBarcode") String staffCode);
 
     @GET("item/{barcode}")
-    Observable<Item> readItem(@Path("barcode") String itemBarcode);
+    Call<Item> readItem(@Path("barcode") String itemBarcode);
 
     @GET("staff")
-    Observable<Staff> getStaff(@Query("barcode") String staffBarcode);
+    Call<Staff> getStaff(@Query("barcode") String staffBarcode);
 
     @GET("store/list")
-    Observable<List<Store>> getStoreList();
+    Call<List<Store>> getStoreList();
 }
