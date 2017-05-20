@@ -25,9 +25,8 @@ import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
+import rx.Observable;
 
 public class CalculatorActivity extends BaseActivity implements CalculatorLayout.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_SUM_PRICE = "sum_price";
@@ -125,20 +124,17 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setTitle("送信しています");
             dialog.show();
-            getApp().getApiService().createSale(mReceiveMoney, getSaleItems().length, getSumPrice(),
-                    sum, storeId, staffBarcode).enqueue(new Callback<Sale>() {
-                @Override
-                public void onResponse(Call<Sale> call, Response<Sale> response) {
-                    dialog.dismiss();
-                    finishActivity();
-                }
+            final Observable<Sale> observable = getApp().getApiService()
+                    .createSale(mReceiveMoney, getSaleItems().length, getSumPrice(), sum, storeId, staffBarcode);
 
-                @Override
-                public void onFailure(Call<Sale> call, Throwable t) {
-                    dialog.dismiss();
-                    AlertUtil.showErrorDialog(CalculatorActivity.this, t, (dialogInterface, i) -> finishActivity());
-                }
-            });
+            RxWrap.create(observable)
+                    .subscribe(sale -> {
+                        dialog.dismiss();
+                        finishActivity();
+                    }, throwable -> {
+                        dialog.dismiss();
+                        AlertUtil.showErrorDialog(this, throwable, (dialogInterface, i) -> finishActivity());
+                    });
         }
     }
 

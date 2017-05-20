@@ -15,6 +15,7 @@ import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
+import info.nukoneko.cuc.android.kidspos.event.KPEvent;
 import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
 import info.nukoneko.cuc.android.kidspos.event.obj.BinaryUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.event.obj.StaffUpdateEvent;
@@ -26,10 +27,8 @@ import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import rx.android.schedulers.AndroidSchedulers;
+import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
+import rx.Observable;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
@@ -60,9 +59,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         mViewModel.setCurrentStore(getApp().getCurrentStore());
         mViewModel.setCurrentStaff(getApp().getCurrentStaff());
 
-        KPEventBusProvider.getInstance().toObservable()
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
+        final Observable<KPEvent> observable = KPEventBusProvider.getInstance().toObservable().compose(bindToLifecycle());
+        RxWrap.create(observable)
                 .subscribe(event -> {
                     if (event instanceof BinaryUpdateEvent) {
                         Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
@@ -80,7 +78,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         mViewModel.setCurrentStaff(((StaffUpdateEvent) event).getStaff());
                         updateTitle();
                     }
-                });
+                }, Throwable::printStackTrace);
     }
 
     @Override
@@ -95,16 +93,14 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
                 AlertUtil.showErrorDialog(this, "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
                         false,
-                        (dialog, which) -> {
-                            SettingsActivity.startActivity(this);
-                        });
+                        (dialog, which) -> SettingsActivity.startActivity(this));
             });
         }
     }
 
     private void updateTitle() {
         String title = getString(R.string.app_name);
-        if (getApp().getCurrentStore() != null)
+        if (getApp().getCurrentStore() != null && getApp().getCurrentStore().isValid())
             title += String.format(" [%s]", getApp().getCurrentStore().getName());
         if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
         if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
@@ -159,37 +155,26 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
         // サーバから取得する
         switch (prefix) {
-            case ITEM:
-                getApp().getApiService().readItem(barcode)
-                        .enqueue(new Callback<Item>() {
-                            @Override
-                            public void onResponse(Call<Item> call, Response<Item> response) {
-                                mAdapter.add(response.body());
-                            }
-
-                            @Override
-                            public void onFailure(Call<Item> call, Throwable t) {
-                                Toast.makeText(MainActivity.this,
-                                        String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            case ITEM: {
+                final Observable<Item> observable = getApp().getApiService().readItem(barcode);
+                RxWrap.create(observable)
+                        .subscribe(
+                                item -> mAdapter.add(item),
+                                throwable -> Toast.makeText(this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show());
                 break;
-            case STAFF:
-                getApp().getApiService().getStaff(barcode)
-                        .enqueue(new Callback<Staff>() {
-                            @Override
-                            public void onResponse(Call<Staff> call, Response<Staff> response) {
-                                getApp().updateCurrentStaff(response.body());
-                            }
-
-                            @Override
-                            public void onFailure(Call<Staff> call, Throwable t) {
-                                Toast.makeText(MainActivity.this,
-                                        "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
-                                getApp().updateCurrentStaff(Staff.createFake(barcode));
-                            }
-                        });
+            }
+            case STAFF: {
+                final Observable<Staff> observable = getApp().getApiService().getStaff(barcode);
+                RxWrap.create(observable)
+                        .subscribe(
+                                staff -> getApp().updateCurrentStaff(staff),
+                                throwable -> {
+                                    Toast.makeText(this,
+                                            "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
+                                    getApp().updateCurrentStaff(Staff.createFake(barcode));
+                                });
                 break;
+            }
             case SALE:
                 Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
                 break;
