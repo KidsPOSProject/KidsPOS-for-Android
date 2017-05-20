@@ -7,9 +7,9 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.text.TextUtils;
 
+import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.ChangeStateEvent;
+import info.nukoneko.cuc.android.kidspos.event.ChangeStateEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
@@ -25,9 +25,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        final KidsPOSApplication app = KidsPOSApplication.get(getContext());
+
         switch (key) {
             case SettingsManager.KEY_ENABLE_PRACTICE_MODE:
-                KPEventBusProvider.getInstance().send(new ChangeStateEvent());
+                app.postEvent(new ChangeStateEvent());
                 break;
             case SettingsManager.KEY_SERVER_IP:
                 final String ip = sharedPreferences.getString(key, "");

@@ -2,6 +2,7 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,31 +13,36 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
-import info.nukoneko.cuc.android.kidspos.event.KPEvent;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.BinaryUpdateEvent;
-import info.nukoneko.cuc.android.kidspos.event.obj.StaffUpdateEvent;
-import info.nukoneko.cuc.android.kidspos.event.obj.StoreUpdateEvent;
-import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
-import info.nukoneko.cuc.android.kidspos.event.obj.SumPriceUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.BinaryUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.ChangeStateEvent;
+import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
+import info.nukoneko.cuc.android.kidspos.event.SumPriceUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
+import info.nukoneko.cuc.android.kidspos.util.KidsPOSLogger;
+import info.nukoneko.cuc.android.kidspos.util.LogFilter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observable;
-import rx.functions.Action1;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
+        implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
     private ActivityMainBinding mBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
@@ -63,71 +69,49 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
         mViewModel.setCurrentStore(getApp().getCurrentStore());
         mViewModel.setCurrentStaff(getApp().getCurrentStaff());
-
-        final Observable<KPEvent> observable = KPEventBusProvider.getInstance().toObservable();
-        RxWrap.create(observable)
-                .subscribe(new Action1<KPEvent>() {
-                    @Override
-                    public void call(KPEvent event) {
-                        if (event instanceof BinaryUpdateEvent) {
-                            Toast.makeText(MainActivity.this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
-                        } else if (event instanceof SumPriceUpdateEvent) {
-                            mViewModel.setSumPrice(((SumPriceUpdateEvent) event).getCurrentValue());
-                            if (mAdapter.getItemCount() > 0) {
-                                mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
-                            }
-                        } else if (event instanceof SuccessSentSaleEvent) {
-                            mAdapter.clear();
-                        } else if (event instanceof StoreUpdateEvent) {
-                            mViewModel.setCurrentStore(((StoreUpdateEvent) event).getStore());
-                            updateTitle();
-                        } else if (event instanceof StaffUpdateEvent) {
-                            mViewModel.setCurrentStaff(((StaffUpdateEvent) event).getStaff());
-                            updateTitle();
-                        }
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         updateTitle();
-
         if (!getApp().isPracticeModeEnabled()) {
-            getApp().checkServerReachable().subscribe(new Action1<Boolean>() {
-                @Override
-                public void call(Boolean isReachable) {
-                    if (isReachable) return;
-
-                    AlertUtil.showErrorDialog(MainActivity.this,
-                            "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                            false,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    SettingsActivity.startActivity(MainActivity.this);
-                                }
-                            });
-                }
-            });
+            checkReachableServer();
         }
     }
 
-    private void updateTitle() {
-        String title = getString(R.string.app_name);
-        if (getApp().getCurrentStore() != null && getApp().getCurrentStore().isValid())
-            title += String.format(" [%s]", getApp().getCurrentStore().getName());
-        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
-        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBinaryUpdate(BinaryUpdateEvent event) {
+        Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
+    }
 
-        mBinding.appBarLayout.toolbar.setTitle(title);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSumPriceUpdate(SumPriceUpdateEvent event) {
+        mViewModel.setSumPrice(event.getCurrentValue());
+        if (mAdapter.getItemCount() > 0) {
+            mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSuccessSentSale(SuccessSentSaleEvent event) {
+        mAdapter.clear();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onStoreUpdate(StoreUpdateEvent event) {
+        mViewModel.setCurrentStore(event.getStore());
+        updateTitle();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onStaffUpdate(StaffUpdateEvent event) {
+        Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onChangeState(ChangeStateEvent event) {
+        mAdapter.clear();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -155,6 +139,16 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     @Override
     public void onClickAccount(View view) {
         CalculatorActivity.startActivity(this, mAdapter.getSumPrice(), mAdapter.getData());
+    }
+
+    @Override
+    public void onClickItem(@NonNull Item item) {
+
+    }
+
+    @Override
+    public void onUpdateSumPrice(int sumPrice) {
+        getApp().postEvent(new SumPriceUpdateEvent(sumPrice));
     }
 
     /**
@@ -215,5 +209,49 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             case UNKNOWN:
                 break;
         }
+    }
+
+    private void updateTitle() {
+        String title = getString(R.string.app_name);
+        if (getApp().getCurrentStore() != null && getApp().getCurrentStore().isValid())
+            title += String.format(" [%s]", getApp().getCurrentStore().getName());
+        if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
+        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
+
+        mBinding.appBarLayout.toolbar.setTitle(title);
+    }
+
+    private void checkReachableServer() {
+        final KidsPOSApplication app = getApp();
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    final Socket sock = new Socket();
+                    sock.connect(new InetSocketAddress(app.getServerIp(), Integer.parseInt(app.getServerPort())), 2000);
+                    sock.close();
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean isReachable) {
+                KidsPOSLogger.d(LogFilter.SERVER, "checkReachableServer %b", isReachable);
+                if (isReachable) return;
+
+                AlertUtil.showErrorDialog(MainActivity.this,
+                        "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
+                        false,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SettingsActivity.startActivity(MainActivity.this);
+                            }
+                        });
+            }
+        }.execute();
     }
 }
