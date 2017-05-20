@@ -1,5 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.util.rx;
 
+import android.content.Context;
+
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -15,5 +17,9 @@ public final class RxWrap {
 
     public static <T> Observable<T> create(Observable<T> observable) {
         return createBase(observable);
+    }
+
+    public static <T> Observable<T> create(Observable<T> observable, Observable.Transformer<T, T> bindContext) {
+        return createBase(observable).compose(bindContext);
     }
 }
