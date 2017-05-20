@@ -2,29 +2,31 @@ package info.nukoneko.cuc.android.kidspos;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Locale;
 
 import info.nukoneko.cuc.android.kidspos.api.APIService;
 import info.nukoneko.cuc.android.kidspos.api.ApiManager;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
+import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
+import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
 import info.nukoneko.cuc.android.kidspos.util.manager.StoreManager;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
-import rx.Observable;
-import rx.Subscriber;
 
 public class KidsPOSApplication extends Application {
 
     // こちらを有効にすると普通の動作ができなくなります
     private final static boolean isTestMode = false;
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private StoreManager mStoreManager = null;
     private SettingsManager mSettingsManager = null;
@@ -34,7 +36,17 @@ public class KidsPOSApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        mStoreManager = new StoreManager(this);
+        mStoreManager = new StoreManager(this, new StoreManager.Listener() {
+            @Override
+            public void onUpdateStaff(@NonNull Staff staff) {
+                postEvent(new StaffUpdateEvent(staff));
+            }
+
+            @Override
+            public void onUpdateStore(@NonNull Store store) {
+                postEvent(new StoreUpdateEvent(store));
+            }
+        });
         mApiManager = new ApiManager(this);
         mSettingsManager = new SettingsManager(this, new SettingsManager.Listener() {
             @Override
@@ -83,34 +95,31 @@ public class KidsPOSApplication extends Application {
     }
 
     public String getServerIpPortText() {
-        final String serverId = mSettingsManager.getServerIP();
-        final String serverPort = mSettingsManager.getServerPort();
-        return String.format(Locale.getDefault(), "%s:%s", serverId, serverPort);
+        return String.format(Locale.getDefault(), "%s:%s", getServerIp(), getServerPort());
     }
 
-    public void sendErrorReport(@NonNull String errorMessage) {
+    public String getServerIp() {
+        return mSettingsManager.getServerIP();
+    }
 
+    public String getServerPort() {
+        return mSettingsManager.getServerPort();
     }
 
     public APIService getApiService() {
         return mApiManager.getApiService();
     }
 
-    public Observable<Boolean> checkServerReachable() {
-        return RxWrap.create(Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                try {
-                    final Socket sock = new Socket();
-                    sock.connect(new InetSocketAddress(mSettingsManager.getServerIP(), Integer.parseInt(mSettingsManager.getServerPort())), 2000);
-                    sock.close();
-                    subscriber.onNext(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    subscriber.onNext(false);
+    public void postEvent(final Object event) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            EventBus.getDefault().post(event);
+        } else {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    EventBus.getDefault().post(event);
                 }
-                subscriber.onCompleted();
-            }
-        }));
+            });
+        }
     }
 }

@@ -45,10 +45,6 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    
-    packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -75,8 +71,9 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 
-    // Rx
-    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'org.greenrobot:eventbus:3.0.0'
+
+    debugCompile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
 
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

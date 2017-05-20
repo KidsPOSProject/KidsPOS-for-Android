@@ -1,11 +1,10 @@
-package info.nukoneko.cuc.android.kidspos.event.obj;
+package info.nukoneko.cuc.android.kidspos.event;
 
 import android.support.annotation.Nullable;
 
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.event.KPEvent;
 
-public final class StoreUpdateEvent implements KPEvent {
+public final class StoreUpdateEvent {
     @Nullable
     private final Store mStore;
 

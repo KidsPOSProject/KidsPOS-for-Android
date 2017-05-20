@@ -22,15 +22,12 @@ import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Sale;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
+import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observable;
 
 public class CalculatorActivity extends BaseActivity implements CalculatorLayout.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_SUM_PRICE = "sum_price";
@@ -141,12 +138,14 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
                         @Override
                         public void onFailure(Call<Sale> call, Throwable t) {
                             dialog.dismiss();
-                            AlertUtil.showErrorDialog(CalculatorActivity.this, t, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    finishActivity();
-                                }
-                            });
+                            t.printStackTrace();
+                            AlertUtil.showErrorDialog(CalculatorActivity.this, t.getLocalizedMessage(), false,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            finishActivity();
+                                        }
+                                    });
                         }
                     });
         }
@@ -154,7 +153,7 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
 
     private void finishActivity() {
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
-        KPEventBusProvider.getInstance().send(new SuccessSentSaleEvent());
+        getApp().postEvent(new SuccessSentSaleEvent());
         finish();
     }
 
