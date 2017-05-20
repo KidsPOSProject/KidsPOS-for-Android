@@ -10,7 +10,12 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
 
 public final class LaunchActivity extends BaseActivity {
     private final Handler mHandler = new Handler();
-    private final Runnable mTask = this::startActivity;
+    private final Runnable mTask = new Runnable() {
+        @Override
+        public void run() {
+            startActivity();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

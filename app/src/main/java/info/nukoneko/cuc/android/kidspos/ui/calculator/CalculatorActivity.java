@@ -3,6 +3,7 @@ package info.nukoneko.cuc.android.kidspos.ui.calculator;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -21,8 +22,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Sale;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.SuccessSentSaleEvent;
+import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
 import retrofit2.Call;
@@ -38,8 +38,8 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
     private DialogFragment mDialogFragment = null;
 
     public static void startActivity(@NonNull final Context context,
-                                     int sumPrice,
-                                     @NonNull List<Item> saleItems) {
+                                     final int sumPrice,
+                                     @NonNull final List<Item> saleItems) {
         if (sumPrice == 0) return;
 
         final Intent intent = new Intent(context, CalculatorActivity.class) {{
@@ -125,26 +125,35 @@ public class CalculatorActivity extends BaseActivity implements CalculatorLayout
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setTitle("送信しています");
             dialog.show();
-            getApp().getApiService().createSale(mReceiveMoney, getSaleItems().length, getSumPrice(),
-                    sum, storeId, staffBarcode).enqueue(new Callback<Sale>() {
-                @Override
-                public void onResponse(Call<Sale> call, Response<Sale> response) {
-                    dialog.dismiss();
-                    finishActivity();
-                }
 
-                @Override
-                public void onFailure(Call<Sale> call, Throwable t) {
-                    dialog.dismiss();
-                    AlertUtil.showErrorDialog(CalculatorActivity.this, t, (dialogInterface, i) -> finishActivity());
-                }
-            });
+            getApp().getApiService()
+                    .createSale(mReceiveMoney, getSaleItems().length, getSumPrice(), sum, storeId, staffBarcode)
+                    .enqueue(new Callback<Sale>() {
+                        @Override
+                        public void onResponse(Call<Sale> call, Response<Sale> response) {
+                            dialog.dismiss();
+                            finishActivity();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Sale> call, Throwable t) {
+                            dialog.dismiss();
+                            t.printStackTrace();
+                            AlertUtil.showErrorDialog(CalculatorActivity.this, t.getLocalizedMessage(), false,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            finishActivity();
+                                        }
+                                    });
+                        }
+                    });
         }
     }
 
     private void finishActivity() {
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
-        KPEventBusProvider.getInstance().send(new SuccessSentSaleEvent());
+        getApp().postEvent(new SuccessSentSaleEvent());
         finish();
     }
 

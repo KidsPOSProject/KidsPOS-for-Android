@@ -25,6 +25,6 @@
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_weight="0.2"
-            android:checked="@{selected}" />
+            android:checked="@{selected &amp;&amp; store.valid}" />
     </LinearLayout>
 </layout>
