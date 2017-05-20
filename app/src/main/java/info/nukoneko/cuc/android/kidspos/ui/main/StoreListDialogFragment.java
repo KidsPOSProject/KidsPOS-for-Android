@@ -27,6 +27,9 @@ import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import rx.Observable;
 
 public final class StoreListDialogFragment extends BaseDialogFragment {
@@ -62,15 +65,21 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
 
         mBinding.setLoading(true);
 
-        final KidsPOSApplication app = KidsPOSApplication.get(getContext());
-        final Observable<List<Store>> observable = app.getApiService().getStoreList();
-        RxWrap.create(observable, bindToLifecycle())
-                .subscribe(stores -> {
-                    mBinding.setLoading(false);
-                    mAdapter.addAll(stores);
-                }, throwable -> {
-                    mBinding.setLoading(false);
-                    AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, (dialog, which) -> getDialog().dismiss());
+        KidsPOSApplication.get(getContext()).getApiService()
+                .getStoreList()
+                .enqueue(new Callback<List<Store>>() {
+                    @Override
+                    public void onResponse(Call<List<Store>> call, Response<List<Store>> response) {
+                        mBinding.setLoading(false);
+                        mAdapter.addAll(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Store>> call, Throwable t) {
+                        mBinding.setLoading(false);
+                        t.printStackTrace();
+                        AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, (dialog, which) -> getDialog().dismiss());
+                    }
                 });
     }
 

@@ -1,11 +1,5 @@
 #------ KidsPOS4j ------
 
-##------ sqlite-jdbc ------
--keep class org.sqlite.** {
-    <fields>;
-    <methods>;
-}
-
 ##------ okhttp3 ------
 -dontwarn com.squareup.okhttp3.**
 -keep class com.squareup.okhttp3.* { *; }
@@ -46,3 +40,5 @@
    long producerNode;
    long consumerNode;
 }
+
+-keep class info.nukoneko.cuc.android.kidspos.entity.** { *; }

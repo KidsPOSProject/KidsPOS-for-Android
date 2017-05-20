@@ -20,12 +20,10 @@ public final class Item implements Parcelable {
      *
      * @param barcode barcode
      */
-    public static Item createFake(String barcode) {
-        final Item item = new Item();
-        item.barcode = barcode;
-        item.name = "FakeItem";
-        item.price = 300;
-        return item;
+    public Item(String barcode) {
+        this.barcode = barcode;
+        this.name = "FakeItem";
+        this.price = 300;
     }
 
     public int getId() {

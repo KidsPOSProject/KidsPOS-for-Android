@@ -77,8 +77,9 @@ public class KidsPOSApplication extends Application {
     }
 
     public String getServerIpPortText() {
-        return String.format(Locale.getDefault(), "%s:%s",
-                mSettingsManager.getServerIP(), mSettingsManager.getServerPort());
+        final String serverId = mSettingsManager.getServerIP();
+        final String serverPort = mSettingsManager.getServerPort();
+        return String.format(Locale.getDefault(), "%s:%s", serverId, serverPort);
     }
 
     public void sendErrorReport(@NonNull String errorMessage) {
