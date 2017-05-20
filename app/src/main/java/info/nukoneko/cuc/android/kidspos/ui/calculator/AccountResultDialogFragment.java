@@ -64,19 +64,25 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mBinding.yes.setOnClickListener(v -> {
-            if (getContext() instanceof Listener) {
-                ((Listener) getContext()).onClickPositiveButton(getDialog());
-            } else {
-                dismiss();
+        mBinding.yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getContext() instanceof Listener) {
+                    ((Listener) getContext()).onClickPositiveButton(getDialog());
+                } else {
+                    dismiss();
+                }
             }
         });
 
-        mBinding.no.setOnClickListener(v -> {
-            if (getContext() instanceof Listener) {
-                ((Listener) getContext()).onClickNegativeButton(getDialog());
-            } else {
-                dismiss();
+        mBinding.no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getContext() instanceof Listener) {
+                    ((Listener) getContext()).onClickNegativeButton(getDialog());
+                } else {
+                    dismiss();
+                }
             }
         });
 

@@ -14,19 +14,20 @@ import java.util.List;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.SumPriceUpdateEvent;
 
 final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
     public interface Listener {
         void onClickItem(@NonNull Item item);
+        void onUpdateSumPrice(int sumPrice);
     }
 
     private final List<Item> mData = new ArrayList<>();
     private final Context mContext;
+    private final Listener mListener;
 
-    MainItemViewAdapter(@NonNull final Context context) {
+    <T extends Context & Listener> MainItemViewAdapter(@NonNull final T context) {
         mContext = context;
+        mListener = context;
     }
 
     @Override
@@ -39,8 +40,11 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
         final Item item = mData.get(position);
         if (item == null) return;
         holder.getBinding().setItem(item);
-        holder.getBinding().getRoot().setOnClickListener(v -> {
-            if (mContext instanceof Listener) ((Listener) mContext).onClickItem(item);
+        holder.getBinding().getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onClickItem(item);
+            }
         });
     }
 
@@ -57,13 +61,13 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
     void add(@NonNull Item item) {
         mData.add(0, item);
         notifyItemInserted(0);
-        KPEventBusProvider.getInstance().send(new SumPriceUpdateEvent(getSumPrice()));
+        mListener.onUpdateSumPrice(getSumPrice());
     }
 
     void clear() {
         mData.clear();
         notifyDataSetChanged();
-        KPEventBusProvider.getInstance().send(new SumPriceUpdateEvent(getSumPrice()));
+        mListener.onUpdateSumPrice(getSumPrice());
     }
 
     int getSumPrice() {

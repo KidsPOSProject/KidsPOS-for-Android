@@ -1,9 +1,6 @@
-package info.nukoneko.cuc.android.kidspos.event.obj;
+package info.nukoneko.cuc.android.kidspos.event;
 
-
-import info.nukoneko.cuc.android.kidspos.event.KPEvent;
-
-public final class SumPriceUpdateEvent implements KPEvent {
+public final class SumPriceUpdateEvent {
     private final int mCurrentValue;
 
     public SumPriceUpdateEvent(int currentValue) {

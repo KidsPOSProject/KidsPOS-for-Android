@@ -26,7 +26,7 @@ public class SettingsManager {
 
     @NonNull
     public String getServerIP() {
-        return PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_SERVER_IP, "");
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_SERVER_IP, DEFAULT_IP);
     }
 
     private void setServerIp(@NonNull String ipAddress) {
@@ -36,7 +36,7 @@ public class SettingsManager {
 
     public String getServerPort() {
         try {
-            return PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_SERVER_PORT, "");
+            return PreferenceManager.getDefaultSharedPreferences(mContext).getString(KEY_SERVER_PORT, DEFAULT_PORT);
         } catch (ClassCastException ex) {
             setServerPort(DEFAULT_PORT);
             return DEFAULT_PORT;

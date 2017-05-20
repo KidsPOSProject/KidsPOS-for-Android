@@ -10,21 +10,25 @@ import com.google.gson.Gson;
 
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.event.KPEventBusProvider;
-import info.nukoneko.cuc.android.kidspos.event.obj.StaffUpdateEvent;
-import info.nukoneko.cuc.android.kidspos.event.obj.StoreUpdateEvent;
 
 public final class StoreManager {
+    public interface Listener {
+        void onUpdateStaff(@NonNull final Staff staff);
+        void onUpdateStore(@NonNull final Store store);
+    }
+
     private static final String KEY_PREFERENCE_STORE_MANAGER = "preference_store_manager";
     private static final String KEY_LATEST_STORE = "LATEST_STORE";
     private static final String KEY_LATEST_STAFF = "LATEST_STAFF";
 
-    @Nullable private Store mCurrentStore = null;
+    @NonNull private final Context mContext;
+    @NonNull private final Listener mListener;
     @Nullable private Staff mCurrentStaff = null;
-    private final Context mContext;
+    @Nullable private Store mCurrentStore = null;
 
-    public StoreManager(final Context context) {
+    public StoreManager(@NonNull final Context context, @NonNull final Listener listener) {
         this.mContext = context;
+        this.mListener = listener;
         this.mCurrentStaff = getLatestStaff();
         this.mCurrentStore = getLatestStore();
     }
@@ -47,13 +51,13 @@ public final class StoreManager {
     public void setCurrentStaff(Staff staff) {
         mCurrentStaff = staff;
         saveLatestStaff(staff);
-        KPEventBusProvider.getInstance().send(new StaffUpdateEvent(staff));
+        mListener.onUpdateStaff(staff);
     }
 
     public void setCurrentStore(Store store) {
         mCurrentStore = store;
         saveLatestStore(store);
-        KPEventBusProvider.getInstance().send(new StoreUpdateEvent(store));
+        mListener.onUpdateStore(store);
     }
 
     private void saveLatestStaff(@Nullable Staff staff) {
