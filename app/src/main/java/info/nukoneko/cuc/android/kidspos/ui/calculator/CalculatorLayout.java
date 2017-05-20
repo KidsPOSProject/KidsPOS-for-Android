@@ -34,9 +34,12 @@ public final class CalculatorLayout extends LinearLayout {
         if (context instanceof Listener) {
             final Listener listener = (Listener) context;
             binding.setListener(listener);
-            binding.setOnClickListener(view -> {
-                if (view instanceof CalculatorView) {
-                    listener.onClickNumber(((CalculatorView) view).getNumber());
+            binding.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view instanceof CalculatorView) {
+                        listener.onClickNumber(((CalculatorView) view).getNumber());
+                    }
                 }
             });
         }

@@ -2,6 +2,7 @@ package info.nukoneko.cuc.android.kidspos.ui.main;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,11 +14,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
@@ -26,11 +27,9 @@ import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
-import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observable;
 
 public final class StoreListDialogFragment extends BaseDialogFragment {
     public static StoreListDialogFragment newInstance() {
@@ -53,9 +52,12 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
         return new AlertDialog.Builder(getContext())
                 .setTitle("おみせの変更")
                 .setView(mBinding.getRoot())
-                .setPositiveButton("決定", (d, w) -> {
-                    KidsPOSApplication.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
-                    d.dismiss();
+                .setPositiveButton("決定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        KidsPOSApplication.get(getContext()).updateCurrentStore(mAdapter.getCurrentStore());
+                        dialogInterface.dismiss();
+                    }
                 }).create();
     }
 
@@ -78,7 +80,12 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                     public void onFailure(Call<List<Store>> call, Throwable t) {
                         mBinding.setLoading(false);
                         t.printStackTrace();
-                        AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, (dialog, which) -> getDialog().dismiss());
+                        AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                getDialog().dismiss();
+                            }
+                        });
                     }
                 });
     }
@@ -107,10 +114,13 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
             } else {
                 holder.getBinding().setSelected(mCurrentStore.getId() == store.getId());
             }
-            holder.getBinding().radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    mCurrentStore = store;
-                    notifyDataSetChanged();
+            holder.getBinding().radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked) {
+                        mCurrentStore = store;
+                        notifyDataSetChanged();
+                    }
                 }
             });
         }

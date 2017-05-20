@@ -7,11 +7,7 @@ import rx.subjects.Subject;
 
 public final class KPEventBus {
     private final Subject<KPEvent, KPEvent> mBus =
-            new SerializedSubject<>(PublishSubject.create());
-
-    KPEventBus() {
-
-    }
+            new SerializedSubject<>(PublishSubject.<KPEvent>create());
 
     public void send(KPEvent event) {
         mBus.onNext(event);

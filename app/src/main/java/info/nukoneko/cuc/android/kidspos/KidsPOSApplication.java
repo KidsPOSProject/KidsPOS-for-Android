@@ -19,6 +19,7 @@ import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
 import info.nukoneko.cuc.android.kidspos.util.manager.StoreManager;
 import info.nukoneko.cuc.android.kidspos.util.rx.RxWrap;
 import rx.Observable;
+import rx.Subscriber;
 
 public class KidsPOSApplication extends Application {
 
@@ -35,7 +36,12 @@ public class KidsPOSApplication extends Application {
 
         mStoreManager = new StoreManager(this);
         mApiManager = new ApiManager(this);
-        mSettingsManager = new SettingsManager(this, () -> mApiManager.updateApiService()) {{
+        mSettingsManager = new SettingsManager(this, new SettingsManager.Listener() {
+            @Override
+            public void updateIpPort() {
+                mApiManager.updateApiService();
+            }
+        }) {{
             if (TextUtils.isEmpty(getServerIP()) || !MiscUtil.isIpAddressValid(getServerIP())) {
                 backToDefaultIpSetting();
             }
@@ -91,17 +97,20 @@ public class KidsPOSApplication extends Application {
     }
 
     public Observable<Boolean> checkServerReachable() {
-        return RxWrap.create(Observable.create((Observable.OnSubscribe<Boolean>) subscriber -> {
-            try {
-                final Socket sock = new Socket();
-                sock.connect(new InetSocketAddress(mSettingsManager.getServerIP(), Integer.parseInt(mSettingsManager.getServerPort())), 2000);
-                sock.close();
-                subscriber.onNext(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-                subscriber.onNext(false);
+        return RxWrap.create(Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                try {
+                    final Socket sock = new Socket();
+                    sock.connect(new InetSocketAddress(mSettingsManager.getServerIP(), Integer.parseInt(mSettingsManager.getServerPort())), 2000);
+                    sock.close();
+                    subscriber.onNext(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    subscriber.onNext(false);
+                }
+                subscriber.onCompleted();
             }
-            subscriber.onCompleted();
         }));
     }
 }

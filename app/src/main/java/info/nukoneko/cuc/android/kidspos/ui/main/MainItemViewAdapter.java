@@ -39,8 +39,11 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
         final Item item = mData.get(position);
         if (item == null) return;
         holder.getBinding().setItem(item);
-        holder.getBinding().getRoot().setOnClickListener(v -> {
-            if (mContext instanceof Listener) ((Listener) mContext).onClickItem(item);
+        holder.getBinding().getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mContext instanceof Listener) ((Listener) mContext).onClickItem(item);
+            }
         });
     }
 

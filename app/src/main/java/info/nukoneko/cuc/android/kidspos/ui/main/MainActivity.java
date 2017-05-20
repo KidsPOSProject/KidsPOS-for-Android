@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,6 +33,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import rx.Observable;
+import rx.functions.Action1;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener {
@@ -64,24 +66,32 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
         final Observable<KPEvent> observable = KPEventBusProvider.getInstance().toObservable();
         RxWrap.create(observable)
-                .subscribe(event -> {
-                    if (event instanceof BinaryUpdateEvent) {
-                        Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
-                    } else if (event instanceof SumPriceUpdateEvent) {
-                        mViewModel.setSumPrice(((SumPriceUpdateEvent) event).getCurrentValue());
-                        if (mAdapter.getItemCount() > 0) {
-                            mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
+                .subscribe(new Action1<KPEvent>() {
+                    @Override
+                    public void call(KPEvent event) {
+                        if (event instanceof BinaryUpdateEvent) {
+                            Toast.makeText(MainActivity.this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show();
+                        } else if (event instanceof SumPriceUpdateEvent) {
+                            mViewModel.setSumPrice(((SumPriceUpdateEvent) event).getCurrentValue());
+                            if (mAdapter.getItemCount() > 0) {
+                                mBinding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0);
+                            }
+                        } else if (event instanceof SuccessSentSaleEvent) {
+                            mAdapter.clear();
+                        } else if (event instanceof StoreUpdateEvent) {
+                            mViewModel.setCurrentStore(((StoreUpdateEvent) event).getStore());
+                            updateTitle();
+                        } else if (event instanceof StaffUpdateEvent) {
+                            mViewModel.setCurrentStaff(((StaffUpdateEvent) event).getStaff());
+                            updateTitle();
                         }
-                    } else if (event instanceof SuccessSentSaleEvent) {
-                        mAdapter.clear();
-                    } else if (event instanceof StoreUpdateEvent) {
-                        mViewModel.setCurrentStore(((StoreUpdateEvent) event).getStore());
-                        updateTitle();
-                    } else if (event instanceof StaffUpdateEvent) {
-                        mViewModel.setCurrentStaff(((StaffUpdateEvent) event).getStaff());
-                        updateTitle();
                     }
-                }, Throwable::printStackTrace);
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                });
     }
 
     @Override
@@ -91,12 +101,21 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         updateTitle();
 
         if (!getApp().isPracticeModeEnabled()) {
-            getApp().checkServerReachable().subscribe(reachable -> {
-                if (reachable) return;
+            getApp().checkServerReachable().subscribe(new Action1<Boolean>() {
+                @Override
+                public void call(Boolean isReachable) {
+                    if (isReachable) return;
 
-                AlertUtil.showErrorDialog(this, "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                        false,
-                        (dialog, which) -> SettingsActivity.startActivity(this));
+                    AlertUtil.showErrorDialog(MainActivity.this,
+                            "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
+                            false,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    SettingsActivity.startActivity(MainActivity.this);
+                                }
+                            });
+                }
             });
         }
     }
@@ -146,7 +165,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      * @param prefix  barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull String barcode, BarcodePrefix prefix) {
+    public void onInputBarcode(@NonNull final String barcode, final BarcodePrefix prefix) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             if (prefix == BarcodePrefix.UNKNOWN) {
