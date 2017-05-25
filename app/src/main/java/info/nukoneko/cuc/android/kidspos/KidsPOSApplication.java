@@ -25,7 +25,7 @@ import info.nukoneko.cuc.android.kidspos.util.manager.StoreManager;
 public class KidsPOSApplication extends Application {
 
     // こちらを有効にすると普通の動作ができなくなります
-    private final static boolean isTestMode = true;
+    private final static boolean isTestMode = false;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private StoreManager mStoreManager = null;
