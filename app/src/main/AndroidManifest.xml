@@ -32,11 +32,6 @@
             android:screenOrientation="landscape" />
 
         <activity
-            android:name=".ui.calculator.CalculatorActivity"
-            android:label="@string/label_calc"
-            android:screenOrientation="landscape"/>
-
-        <activity
             android:name=".ui.setting.SettingsActivity"
             android:label="@string/drawer_setting"
             android:screenOrientation="landscape"/>

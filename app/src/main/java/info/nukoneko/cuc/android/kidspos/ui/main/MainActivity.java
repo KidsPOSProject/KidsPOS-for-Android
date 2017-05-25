@@ -30,10 +30,11 @@ import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.event.SumPriceUpdateEvent;
-import info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorActivity;
-import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity;
+import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogFragment;
+import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragment;
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
+import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
 import info.nukoneko.cuc.android.kidspos.util.KidsPOSLogger;
 import info.nukoneko.cuc.android.kidspos.util.LogFilter;
@@ -138,7 +139,8 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
     @Override
     public void onClickAccount(View view) {
-        CalculatorActivity.startActivity(this, mAdapter.getSumPrice(), mAdapter.getData());
+        CalculatorDialogFragment.newInstance(mAdapter.getSumPrice(), mAdapter.getData())
+                .show(getSupportFragmentManager(), "Calculator");
     }
 
     @Override

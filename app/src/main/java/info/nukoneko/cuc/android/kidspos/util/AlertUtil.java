@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui.common;
+package info.nukoneko.cuc.android.kidspos.util;
 
 import android.content.Context;
 import android.content.DialogInterface;
