@@ -5,44 +5,44 @@ import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.view.View;
 
-import info.nukoneko.cuc.kidspos4j.model.ModelStaff;
-import info.nukoneko.cuc.kidspos4j.model.ModelStore;
+import info.nukoneko.cuc.android.kidspos.entity.Staff;
+import info.nukoneko.cuc.android.kidspos.entity.Store;
 
-@SuppressWarnings("WeakerAccess")
 public final class MainActivityViewModel extends BaseObservable {
     public interface Listener {
         void onClickClear(View view);
+
         void onClickAccount(View view);
     }
 
     private ObservableInt mSumPrice = new ObservableInt(0);
-    private ObservableField<ModelStore> mCurrentStore = new ObservableField<>();
-    private ObservableField<ModelStaff> mCurrentStaff = new ObservableField<>();
+    private ObservableField<Store> mCurrentStore = new ObservableField<>();
+    private ObservableField<Staff> mCurrentStaff = new ObservableField<>();
 
     public int getSumPrice() {
         return mSumPrice.get();
     }
 
-    public ModelStore getCurrentStore() {
+    public Store getCurrentStore() {
         return mCurrentStore.get();
     }
 
-    public ModelStaff getCurrentStaff() {
+    public Staff getCurrentStaff() {
         return mCurrentStaff.get();
     }
 
-    public void setSumPrice(int sumPrice) {
-        this.mSumPrice.set(sumPrice);
+    void setSumPrice(int sumPrice) {
+        mSumPrice.set(sumPrice);
         notifyChange();
     }
 
-    public void setCurrentStore(ModelStore currentStore) {
-        this.mCurrentStore.set(currentStore);
+    void setCurrentStore(Store currentStore) {
+        mCurrentStore.set(currentStore);
         notifyChange();
     }
 
-    public void setCurrentStaff(ModelStaff currentStaff) {
-        this.mCurrentStaff.set(currentStaff);
+    void setCurrentStaff(Staff currentStaff) {
+        mCurrentStaff.set(currentStaff);
         notifyChange();
     }
 }

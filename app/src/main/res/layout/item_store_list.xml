@@ -3,7 +3,7 @@
     <data>
         <variable
             name="store"
-            type="info.nukoneko.cuc.kidspos4j.model.ModelStore" />
+            type="info.nukoneko.cuc.android.kidspos.entity.Store" />
         <variable
             name="selected"
             type="java.lang.Boolean" />
@@ -25,6 +25,6 @@
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_weight="0.2"
-            android:checked="@{selected}" />
+            android:checked="@{selected &amp;&amp; store.valid}" />
     </LinearLayout>
 </layout>
