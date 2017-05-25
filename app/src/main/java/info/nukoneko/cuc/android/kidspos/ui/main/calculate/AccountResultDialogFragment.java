@@ -1,11 +1,10 @@
-package info.nukoneko.cuc.android.kidspos.ui.calculator;
+package info.nukoneko.cuc.android.kidspos.ui.main.calculate;
 
 import android.app.Dialog;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +15,17 @@ import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogAccountResult
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 
 public final class AccountResultDialogFragment extends BaseDialogFragment {
-    private final static String EXTRA_DIALOG_TITLE = "dialog_title";
     private final static String EXTRA_PRICE = "price";
     private final static String EXTRA_RECEIVE_MONEY = "receive_money";
 
     public interface Listener {
         void onClickPositiveButton(Dialog dialog);
+
         void onClickNegativeButton(Dialog dialog);
     }
 
-    public static AccountResultDialogFragment newInstance(@StringRes int titleId, int price, int receive) {
+    public static AccountResultDialogFragment newInstance(int price, int receive) {
         final Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_DIALOG_TITLE, titleId);
         bundle.putInt(EXTRA_PRICE, price);
         bundle.putInt(EXTRA_RECEIVE_MONEY, receive);
 
@@ -36,39 +34,35 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
         return alertView;
     }
 
-    @NonNull
-    private String getTitle() {
-        return getResources().getString(getArguments().getInt(EXTRA_DIALOG_TITLE));
-    }
-
-    private int getPrice() {
-        return getArguments().getInt(EXTRA_PRICE);
-    }
-
-    private int getReceiveMoney() {
-        return getArguments().getInt(EXTRA_RECEIVE_MONEY);
-    }
-
+    private Listener mListener;
     private FragmentDialogAccountResultBinding mBinding;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.fragment_dialog_account_result, container, false);
-        final AccountResultDialogFragmentViewModel mViewModel = new AccountResultDialogFragmentViewModel(getTitle(), getPrice(), getReceiveMoney());
+        final AccountResultDialogFragmentViewModel mViewModel = new AccountResultDialogFragmentViewModel(getPrice(), getReceiveMoney());
         mBinding.setViewModel(mViewModel);
         return mBinding.getRoot();
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getDialog().setCancelable(false);
+
+        final Window dialogWindow = getDialog().getWindow();
+        if (dialogWindow != null) {
+            dialogWindow.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            dialogWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
 
         mBinding.yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getContext() instanceof Listener) {
-                    ((Listener) getContext()).onClickPositiveButton(getDialog());
+                if (mListener != null) {
+                    mListener.onClickPositiveButton(getDialog());
                 } else {
                     dismiss();
                 }
@@ -78,21 +72,24 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
         mBinding.no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getContext() instanceof Listener) {
-                    ((Listener) getContext()).onClickNegativeButton(getDialog());
+                if (mListener != null) {
+                    mListener.onClickNegativeButton(getDialog());
                 } else {
                     dismiss();
                 }
             }
         });
-
     }
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Dialog dialog = new Dialog(getActivity());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        return dialog;
+    public void setListener(Listener listener) {
+        mListener = listener;
+    }
+
+    private int getPrice() {
+        return getArguments().getInt(EXTRA_PRICE);
+    }
+
+    private int getReceiveMoney() {
+        return getArguments().getInt(EXTRA_RECEIVE_MONEY);
     }
 }

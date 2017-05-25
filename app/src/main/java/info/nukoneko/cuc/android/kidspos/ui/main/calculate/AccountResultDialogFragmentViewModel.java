@@ -1,16 +1,12 @@
-package info.nukoneko.cuc.android.kidspos.ui.calculator;
+package info.nukoneko.cuc.android.kidspos.ui.main.calculate;
 
-import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
-import android.support.annotation.NonNull;
 
 public final class AccountResultDialogFragmentViewModel {
-    private ObservableField<String> mTitle = new ObservableField<>();
     private ObservableInt mPrice = new ObservableInt();
     private ObservableInt mReceiveMoney = new ObservableInt();
 
-    AccountResultDialogFragmentViewModel(@NonNull String title, int price, int receiveMoney) {
-        mTitle.set(title);
+    AccountResultDialogFragmentViewModel(int price, int receiveMoney) {
         mPrice.set(price);
         mReceiveMoney.set(receiveMoney);
     }
@@ -21,9 +17,5 @@ public final class AccountResultDialogFragmentViewModel {
 
     public ObservableInt getReceiveMoney() {
         return mReceiveMoney;
-    }
-
-    public ObservableField<String> getTitle() {
-        return mTitle;
     }
 }

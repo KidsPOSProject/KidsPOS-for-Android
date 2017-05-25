@@ -1,7 +1,8 @@
-package info.nukoneko.cuc.android.kidspos.ui.calculator;
+package info.nukoneko.cuc.android.kidspos.ui.main.calculate;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +16,10 @@ public final class CalculatorLayout extends LinearLayout {
         void onClickNumber(int number);
 
         void onClickClear(View view);
-
-        void onClickEnd(View view);
     }
+
+    @Nullable
+    private Listener mListener = null;
 
     public CalculatorLayout(Context context) {
         this(context, null, 0);
@@ -31,17 +33,21 @@ public final class CalculatorLayout extends LinearLayout {
         super(context, attrs, defStyleAttr);
         final ViewCalculatorBinding binding =
                 DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.view_calculator, this, true);
-        if (context instanceof Listener) {
-            final Listener listener = (Listener) context;
-            binding.setListener(listener);
-            binding.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
+        binding.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
                     if (view instanceof CalculatorView) {
-                        listener.onClickNumber(((CalculatorView) view).getNumber());
+                        mListener.onClickNumber(((CalculatorView) view).getNumber());
+                    } else if (view.getId() == R.id.calc_num_C) {
+                        mListener.onClickClear(view);
                     }
                 }
-            });
-        }
+            }
+        });
+    }
+
+    public void setOnCalculatorClickListener(Listener listener) {
+        mListener = listener;
     }
 }

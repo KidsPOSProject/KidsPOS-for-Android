@@ -6,9 +6,6 @@
         <variable
             name="onClickListener"
             type="android.view.View.OnClickListener" />
-        <variable
-            name="listener"
-            type="info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorLayout.Listener" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +19,7 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -30,7 +27,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="7" />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -38,7 +35,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="8" />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -53,7 +50,7 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -61,7 +58,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="4" />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -69,7 +66,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="5" />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -84,7 +81,7 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -92,7 +89,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="1"  />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -100,7 +97,7 @@
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
                 app:number="2" />
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -115,10 +112,10 @@
             android:layout_weight="1"
             android:orientation="horizontal"
             android:weightSum="3" >
-            <info.nukoneko.cuc.android.kidspos.ui.calculator.CalculatorView
+            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 style="?attr/buttonStyle"
                 android:onClick="@{onClickListener}"
                 android:textSize="@dimen/text_size_button_calc"
@@ -128,17 +125,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:onClick="@{listener::onClickClear}"
+                android:onClick="@{onClickListener}"
                 android:text="1桁消"
-                android:textSize="20sp" />
-            <Button
-                android:id="@+id/calc_num_end"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:onClick="@{listener::onClickEnd}"
-                android:background="@android:color/holo_red_light"
-                android:text="売る"
                 android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
