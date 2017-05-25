@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui.calculator;
+package info.nukoneko.cuc.android.kidspos.ui.main.calculate;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui.main;
+package info.nukoneko.cuc.android.kidspos.ui.main.storelist;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -25,8 +25,8 @@ import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.ui.common.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
+import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
