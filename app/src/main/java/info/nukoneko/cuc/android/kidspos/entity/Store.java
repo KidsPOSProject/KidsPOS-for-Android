@@ -6,8 +6,9 @@ public final class Store {
     private int id;
     private String name;
 
-    public Store(){
-
+    @SuppressWarnings("unused")
+    public Store() {
+        // for Gson
     }
 
     public Store(String name) {

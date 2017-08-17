@@ -4,8 +4,14 @@ public final class Staff {
     private String barcode;
     private String name;
 
+    @SuppressWarnings("unused")
+    public Staff() {
+        // for Gson
+    }
+
     /**
      * for fake
+     *
      * @param barcode barcode
      */
     public Staff(String barcode) {

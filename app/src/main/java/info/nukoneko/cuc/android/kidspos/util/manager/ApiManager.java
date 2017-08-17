@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.api;
+package info.nukoneko.cuc.android.kidspos.util.manager;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import info.nukoneko.cuc.android.kidspos.BuildConfig;
 import info.nukoneko.cuc.android.kidspos.HttpInterceptors;
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
+import info.nukoneko.cuc.android.kidspos.api.APIService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
