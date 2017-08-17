@@ -13,7 +13,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Locale;
 
 import info.nukoneko.cuc.android.kidspos.api.APIService;
-import info.nukoneko.cuc.android.kidspos.api.ApiManager;
+import info.nukoneko.cuc.android.kidspos.util.manager.ApiManager;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;

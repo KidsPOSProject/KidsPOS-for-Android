@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +27,6 @@ import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogStoreListBind
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
-import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -80,12 +80,7 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                     public void onFailure(Call<List<Store>> call, Throwable t) {
                         mBinding.setLoading(false);
                         t.printStackTrace();
-                        AlertUtil.showErrorDialog(getContext(), "リストの取得に失敗しました", false, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                getDialog().dismiss();
-                            }
-                        });
+                        Toast.makeText(getContext(), "リストの取得に失敗しました", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

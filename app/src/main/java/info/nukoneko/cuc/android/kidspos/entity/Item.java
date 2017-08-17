@@ -11,8 +11,9 @@ public final class Item implements Parcelable {
     private int storeId;
     private int genreId;
 
+    @SuppressWarnings("unused")
     public Item() {
-
+        // for Gson
     }
 
     /**

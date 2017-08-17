@@ -23,23 +23,12 @@ android {
     apply from: 'release.gradle', to: android
 
     buildTypes {
-        applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                output.outputFile = new File(
-                        output.outputFile.parent,
-                        output.outputFile.name.replace(".apk", "-${variant.versionName}-${variant.versionCode}.apk")
-                )
-            }
-        }
-
         debug {
             minifyEnabled false
-            versionNameSuffix "-SNAPSHOT"
             signingConfig signingConfigs.debug
         }
 
         release {
-            shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
