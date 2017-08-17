@@ -19,8 +19,8 @@ android {
         enabled true
     }
 
-    apply from: 'signingConfigs/debug.gradle', to: android
-    apply from: 'signingConfigs/release.gradle', to: android
+    apply from: 'debug.gradle', to: android
+    apply from: 'release.gradle', to: android
 
     buildTypes {
         applicationVariants.all { variant ->
