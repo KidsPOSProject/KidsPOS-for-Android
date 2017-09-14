@@ -36,8 +36,8 @@ import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragme
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
-import info.nukoneko.cuc.android.kidspos.util.KidsPOSLogger;
-import info.nukoneko.cuc.android.kidspos.util.LogFilter;
+import info.nukoneko.cuc.android.kidspos.util.logger.KidsLogger;
+import info.nukoneko.cuc.android.kidspos.util.logger.LogFilter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,6 +47,11 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     private ActivityMainBinding mBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
+
+    @Override
+    protected boolean isEventSubscribe() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -241,7 +246,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
             @Override
             protected void onPostExecute(Boolean isReachable) {
-                KidsPOSLogger.d(LogFilter.SERVER, "checkReachableServer %b", isReachable);
+                KidsLogger.d(LogFilter.SERVER, "checkReachableServer %b", isReachable);
                 if (isReachable) return;
 
                 AlertUtil.showErrorDialog(MainActivity.this,
