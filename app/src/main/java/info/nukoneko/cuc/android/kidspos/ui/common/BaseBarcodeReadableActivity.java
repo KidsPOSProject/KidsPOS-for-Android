@@ -4,11 +4,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
-import org.greenrobot.eventbus.EventBus;
-
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
-import info.nukoneko.cuc.android.kidspos.util.KidsPOSLogger;
-import info.nukoneko.cuc.android.kidspos.util.LogFilter;
+import info.nukoneko.cuc.android.kidspos.util.logger.KidsLogger;
+import info.nukoneko.cuc.android.kidspos.util.logger.LogFilter;
 
 public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     private String mInputValue = "";
@@ -19,7 +17,7 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            KidsPOSLogger.d(LogFilter.BARCODE, mInputValue);
+            KidsLogger.d(LogFilter.BARCODE, mInputValue);
             if (TextUtils.isEmpty(mInputValue) || 5 > mInputValue.length()) return false;
             final String typeCode = mInputValue.substring(2, 4);
             if (mInputValue.length() == 10) {
@@ -38,17 +36,5 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
             mFlip = true;
         }
         return super.dispatchKeyEvent(event);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
     }
 }
