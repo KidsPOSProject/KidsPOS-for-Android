@@ -72,6 +72,10 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
                 .enqueue(new Callback<List<Store>>() {
                     @Override
                     public void onResponse(Call<List<Store>> call, Response<List<Store>> response) {
+                        if (response == null || response.body() == null) {
+                            Toast.makeText(getContext(), "リストの取得に失敗しました", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         mBinding.setLoading(false);
                         mAdapter.addAll(response.body());
                     }
