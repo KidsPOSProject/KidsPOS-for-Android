@@ -1,132 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data>
+
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.calculate.AccountResultDialogFragmentViewModel" />
     </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:background="@android:color/transparent"
         android:layout_gravity="center"
-        android:gravity="center" >
+        android:background="@android:color/transparent"
+        android:baselineAligned="false"
+        android:gravity="center">
+
         <info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:drawable/alert_light_frame"
             android:layout_gravity="center"
-            android:gravity="center" >
+            android:background="@android:drawable/alert_light_frame"
+            android:gravity="center">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:weightSum="1"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
-                        android:text="ごうけい"
                         android:gravity="end|center_vertical"
-                        android:labelFor="@+id/sum_river"/>
+                        android:labelFor="@+id/sum_river"
+                        android:text="ごうけい" />
+
                     <EditText
                         android:id="@+id/sum_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:text='@{String.format("%d リバー", viewModel.price)}'
-                        android:inputType="none"
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:gravity="end|center_vertical" />
+                        android:gravity="end|center_vertical"
+                        android:inputType="none"
+                        android:text='@{String.format("%d リバー", viewModel.price)}' />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:weightSum="1"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
-                        android:text="おあずかり"
                         android:gravity="end|center_vertical"
-                        android:labelFor="@+id/receive_river" />
+                        android:labelFor="@+id/receive_river"
+                        android:text="おあずかり" />
+
                     <EditText
                         android:id="@+id/receive_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:text='@{String.format("%d リバー", viewModel.receiveMoney)}'
-                        android:inputType="none"
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:gravity="end|center_vertical" />
+                        android:gravity="end|center_vertical"
+                        android:inputType="none"
+                        android:text='@{String.format("%d リバー", viewModel.receiveMoney)}' />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
-                    android:weightSum="1"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
-                        android:text="おつり"
                         android:gravity="end|center_vertical"
-                        android:labelFor="@+id/change_river" />
+                        android:labelFor="@+id/change_river"
+                        android:text="おつり" />
+
                     <EditText
                         android:id="@+id/change_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:text='@{String.format("%d リバー", viewModel.receiveMoney - viewModel.price)}'
-                        android:inputType="none"
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
-                        android:gravity="end|center_vertical" />
+                        android:gravity="end|center_vertical"
+                        android:inputType="none"
+                        android:text='@{String.format("%d リバー", viewModel.receiveMoney - viewModel.price)}' />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="bottom">
+                    android:gravity="bottom"
+                    android:orientation="vertical">
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:background="@android:color/black"
                         android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
-                        android:background="@android:color/black" />
+                        android:paddingRight="8dp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
+
                         <Button
                             android:id="@+id/no"
                             style="@style/Widget.AppCompat.Button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="もどる"/>
+                            android:text="もどる" />
+
                         <Button
                             android:id="@+id/yes"
                             style="@style/Widget.AppCompat.Button.Colored"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="おかいけい"/>
+                            android:text="おかいけい" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

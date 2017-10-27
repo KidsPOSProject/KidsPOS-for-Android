@@ -1,24 +1,17 @@
-package info.nukoneko.cuc.android.kidspos.util.manager;
+package info.nukoneko.cuc.android.kidspos.api.manager;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
 public class SettingsManager {
-    public interface Listener {
-        void updateIpPort();
-    }
-
     public final static String DEFAULT_IP = "192.168.0.220";
     public final static String DEFAULT_PORT = "9500";
-
     public final static String KEY_SERVER_IP = "settings_server_ip";
     public final static String KEY_SERVER_PORT = "settings_server_port";
     public final static String KEY_ENABLE_PRACTICE_MODE = "settings_enable_practice_mode";
-
     private final Context mContext;
     private final Listener mListener;
-
     protected SettingsManager(@NonNull Context context, @NonNull Listener listener) {
         mContext = context;
         mListener = listener;
@@ -58,5 +51,9 @@ public class SettingsManager {
 
     protected void backToDefaultPortSetting() {
         setServerPort(DEFAULT_PORT);
+    }
+
+    public interface Listener {
+        void updateIpPort();
     }
 }

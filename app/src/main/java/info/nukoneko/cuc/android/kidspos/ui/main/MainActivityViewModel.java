@@ -9,12 +9,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 
 public final class MainActivityViewModel extends BaseObservable {
-    public interface Listener {
-        void onClickClear(View view);
-
-        void onClickAccount(View view);
-    }
-
     private ObservableInt mSumPrice = new ObservableInt(0);
     private ObservableField<Store> mCurrentStore = new ObservableField<>();
     private ObservableField<Staff> mCurrentStaff = new ObservableField<>();
@@ -23,17 +17,13 @@ public final class MainActivityViewModel extends BaseObservable {
         return mSumPrice.get();
     }
 
-    public Store getCurrentStore() {
-        return mCurrentStore.get();
-    }
-
-    public Staff getCurrentStaff() {
-        return mCurrentStaff.get();
-    }
-
     void setSumPrice(int sumPrice) {
         mSumPrice.set(sumPrice);
         notifyChange();
+    }
+
+    public Store getCurrentStore() {
+        return mCurrentStore.get();
     }
 
     void setCurrentStore(Store currentStore) {
@@ -41,8 +31,18 @@ public final class MainActivityViewModel extends BaseObservable {
         notifyChange();
     }
 
+    public Staff getCurrentStaff() {
+        return mCurrentStaff.get();
+    }
+
     void setCurrentStaff(Staff currentStaff) {
         mCurrentStaff.set(currentStaff);
         notifyChange();
+    }
+
+    public interface Listener {
+        void onClickClear(View view);
+
+        void onClickAccount(View view);
     }
 }
