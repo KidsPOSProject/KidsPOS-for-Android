@@ -1,10 +1,8 @@
-package info.nukoneko.cuc.android.kidspos.util.manager;
+package info.nukoneko.cuc.android.kidspos.api.manager;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import info.nukoneko.cuc.android.kidspos.BuildConfig;
-import info.nukoneko.cuc.android.kidspos.HttpInterceptors;
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.api.APIService;
 import okhttp3.OkHttpClient;
@@ -19,9 +17,6 @@ public final class ApiManager {
     public ApiManager(@NonNull final Context context) {
         mContext = context;
         final OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if (BuildConfig.DEBUG) {
-            builder.addInterceptor(HttpInterceptors.getInterceptor());
-        }
         mOkHttpClient = builder.build();
     }
 

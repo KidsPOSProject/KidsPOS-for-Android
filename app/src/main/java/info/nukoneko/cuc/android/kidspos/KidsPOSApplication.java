@@ -16,14 +16,14 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.Locale;
 
 import info.nukoneko.cuc.android.kidspos.api.APIService;
-import info.nukoneko.cuc.android.kidspos.util.manager.ApiManager;
+import info.nukoneko.cuc.android.kidspos.api.manager.ApiManager;
+import info.nukoneko.cuc.android.kidspos.api.manager.SettingsManager;
+import info.nukoneko.cuc.android.kidspos.api.manager.StoreManager;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
-import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
-import info.nukoneko.cuc.android.kidspos.util.manager.StoreManager;
 
 public class KidsPOSApplication extends Application {
 
@@ -34,6 +34,11 @@ public class KidsPOSApplication extends Application {
     private StoreManager mStoreManager = null;
     private SettingsManager mSettingsManager = null;
     private ApiManager mApiManager = null;
+
+    @NonNull
+    public static KidsPOSApplication get(@NonNull Context context) {
+        return (KidsPOSApplication) context.getApplicationContext();
+    }
 
     @Override
     public void onCreate() {
@@ -66,11 +71,6 @@ public class KidsPOSApplication extends Application {
                 backToDefaultPortSetting();
             }
         }};
-    }
-
-    @NonNull
-    public static KidsPOSApplication get(@NonNull Context context){
-        return (KidsPOSApplication) context.getApplicationContext();
     }
 
     @Nullable

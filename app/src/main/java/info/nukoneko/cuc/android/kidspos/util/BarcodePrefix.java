@@ -12,7 +12,7 @@ public enum BarcodePrefix {
         this.prefix = prefix;
     }
 
-    public static BarcodePrefix typeOf(String prefix) {
+    public static BarcodePrefix prefixOf(String prefix) {
         for (BarcodePrefix barcodePrefix : BarcodePrefix.values()) {
             if (barcodePrefix.prefix.equals(prefix)) {
                 return barcodePrefix;
