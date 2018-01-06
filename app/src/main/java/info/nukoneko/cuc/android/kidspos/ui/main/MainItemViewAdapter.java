@@ -16,11 +16,6 @@ import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
 
 final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter.ViewHolder> {
-    public interface Listener {
-        void onClickItem(@NonNull Item item);
-        void onUpdateSumPrice(int sumPrice);
-    }
-
     private final List<Item> mData = new ArrayList<>();
     private final Context mContext;
     private final Listener mListener;
@@ -80,6 +75,12 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
 
     public List<Item> getData() {
         return mData;
+    }
+
+    public interface Listener {
+        void onClickItem(@NonNull Item item);
+
+        void onUpdateSumPrice(int sumPrice);
     }
 
     static final class ViewHolder extends RecyclerView.ViewHolder {

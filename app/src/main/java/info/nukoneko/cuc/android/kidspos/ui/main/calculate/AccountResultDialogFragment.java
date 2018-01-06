@@ -17,12 +17,8 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 public final class AccountResultDialogFragment extends BaseDialogFragment {
     private final static String EXTRA_PRICE = "price";
     private final static String EXTRA_RECEIVE_MONEY = "receive_money";
-
-    public interface Listener {
-        void onClickPositiveButton(Dialog dialog);
-
-        void onClickNegativeButton(Dialog dialog);
-    }
+    private Listener mListener;
+    private FragmentDialogAccountResultBinding mBinding;
 
     public static AccountResultDialogFragment newInstance(int price, int receive) {
         final Bundle bundle = new Bundle();
@@ -33,9 +29,6 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
         alertView.setArguments(bundle);
         return alertView;
     }
-
-    private Listener mListener;
-    private FragmentDialogAccountResultBinding mBinding;
 
     @Nullable
     @Override
@@ -91,5 +84,11 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
 
     private int getReceiveMoney() {
         return getArguments().getInt(EXTRA_RECEIVE_MONEY);
+    }
+
+    public interface Listener {
+        void onClickPositiveButton(Dialog dialog);
+
+        void onClickNegativeButton(Dialog dialog);
     }
 }

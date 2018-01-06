@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 
-public class StaffUpdateEvent{
+public class StaffUpdateEvent {
     @Nullable
     private Staff mStaff;
 
