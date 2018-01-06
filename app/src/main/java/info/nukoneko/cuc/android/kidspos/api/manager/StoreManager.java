@@ -23,6 +23,7 @@ public final class StoreManager {
     private Staff mCurrentStaff = null;
     @Nullable
     private Store mCurrentStore = null;
+
     public StoreManager(@NonNull final Context context, @NonNull final Listener listener) {
         this.mContext = context;
         this.mListener = listener;

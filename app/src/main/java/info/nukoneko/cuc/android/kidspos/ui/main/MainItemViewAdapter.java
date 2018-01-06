@@ -19,6 +19,7 @@ final class MainItemViewAdapter extends RecyclerView.Adapter<MainItemViewAdapter
     private final List<Item> mData = new ArrayList<>();
     private final Context mContext;
     private final Listener mListener;
+
     <T extends Context & Listener> MainItemViewAdapter(@NonNull final T context) {
         mContext = context;
         mListener = context;
