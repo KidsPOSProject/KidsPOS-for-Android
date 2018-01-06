@@ -8,7 +8,7 @@ android {
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 25
         versionCode 6
         versionName "1.0.5"
