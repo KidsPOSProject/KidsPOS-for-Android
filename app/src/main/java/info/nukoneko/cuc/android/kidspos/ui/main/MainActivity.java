@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
-import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,13 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.orhanobut.logger.Logger;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
@@ -36,7 +37,6 @@ import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragme
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
-import info.nukoneko.cuc.android.kidspos.util.logger.KidsLogger;
 import info.nukoneko.cuc.android.kidspos.util.logger.LogFilter;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +44,7 @@ import retrofit2.Response;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
+
     private ActivityMainBinding mBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
@@ -125,7 +126,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.setting:
-                SettingsActivity.startActivity(this);
+                SettingsActivity.createIntent(this);
                 break;
             case R.id.change_store:
                 final StoreListDialogFragment fragment = StoreListDialogFragment.newInstance();
@@ -166,7 +167,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      * @param prefix  barcode type
      */
     @Override
-    public void onInputBarcode(@NonNull final String barcode, final BarcodePrefix prefix) {
+    public void onBarcodeInput(@NonNull final String barcode, final BarcodePrefix prefix) {
         if (getApp().isTestModeEnabled()) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             if (prefix == BarcodePrefix.UNKNOWN) {
@@ -182,12 +183,12 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 getApp().getApiService().readItem(barcode)
                         .enqueue(new Callback<Item>() {
                             @Override
-                            public void onResponse(Call<Item> call, Response<Item> response) {
+                            public void onResponse(@NonNull Call<Item> call, @NonNull Response<Item> response) {
                                 mAdapter.add(response.body());
                             }
 
                             @Override
-                            public void onFailure(Call<Item> call, Throwable t) {
+                            public void onFailure(@NonNull Call<Item> call, @NonNull Throwable t) {
                                 Toast.makeText(MainActivity.this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -197,12 +198,12 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                 getApp().getApiService().getStaff(barcode)
                         .enqueue(new Callback<Staff>() {
                             @Override
-                            public void onResponse(Call<Staff> call, Response<Staff> response) {
+                            public void onResponse(@NonNull Call<Staff> call, @NonNull Response<Staff> response) {
                                 getApp().updateCurrentStaff(response.body());
                             }
 
                             @Override
-                            public void onFailure(Call<Staff> call, Throwable t) {
+                            public void onFailure(@NonNull Call<Staff> call, @NonNull Throwable t) {
                                 Toast.makeText(MainActivity.this,
                                         "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
                                 getApp().updateCurrentStaff(new Staff(barcode));
@@ -229,36 +230,52 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     }
 
     private void checkReachableServer() {
-        final KidsPOSApplication app = getApp();
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    final Socket sock = new Socket();
-                    sock.connect(new InetSocketAddress(app.getServerIp(), Integer.parseInt(app.getServerPort())), 2000);
-                    sock.close();
-                    return true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
+        new CheckReachableTask(this, getApp().getServerIp(), getApp().getServerPort());
+    }
 
-            @Override
-            protected void onPostExecute(Boolean isReachable) {
-                KidsLogger.d(LogFilter.SERVER, "checkReachableServer %b", isReachable);
-                if (isReachable) return;
+    private void showNotReachableErrorDialog() {
+        AlertUtil.showErrorDialog(this,
+                "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
+                false,
+                (dialogInterface, i) -> SettingsActivity.createIntent(MainActivity.this));
+    }
 
-                AlertUtil.showErrorDialog(MainActivity.this,
-                        "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                        false,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                SettingsActivity.startActivity(MainActivity.this);
-                            }
-                        });
+    private static final class CheckReachableTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final WeakReference<MainActivity> mActivity;
+
+        private final String mServerIp;
+        private final String mServerPort;
+
+        CheckReachableTask(@NonNull MainActivity activity, @NonNull String serverIp, @NonNull String serverPort) {
+            mActivity = new WeakReference<>(activity);
+
+            mServerIp = serverIp;
+            mServerPort = serverPort;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                final Socket sock = new Socket();
+                sock.connect(new InetSocketAddress(mServerIp, Integer.parseInt(mServerPort)), 2000);
+                sock.close();
+                return true;
+            } catch (Exception e) {
+                Logger.e(e, "CheckReachableTask");
+                return false;
             }
-        }.execute();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isReachable) {
+            Logger.t(LogFilter.SERVER.name()).d("checkReachableServer %b", isReachable);
+            if (isReachable) return;
+
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                activity.showNotReachableErrorDialog();
+            }
+        }
     }
 }

@@ -12,12 +12,6 @@ import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ViewCalculatorBinding;
 
 public final class CalculatorLayout extends LinearLayout {
-    public interface Listener {
-        void onClickNumber(int number);
-
-        void onClickClear(View view);
-    }
-
     @Nullable
     private Listener mListener = null;
 
@@ -49,5 +43,11 @@ public final class CalculatorLayout extends LinearLayout {
 
     public void setOnCalculatorClickListener(Listener listener) {
         mListener = listener;
+    }
+
+    public interface Listener {
+        void onClickNumber(int number);
+
+        void onClickClear(View view);
     }
 }

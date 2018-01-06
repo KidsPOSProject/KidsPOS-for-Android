@@ -32,12 +32,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class StoreListDialogFragment extends BaseDialogFragment {
+    private FragmentDialogStoreListBinding mBinding;
+    private ViewAdapter mAdapter;
+
     public static StoreListDialogFragment newInstance() {
         return new StoreListDialogFragment();
     }
-
-    private FragmentDialogStoreListBinding mBinding;
-    private ViewAdapter mAdapter;
 
     @NonNull
     @Override
@@ -90,9 +90,12 @@ public final class StoreListDialogFragment extends BaseDialogFragment {
     }
 
     static class ViewAdapter extends RecyclerView.Adapter<ViewAdapter.ViewHolder> {
-        @NonNull final private List<Store> mData = new ArrayList<>();
-        @NonNull private final Context mContext;
-        @Nullable private Store mCurrentStore;
+        @NonNull
+        final private List<Store> mData = new ArrayList<>();
+        @NonNull
+        private final Context mContext;
+        @Nullable
+        private Store mCurrentStore;
 
         ViewAdapter(@NonNull final Context context, @Nullable Store currentStore) {
             mContext = context;

@@ -9,10 +9,10 @@ import android.text.TextUtils;
 
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
+import info.nukoneko.cuc.android.kidspos.api.manager.SettingsManager;
 import info.nukoneko.cuc.android.kidspos.event.ChangeStateEvent;
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
-import info.nukoneko.cuc.android.kidspos.util.manager.SettingsManager;
 
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {

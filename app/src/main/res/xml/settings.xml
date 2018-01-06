@@ -6,9 +6,9 @@
             android:title="@string/settings_server_ip" />
         <EditTextPreference
             android:key="settings_server_port"
-            android:title="@string/settings_server_port"
+            android:maxLength="2"
             android:numeric="integer"
-            android:maxLength="2" />
+            android:title="@string/settings_server_port" />
         <android.support.v7.preference.SwitchPreferenceCompat
             android:key="settings_enable_practice_mode"
             android:title="@string/settings_enable_practice_mode" />

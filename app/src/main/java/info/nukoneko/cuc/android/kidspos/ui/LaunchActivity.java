@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui.main;
+package info.nukoneko.cuc.android.kidspos.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.view.Window;
 
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity;
+import info.nukoneko.cuc.android.kidspos.ui.main.MainActivity;
 
 public final class LaunchActivity extends BaseActivity {
     private final Handler mHandler = new Handler();

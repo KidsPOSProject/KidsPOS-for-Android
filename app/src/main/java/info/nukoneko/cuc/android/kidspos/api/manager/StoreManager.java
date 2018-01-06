@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.util.manager;
+package info.nukoneko.cuc.android.kidspos.api.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,19 +12,17 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 
 public final class StoreManager {
-    public interface Listener {
-        void onUpdateStaff(@NonNull final Staff staff);
-        void onUpdateStore(@NonNull final Store store);
-    }
-
     private static final String KEY_PREFERENCE_STORE_MANAGER = "preference_store_manager";
     private static final String KEY_LATEST_STORE = "LATEST_STORE";
     private static final String KEY_LATEST_STAFF = "LATEST_STAFF";
-
-    @NonNull private final Context mContext;
-    @NonNull private final Listener mListener;
-    @Nullable private Staff mCurrentStaff = null;
-    @Nullable private Store mCurrentStore = null;
+    @NonNull
+    private final Context mContext;
+    @NonNull
+    private final Listener mListener;
+    @Nullable
+    private Staff mCurrentStaff = null;
+    @Nullable
+    private Store mCurrentStore = null;
 
     public StoreManager(@NonNull final Context context, @NonNull final Listener listener) {
         this.mContext = context;
@@ -43,6 +41,12 @@ public final class StoreManager {
         return mCurrentStore;
     }
 
+    public void setCurrentStore(Store store) {
+        mCurrentStore = store;
+        saveLatestStore(store);
+        mListener.onUpdateStore(store);
+    }
+
     @Nullable
     public Staff getCurrentStaff() {
         return mCurrentStaff;
@@ -52,12 +56,6 @@ public final class StoreManager {
         mCurrentStaff = staff;
         saveLatestStaff(staff);
         mListener.onUpdateStaff(staff);
-    }
-
-    public void setCurrentStore(Store store) {
-        mCurrentStore = store;
-        saveLatestStore(store);
-        mListener.onUpdateStore(store);
     }
 
     private void saveLatestStaff(@Nullable Staff staff) {
@@ -88,5 +86,11 @@ public final class StoreManager {
         final String store = getPreference().getString(KEY_LATEST_STORE, "");
         if (TextUtils.isEmpty(store)) return null;
         return new Gson().fromJson(store, Store.class);
+    }
+
+    public interface Listener {
+        void onUpdateStaff(@NonNull final Staff staff);
+
+        void onUpdateStore(@NonNull final Store store);
     }
 }

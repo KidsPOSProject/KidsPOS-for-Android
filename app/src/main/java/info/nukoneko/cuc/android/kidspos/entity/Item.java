@@ -4,6 +4,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public final class Item implements Parcelable {
+    public static final Parcelable.Creator<Item> CREATOR = new Parcelable.Creator<Item>() {
+        public Item createFromParcel(Parcel in) {
+            return new Item(in);
+        }
+
+        public Item[] newArray(int size) {
+            return new Item[size];
+        }
+    };
     private int id;
     private String barcode;
     private String name;
@@ -25,6 +34,15 @@ public final class Item implements Parcelable {
         this.barcode = barcode;
         this.name = "FakeItem";
         this.price = 300;
+    }
+
+    private Item(Parcel in) {
+        id = in.readInt();
+        barcode = in.readString();
+        name = in.readString();
+        price = in.readInt();
+        storeId = in.readInt();
+        genreId = in.readInt();
     }
 
     public int getId() {
@@ -64,24 +82,5 @@ public final class Item implements Parcelable {
         parcel.writeInt(price);
         parcel.writeInt(storeId);
         parcel.writeInt(genreId);
-    }
-
-    public static final Parcelable.Creator<Item> CREATOR = new Parcelable.Creator<Item>() {
-        public Item createFromParcel(Parcel in) {
-            return new Item(in);
-        }
-
-        public Item[] newArray(int size) {
-            return new Item[size];
-        }
-    };
-
-    private Item(Parcel in) {
-        id = in.readInt();
-        barcode = in.readString();
-        name = in.readString();
-        price = in.readInt();
-        storeId = in.readInt();
-        genreId = in.readInt();
     }
 }

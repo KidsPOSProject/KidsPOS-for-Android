@@ -6,7 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
 public final class AlertUtil {
-    private AlertUtil(){}
+    private AlertUtil() {
+    }
 
     public static void showErrorDialog(@NonNull Context context,
                                        String message, boolean cancelable,
