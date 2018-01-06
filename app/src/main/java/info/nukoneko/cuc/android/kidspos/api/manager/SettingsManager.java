@@ -12,6 +12,7 @@ public class SettingsManager {
     public final static String KEY_ENABLE_PRACTICE_MODE = "settings_enable_practice_mode";
     private final Context mContext;
     private final Listener mListener;
+
     protected SettingsManager(@NonNull Context context, @NonNull Listener listener) {
         mContext = context;
         mListener = listener;
