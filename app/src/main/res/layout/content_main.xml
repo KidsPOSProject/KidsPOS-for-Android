@@ -38,26 +38,26 @@
         <LinearLayout
             android:id="@+id/bottom_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_alignParentBottom="true"
             android:padding="2dp">
 
             <Button
                 style="?buttonBarButtonStyle"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
-                android:layout_weight="0.1"
                 android:background="@drawable/layout_button_rect_red"
                 android:onClick="@{listener::onClickClear}"
                 android:text="@string/delete"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="22sp" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
-                android:layout_weight="0.8"
+                android:layout_weight="1"
                 android:orientation="vertical"
                 android:visibility="@{viewModel.currentStaff == null ? View.INVISIBLE : View.VISIBLE}">
 
@@ -78,14 +78,16 @@
 
             <Button
                 style="?buttonBarButtonStyle"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
-                android:layout_weight="0.2"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:background="@drawable/layout_button_rect_white"
                 android:enabled="@{viewModel.sumPrice > 0}"
                 android:onClick="@{listener::onClickAccount}"
-                android:text="@string/account" />
+                android:text="@string/account"
+                android:textSize="22sp"/>
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView

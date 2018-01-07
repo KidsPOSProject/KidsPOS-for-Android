@@ -31,7 +31,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="80dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -41,7 +41,8 @@
                         android:layout_weight="0.3"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/sum_river"
-                        android:text="ごうけい" />
+                        android:text="ごうけい"
+                        android:textSize="24sp"/>
 
                     <EditText
                         android:id="@+id/sum_river"
@@ -54,12 +55,14 @@
                         android:focusableInTouchMode="false"
                         android:gravity="end|center_vertical"
                         android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.price)}' />
+                        android:text='@{String.format("%d リバー", viewModel.price)}'
+                        android:textSize="48sp"
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="80dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -69,7 +72,8 @@
                         android:layout_weight="0.3"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/receive_river"
-                        android:text="おあずかり" />
+                        android:text="おあずかり"
+                        android:textSize="24sp" />
 
                     <EditText
                         android:id="@+id/receive_river"
@@ -82,12 +86,14 @@
                         android:focusableInTouchMode="false"
                         android:gravity="end|center_vertical"
                         android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.receiveMoney)}' />
+                        android:text='@{String.format("%d リバー", viewModel.receiveMoney)}'
+                        android:textSize="48sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="70dp"
+                    android:layout_height="100dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -97,7 +103,8 @@
                         android:layout_weight="0.3"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/change_river"
-                        android:text="おつり" />
+                        android:text="おつり"
+                        android:textSize="24sp" />
 
                     <EditText
                         android:id="@+id/change_river"
@@ -110,7 +117,9 @@
                         android:focusableInTouchMode="false"
                         android:gravity="end|center_vertical"
                         android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.chargeRiver)}' />
+                        android:text='@{String.format("%d リバー", viewModel.chargeRiver)}'
+                        android:textSize="48sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -137,7 +146,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="もどる" />
+                            android:text="もどる"
+                            android:textSize="36sp" />
 
                         <Button
                             android:id="@+id/yes"
@@ -145,7 +155,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="おかいけい" />
+                            android:layout_marginLeft="64dp"
+                            android:text="おかいけい"
+                            android:textSize="36sp"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

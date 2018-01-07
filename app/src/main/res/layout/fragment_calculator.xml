@@ -38,7 +38,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="100dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -48,7 +48,8 @@
                         android:layout_weight="0.3"
                         android:gravity="center"
                         android:labelFor="@+id/sum_river"
-                        android:text="ごうけい" />
+                        android:text="ごうけい"
+                        android:textSize="20sp"/>
 
                     <EditText
                         android:id="@+id/sum_river"
@@ -60,12 +61,14 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="center_vertical|end"
-                        android:inputType="none" />
+                        android:inputType="none"
+                        android:textSize="36sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="100dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -75,7 +78,8 @@
                         android:layout_weight="0.3"
                         android:gravity="center"
                         android:labelFor="@+id/receive_river"
-                        android:text="おあずかり" />
+                        android:text="おあずかり"
+                        android:textSize="20sp" />
 
                     <EditText
                         android:id="@+id/receive_river"
@@ -87,7 +91,9 @@
                         android:focusable="false"
                         android:focusableInTouchMode="false"
                         android:gravity="center_vertical|end"
-                        android:inputType="none" />
+                        android:inputType="none"
+                        android:textSize="36sp"
+                        android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -104,9 +110,10 @@
                     android:layout_gravity="end|bottom"
                     android:layout_weight="0.5"
                     android:maxLines="1"
-                    android:padding="32dp"
                     android:text="もどる"
-                    android:textSize="12sp" />
+                    android:paddingTop="16dp"
+                    android:paddingBottom="22dp"
+                    android:textSize="36sp" />
 
                 <Button
                     android:id="@+id/done"
@@ -116,9 +123,10 @@
                     android:layout_gravity="end|bottom"
                     android:layout_weight="0.5"
                     android:maxLines="1"
-                    android:padding="32dp"
                     android:text="おかいけい"
-                    android:textSize="12sp" />
+                    android:paddingTop="16dp"
+                    android:paddingBottom="22dp"
+                    android:textSize="36sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
