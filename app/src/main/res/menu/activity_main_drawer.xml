@@ -8,4 +8,12 @@
         android:id="@+id/change_store"
         android:icon="@drawable/ic_store"
         android:title="@string/DrawerTitleChangeStore" />
+    <group
+        android:id="@+id/beta_test"
+        android:visible="false">
+        <item android:id="@+id/input_dummy_item"
+            android:title="@string/BetaDrawerTitleInputDummyUser"/>
+        <item android:id="@+id/input_dummy_store"
+            android:title="@string/BetaDrawerTitleInputDummyStore"/>
+    </group>
 </menu>

@@ -145,11 +145,11 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
     }
 
     private void sendToServer() {
-        String sum = "";
+        StringBuilder sum = new StringBuilder();
         for (final Item item : getSaleItems()) {
-            sum += String.valueOf(item.getId()) + ",";
+            sum.append(String.valueOf(item.getId())).append(",");
         }
-        sum = sum.substring(0, sum.length() - 1);
+        sum = new StringBuilder(sum.substring(0, sum.length() - 1));
         final Staff staff = getApp().getCurrentStaff();
         final Store store = getApp().getCurrentStore();
         final String staffBarcode = staff == null ? "" : staff.getBarcode();
@@ -164,7 +164,7 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
             progressDialog.show();
 
             getApp().getApiService()
-                    .createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum, storeId, staffBarcode)
+                    .createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum.toString(), storeId, staffBarcode)
                     .enqueue(new Callback<Sale>() {
                         @Override
                         public void onResponse(Call<Sale> call, Response<Sale> response) {

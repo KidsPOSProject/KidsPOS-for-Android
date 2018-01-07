@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.orhanobut.logger.Logger;
 
+import info.nukoneko.cuc.android.kidspos.Constants;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
 import info.nukoneko.cuc.android.kidspos.util.logger.LogFilter;
 
@@ -27,7 +28,7 @@ public abstract class BaseBarcodeReadableActivity extends BaseActivity {
                 if (mInputValue.length() == 10) {
                     final String prefix = mInputValue.substring(2, 4);
                     onBarcodeInput(mInputValue, BarcodePrefix.prefixOf(prefix));
-                } else if (getApp().isPracticeModeEnabled() || getApp().isTestModeEnabled()) {
+                } else if (getApp().isPracticeModeEnabled() || Constants.TEST_MODE) {
                     onBarcodeInput(mInputValue, BarcodePrefix.prefixOf(mInputValue));
                 } else {
                     Logger.e("Illegal InputValue: " + mInputValue);

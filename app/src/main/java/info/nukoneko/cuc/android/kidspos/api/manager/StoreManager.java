@@ -68,9 +68,14 @@ public final class StoreManager {
 
     @Nullable
     private Staff getLatestStaff() {
-        final String staff = getPreference().getString(KEY_LATEST_STAFF, "");
-        if (TextUtils.isEmpty(staff)) return null;
-        return new Gson().fromJson(staff, Staff.class);
+        try {
+            final String staff = getPreference().getString(KEY_LATEST_STAFF, "");
+            if (TextUtils.isEmpty(staff)) return null;
+            return new Gson().fromJson(staff, Staff.class);
+        } catch (ClassCastException e) {
+            getPreference().edit().putString(KEY_LATEST_STAFF, "").apply();
+            return null;
+        }
     }
 
     private void saveLatestStore(@Nullable Store store) {
@@ -83,9 +88,14 @@ public final class StoreManager {
 
     @Nullable
     private Store getLatestStore() {
-        final String store = getPreference().getString(KEY_LATEST_STORE, "");
-        if (TextUtils.isEmpty(store)) return null;
-        return new Gson().fromJson(store, Store.class);
+        try {
+            final String store = getPreference().getString(KEY_LATEST_STORE, "");
+            if (TextUtils.isEmpty(store)) return null;
+            return new Gson().fromJson(store, Store.class);
+        } catch (ClassCastException e) {
+            getPreference().edit().putString(KEY_LATEST_STORE, "").apply();
+            return null;
+        }
     }
 
     public interface Listener {

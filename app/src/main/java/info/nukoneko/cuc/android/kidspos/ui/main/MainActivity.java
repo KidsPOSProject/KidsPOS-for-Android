@@ -21,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import info.nukoneko.cuc.android.kidspos.Constants;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
@@ -43,11 +44,35 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
+        implements MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
 
     private ActivityMainBinding mBinding;
     private MainActivityViewModel mViewModel = new MainActivityViewModel();
     private MainItemViewAdapter mAdapter;
+
+    private final NavigationView.OnNavigationItemSelectedListener mNavigationItemSelectedListener = new NavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.setting:
+                    SettingsActivity.createIntent(MainActivity.this);
+                    break;
+                case R.id.change_store:
+                    final StoreListDialogFragment fragment = StoreListDialogFragment.newInstance();
+                    fragment.setCancelable(false);
+                    fragment.show(getSupportFragmentManager(), "changeStore");
+                    break;
+                case R.id.input_dummy_item:
+                    onBarcodeInput("1234567890", BarcodePrefix.ITEM);
+                    break;
+                case R.id.input_dummy_store:
+                    onBarcodeInput("1234567890", BarcodePrefix.STAFF);
+                    break;
+            }
+            mBinding.drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        }
+    };
 
     @Override
     protected boolean isEventSubscribe() {
@@ -66,7 +91,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         );
         mBinding.drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        mBinding.navView.setNavigationItemSelectedListener(this);
+        mBinding.navView.setNavigationItemSelectedListener(mNavigationItemSelectedListener);
 
         mBinding.appBarLayout.contentMain.setViewModel(mViewModel);
         mBinding.appBarLayout.contentMain.setListener(this);
@@ -85,6 +110,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         if (!getApp().isPracticeModeEnabled()) {
             checkReachableServer();
         }
+        mBinding.navView.getMenu().setGroupVisible(R.id.beta_test, Constants.TEST_MODE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -121,23 +147,6 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         mAdapter.clear();
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.setting:
-                SettingsActivity.createIntent(this);
-                break;
-            case R.id.change_store:
-                final StoreListDialogFragment fragment = StoreListDialogFragment.newInstance();
-                fragment.setCancelable(false);
-                fragment.show(getSupportFragmentManager(), "changeStore");
-                break;
-        }
-        mBinding.drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     @Override
     public void onClickClear(View view) {
         mAdapter.clear();
@@ -168,13 +177,20 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      */
     @Override
     public void onBarcodeInput(@NonNull final String barcode, final BarcodePrefix prefix) {
-        if (getApp().isTestModeEnabled()) {
+        if (Constants.TEST_MODE) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
-            if (prefix == BarcodePrefix.UNKNOWN) {
-                mAdapter.add(new Item(barcode));
-                mViewModel.setCurrentStaff(new Staff(barcode));
-                return;
+            switch (prefix) {
+                case ITEM:
+                    mAdapter.add(new Item(barcode));
+                    break;
+                case STAFF:
+                    mViewModel.setCurrentStaff(new Staff(barcode));
+                    break;
+                default:
+                    mAdapter.add(new Item(barcode));
+                    mViewModel.setCurrentStaff(new Staff(barcode));
             }
+            return;
         }
 
         // サーバから取得する
@@ -224,7 +240,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         if (getApp().getCurrentStore() != null && getApp().getCurrentStore().isValid())
             title += String.format(" [%s]", getApp().getCurrentStore().getName());
         if (getApp().isPracticeModeEnabled()) title += " [練習モード]";
-        if (getApp().isTestModeEnabled()) title += " [デバッグ中]";
+        if (Constants.TEST_MODE) title += " [テストモード]";
 
         mBinding.appBarLayout.toolbar.setTitle(title);
     }

@@ -11,11 +11,15 @@ public final class AccountResultDialogFragmentViewModel {
         mReceiveMoney.set(receiveMoney);
     }
 
-    public ObservableInt getPrice() {
-        return mPrice;
+    public int getPrice() {
+        return mPrice.get();
     }
 
-    public ObservableInt getReceiveMoney() {
-        return mReceiveMoney;
+    public int getReceiveMoney() {
+        return mReceiveMoney.get();
+    }
+
+    public int getChargeRiver() {
+        return mReceiveMoney.get() - mPrice.get();
     }
 }
