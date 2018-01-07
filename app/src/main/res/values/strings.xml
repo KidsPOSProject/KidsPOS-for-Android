@@ -13,6 +13,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="DrawerTitleSettings">設定</string>
     <string name="DrawerTitleChangeStore">おみせの切り替え</string>
+    <string name="BetaDrawerTitleInputDummyUser">ダミーユーザー</string>
+    <string name="BetaDrawerTitleInputDummyStore">ダミーストア</string>
 
     <!-- Settings -->
     <string name="settings_server_ip">IPアドレス</string>

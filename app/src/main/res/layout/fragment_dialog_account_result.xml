@@ -110,7 +110,7 @@
                         android:focusableInTouchMode="false"
                         android:gravity="end|center_vertical"
                         android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.receiveMoney - viewModel.price)}' />
+                        android:text='@{String.format("%d リバー", viewModel.chargeRiver)}' />
                 </LinearLayout>
 
                 <LinearLayout

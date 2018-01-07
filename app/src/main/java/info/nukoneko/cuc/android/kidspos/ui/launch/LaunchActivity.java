@@ -1,4 +1,4 @@
-package info.nukoneko.cuc.android.kidspos.ui;
+package info.nukoneko.cuc.android.kidspos.ui.launch;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +22,7 @@ public final class LaunchActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        setContentView(R.layout.activity_launch);
     }
 
     @Override
