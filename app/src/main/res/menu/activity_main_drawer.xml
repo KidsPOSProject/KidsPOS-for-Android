@@ -12,8 +12,8 @@
         android:id="@+id/beta_test"
         android:visible="false">
         <item android:id="@+id/input_dummy_item"
-            android:title="@string/BetaDrawerTitleInputDummyUser"/>
+            android:title="@string/BetaDrawerTitleInputDummyItem"/>
         <item android:id="@+id/input_dummy_store"
-            android:title="@string/BetaDrawerTitleInputDummyStore"/>
+            android:title="@string/BetaDrawerTitleInputDummyStaff"/>
     </group>
 </menu>
