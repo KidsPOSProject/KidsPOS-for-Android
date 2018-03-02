@@ -2,7 +2,6 @@ package info.nukoneko.cuc.android.kidspos.ui.main.calculate;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -25,7 +24,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
-import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -175,13 +173,7 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
                         @Override
                         public void onFailure(Call<Sale> call, Throwable throwable) {
                             progressDialog.dismiss();
-                            AlertUtil.showErrorDialog(getContext(), throwable.getLocalizedMessage(), false,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            finishFragment();
-                                        }
-                                    });
+                            finishFragment();
                         }
                     });
         }
