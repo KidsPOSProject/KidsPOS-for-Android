@@ -6,6 +6,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Sale;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -32,5 +33,5 @@ public interface APIService {
     Call<Staff> getStaff(@Query("barcode") String staffBarcode);
 
     @GET("store/list")
-    Call<List<Store>> getStoreList();
+    Observable<List<Store>> getStoreList();
 }

@@ -24,6 +24,8 @@ import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 
 public class KidsPOSApplication extends Application {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -31,6 +33,8 @@ public class KidsPOSApplication extends Application {
     private StoreManager mStoreManager = null;
     private SettingsManager mSettingsManager = null;
     private ApiManager mApiManager = null;
+
+    private Scheduler mDefaultSubscribeScheduler;
 
     @NonNull
     public static KidsPOSApplication get(@NonNull Context context) {
@@ -119,5 +123,12 @@ public class KidsPOSApplication extends Application {
                 }
             });
         }
+    }
+
+    public Scheduler defaultSubscribeScheduler() {
+        if (mDefaultSubscribeScheduler == null) {
+            mDefaultSubscribeScheduler = Schedulers.io();
+        }
+        return mDefaultSubscribeScheduler;
     }
 }
