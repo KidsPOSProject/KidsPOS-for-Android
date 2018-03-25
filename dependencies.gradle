@@ -10,8 +10,6 @@ ext {
     mockitoVersion = "2.17.0"
     roboletricVersion = "3.8"
 
-    supportTestLibraryVersion = "2.2.2"
-
     dependencies = [
             appCompat: "com.android.support:appcompat-v7:$supportLibraryVersion",
             preference: "com.android.support:preference-v7:${supportLibraryVersion}",
@@ -29,8 +27,6 @@ ext {
 
             jUnit: "junit:junit:${junitVersion}",
             mockito: "org.mockito:mockito-core:${mockitoVersion}",
-            robolectric: "org.robolectric:robolectric:${roboletricVersion}",
-
-            espressoCore: "com.android.support.test.espresso:espresso-core:${supportTestLibraryVersion}"
+            robolectric: "org.robolectric:robolectric:${roboletricVersion}"
     ]
 }
