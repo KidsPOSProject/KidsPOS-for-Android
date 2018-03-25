@@ -1,3 +1,5 @@
+apply from: 'dependencies.gradle'
+
 buildscript {
     repositories {
         jcenter()
@@ -21,4 +23,10 @@ task clean(type: Delete) {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+ext {
+    androidCompileSdkVersion = 27
+    androidMinSdkVersion = 23
+    androidTargetSdkVersion = 27
 }

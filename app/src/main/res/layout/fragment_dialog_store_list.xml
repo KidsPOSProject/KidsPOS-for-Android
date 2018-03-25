@@ -1,46 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-
-        <import type="android.view.View" />
-
         <variable
-            name="loading"
-            type="java.lang.Boolean" />
+            name="viewModel"
+            type="info.nukoneko.cuc.android.kidspos.viewmodel.StoreListViewModel" />
     </data>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="8dp"
         android:orientation="vertical">
 
-        <TextView
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            app:visibility="@{viewModel.progressVisibility}" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:visibility="@{viewModel.recyclerViewVisibility}" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:padding="8dp"
-            android:text='@{String.format("読込状態: %s", loading ? "読み込み中..." : "完了")}' />
+            android:orientation="horizontal"
+            app:visibility="@{viewModel.errorButtonVisibility}">
+            <Button
+                style="?android:actionButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="再読み込み"
+                android:layout_margin="8dp"/>
+            <Button
+                style="?android:actionButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="閉じる"
+                android:layout_margin="8dp" />
+        </LinearLayout>
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_margin="8dp"
-            android:background="#E0E0E0"
-            android:minHeight="300dp">
-
-            <ProgressBar
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:visibility="@{loading ? View.VISIBLE : View.GONE}" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="@{loading ? View.GONE : View.VISIBLE}" />
-        </FrameLayout>
-    </LinearLayout>
+    </FrameLayout>
 </layout>

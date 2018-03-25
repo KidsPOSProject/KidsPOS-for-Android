@@ -7,6 +7,7 @@ import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.api.APIService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class ApiManager {
@@ -24,6 +25,7 @@ public final class ApiManager {
         mApiService = new Retrofit.Builder()
                 .baseUrl("http://" + KidsPOSApplication.get(mContext).getServerIpPortText() + "/api/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(mOkHttpClient)
                 .build().create(APIService.class);
     }
