@@ -31,12 +31,14 @@
             android:orientation="horizontal"
             app:visibility="@{viewModel.errorButtonVisibility}">
             <Button
+                style="?android:actionButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="再読み込み"
                 android:layout_margin="8dp"/>
             <Button
+                style="?android:actionButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
