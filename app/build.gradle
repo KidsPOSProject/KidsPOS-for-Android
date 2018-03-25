@@ -4,14 +4,14 @@ apply from: 'findbugs.gradle'
 check.dependsOn 'findbugs'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion 23
-        targetSdkVersion 26
+        minSdkVersion rootProject.ext.androidMinSdkVersion
+        targetSdkVersion rootProject.ext.androidTargetSdkVersion
         versionCode 6
         versionName "1.0.5"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     dataBinding {
@@ -52,32 +52,24 @@ android {
     }
 }
 
-ext {
-    supportLibraryVersion = "26.1.0"
-    retrofitVersion = "2.3.0"
-    eventBusVersion = "3.0.0"
-    rxJavaVersion = "2.1.9"
-    rxAndroidVersion = "2.0.2"
-    loggerVersion = "2.1.1"
-    junitVersion = "4.12"
-    supportTestLibraryVersion = "2.2.2"
-}
-
 dependencies {
-    implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
-    implementation "com.android.support:preference-v7:${supportLibraryVersion}"
-    implementation "com.android.support:recyclerview-v7:${supportLibraryVersion}"
-    implementation "com.android.support:design:${supportLibraryVersion}"
-    implementation "com.android.support:cardview-v7:${supportLibraryVersion}"
-    implementation "com.squareup.retrofit2:retrofit:${retrofitVersion}"
-    implementation "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}"
-    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
-    implementation "org.greenrobot:eventbus:${eventBusVersion}"
-    implementation "com.orhanobut:logger:${loggerVersion}"
-    testImplementation "junit:junit:${junitVersion}"
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:${supportTestLibraryVersion}") {
-        exclude module: 'support-annotations'
-    }
+    Map<String, String> dependencies = rootProject.ext.dependencies;
+
+    implementation dependencies.appCompat
+    implementation dependencies.preference
+    implementation dependencies.recyclerview
+    implementation dependencies.design
+    implementation dependencies.cardView
+
+    implementation dependencies.retrofit
+    implementation dependencies.converterGson
+    implementation dependencies.adapterRxJava
+    implementation dependencies.rxJava
+    implementation dependencies.rxAndroid
+    implementation dependencies.eventBus
+    implementation dependencies.loger
+
+    testImplementation dependencies.jUnit
+    testImplementation dependencies.mockito
+    testImplementation dependencies.robolectric
 }
