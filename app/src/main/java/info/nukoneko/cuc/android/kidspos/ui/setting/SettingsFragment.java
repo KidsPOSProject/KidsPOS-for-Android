@@ -14,7 +14,7 @@ import info.nukoneko.cuc.android.kidspos.event.ChangeStateEvent;
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.MiscUtil;
 
-public class SettingsFragment extends PreferenceFragmentCompat
+public final class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override

@@ -2,6 +2,8 @@ package info.nukoneko.cuc.android.kidspos.viewmodel;
 
 import android.content.Context;
 import android.databinding.ObservableInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import java.util.List;
@@ -9,18 +11,20 @@ import java.util.List;
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
-public class StoreListViewModel implements ViewModel {
+public final class StoreListViewModel implements ViewModel {
 
     public ObservableInt progressVisibility;
     public ObservableInt recyclerViewVisibility;
     public ObservableInt errorButtonVisibility;
 
+    @Nullable
     private Context mContext;
+    @Nullable
     private DataListener mListener;
-    private List<Store> mStores;
 
-    public StoreListViewModel(Context context, DataListener listener) {
+    public StoreListViewModel(@NonNull Context context, @NonNull DataListener listener) {
         mContext = context;
         mListener = listener;
 
@@ -44,24 +48,31 @@ public class StoreListViewModel implements ViewModel {
         recyclerViewVisibility.set(View.GONE);
         errorButtonVisibility.set(View.GONE);
 
+        if (mContext == null) return;
         KidsPOSApplication app = KidsPOSApplication.get(mContext);
-        app.getApiService().getStoreList()
+        if (app == null) return;
+        app.getStoreRepository().fetchStores()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(app.defaultSubscribeScheduler())
-                .subscribe(stores -> StoreListViewModel.this.mStores = stores,
-                        throwable -> {
-                            if (mListener != null) mListener.onError("リストの取得に失敗しました");
-                            progressVisibility.set(View.GONE);
+                .subscribe(new Consumer<List<Store>>() {
+                    @Override
+                    public void accept(List<Store> stores) throws Exception {
+                        if (mListener != null) mListener.onStoresChanged(stores);
+                        progressVisibility.set(View.GONE);
+                        if (!stores.isEmpty()) {
+                            recyclerViewVisibility.set(View.VISIBLE);
+                        } else {
                             errorButtonVisibility.set(View.VISIBLE);
-                        }, () -> {
-                            if (mListener != null) mListener.onStoresChanged(mStores);
-                            progressVisibility.set(View.GONE);
-                            if (!mStores.isEmpty()) {
-                                recyclerViewVisibility.set(View.VISIBLE);
-                            } else {
-                                errorButtonVisibility.set(View.VISIBLE);
-                            }
-                        });
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (mListener != null) mListener.onError("リストの取得に失敗しました");
+                        progressVisibility.set(View.GONE);
+                        errorButtonVisibility.set(View.VISIBLE);
+                    }
+                });
     }
 
     public interface DataListener {

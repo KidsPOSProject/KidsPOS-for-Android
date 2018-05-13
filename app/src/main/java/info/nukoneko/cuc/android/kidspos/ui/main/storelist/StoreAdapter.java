@@ -51,6 +51,10 @@ public final class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHo
         if (mListener != null) mListener.onItemClick(store);
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(Store store);
+    }
+
     static final class ViewHolder extends RecyclerView.ViewHolder {
         private final ItemStoreListBinding mBinding;
 
@@ -66,9 +70,5 @@ public final class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHo
                 mBinding.getViewModel().setStore(store);
             }
         }
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(Store store);
     }
 }

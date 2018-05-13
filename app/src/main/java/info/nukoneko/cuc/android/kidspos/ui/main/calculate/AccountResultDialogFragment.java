@@ -51,19 +51,25 @@ public final class AccountResultDialogFragment extends BaseDialogFragment {
             dialogWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
 
-        mBinding.yes.setOnClickListener(view -> {
-            if (mListener != null) {
-                mListener.onClickPositiveButton(getDialog());
-            } else {
-                dismiss();
+        mBinding.yes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickPositiveButton(getDialog());
+                } else {
+                    dismiss();
+                }
             }
         });
 
-        mBinding.no.setOnClickListener(view -> {
-            if (mListener != null) {
-                mListener.onClickNegativeButton(getDialog());
-            } else {
-                dismiss();
+        mBinding.no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickNegativeButton(getDialog());
+                } else {
+                    dismiss();
+                }
             }
         });
     }
