@@ -7,7 +7,7 @@ import org.greenrobot.eventbus.EventBus;
 import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 
 public abstract class BaseActivity extends AppCompatActivity {
-    protected boolean isEventSubscribe() {
+    protected boolean shouldEventSubscribes() {
         return false;
     }
 
@@ -18,7 +18,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if (isEventSubscribe()) {
+        if (shouldEventSubscribes()) {
             EventBus.getDefault().register(this);
         }
     }
@@ -26,7 +26,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if (isEventSubscribe()) {
+        if (shouldEventSubscribes()) {
             EventBus.getDefault().unregister(this);
         }
     }

@@ -24,9 +24,8 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public final class CalculatorDialogFragment extends BaseDialogFragment implements CalculatorLayout.Listener, AccountResultDialogFragment.Listener {
     private static final String EXTRA_SUM_RIVER = "sum_price";
@@ -137,23 +136,31 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
     }
 
     private void finishFragment() {
+        if (getContext() == null) return;
+        KidsPOSApplication app = KidsPOSApplication.get(getContext());
+        if (app == null) return;
+
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
-        getApp().postEvent(new SuccessSentSaleEvent());
+        app.postEvent(new SuccessSentSaleEvent());
         dismiss();
     }
 
     private void sendToServer() {
+        if (getContext() == null) return;
+        KidsPOSApplication app = KidsPOSApplication.get(getContext());
+        if (app == null) return;
+
         StringBuilder sum = new StringBuilder();
         for (final Item item : getSaleItems()) {
             sum.append(String.valueOf(item.getId())).append(",");
         }
         sum = new StringBuilder(sum.substring(0, sum.length() - 1));
-        final Staff staff = getApp().getCurrentStaff();
-        final Store store = getApp().getCurrentStore();
+        final Staff staff = app.getCurrentStaff();
+        final Store store = app.getCurrentStore();
         final String staffBarcode = staff == null ? "" : staff.getBarcode();
         final int storeId = store == null ? 0 : store.getId();
 
-        if (getApp().isPracticeModeEnabled()) {
+        if (app.isPracticeModeEnabled()) {
             Toast.makeText(getContext(), "練習モードのためレシートは出ません", Toast.LENGTH_SHORT).show();
             finishFragment();
         } else {
@@ -161,26 +168,23 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
             progressDialog.setTitle("送信しています");
             progressDialog.show();
 
-            getApp().getApiService()
-                    .createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum.toString(), storeId, staffBarcode)
-                    .enqueue(new Callback<Sale>() {
+            app.getSaleRepository().createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum.toString(), storeId, staffBarcode)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(app.defaultSubscribeScheduler())
+                    .subscribe(new Consumer<Sale>() {
                         @Override
-                        public void onResponse(Call<Sale> call, Response<Sale> response) {
+                        public void accept(Sale sale) throws Exception {
                             progressDialog.dismiss();
                             finishFragment();
                         }
-
+                    }, new Consumer<Throwable>() {
                         @Override
-                        public void onFailure(Call<Sale> call, Throwable throwable) {
+                        public void accept(Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
                             progressDialog.dismiss();
                             finishFragment();
                         }
                     });
         }
-    }
-
-    @NonNull
-    private KidsPOSApplication getApp() {
-        return KidsPOSApplication.get(getContext());
     }
 }

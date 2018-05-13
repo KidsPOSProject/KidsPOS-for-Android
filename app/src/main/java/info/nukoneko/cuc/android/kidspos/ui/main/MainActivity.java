@@ -1,5 +1,8 @@
 package info.nukoneko.cuc.android.kidspos.ui.main;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import info.nukoneko.cuc.android.kidspos.Constants;
+import info.nukoneko.cuc.android.kidspos.KidsPOSApplication;
 import info.nukoneko.cuc.android.kidspos.R;
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
@@ -39,9 +43,8 @@ import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity;
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil;
 import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix;
 import info.nukoneko.cuc.android.kidspos.util.logger.LogFilter;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public final class MainActivity extends BaseBarcodeReadableActivity
         implements MainActivityViewModel.Listener, MainItemViewAdapter.Listener {
@@ -74,8 +77,14 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         }
     };
 
+    public static void createIntentWithClearTask(Context context) {
+        final Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
     @Override
-    protected boolean isEventSubscribe() {
+    protected boolean shouldEventSubscribes() {
         return true;
     }
 
@@ -177,6 +186,9 @@ public final class MainActivity extends BaseBarcodeReadableActivity
      */
     @Override
     public void onBarcodeInput(@NonNull final String barcode, final BarcodePrefix prefix) {
+        KidsPOSApplication app = KidsPOSApplication.get(this);
+        if (app == null) return;
+
         if (Constants.TEST_MODE) {
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             switch (prefix) {
@@ -195,38 +207,43 @@ public final class MainActivity extends BaseBarcodeReadableActivity
 
         // サーバから取得する
         switch (prefix) {
-            case ITEM: {
-                getApp().getApiService().readItem(barcode)
-                        .enqueue(new Callback<Item>() {
+            case ITEM:
+                app.getItemRepository().getItem(barcode)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(app.defaultSubscribeScheduler())
+                        .subscribe(new Consumer<Item>() {
                             @Override
-                            public void onResponse(@NonNull Call<Item> call, @NonNull Response<Item> response) {
-                                mAdapter.add(response.body());
+                            public void accept(Item item) throws Exception {
+                                mAdapter.add(item);
                             }
-
+                        }, new Consumer<Throwable>() {
                             @Override
-                            public void onFailure(@NonNull Call<Item> call, @NonNull Throwable t) {
-                                Toast.makeText(MainActivity.this, String.format("なにかがおかしいよ?\n%s", barcode), Toast.LENGTH_SHORT).show();
+                            public void accept(Throwable throwable) throws Exception {
+                                Toast.makeText(MainActivity.this,
+                                        String.format("なにかがおかしいよ?\n%s", barcode),
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
                 break;
-            }
-            case STAFF: {
-                getApp().getApiService().getStaff(barcode)
-                        .enqueue(new Callback<Staff>() {
+            case STAFF:
+                app.getStaffRepository().getStaff(barcode)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(app.defaultSubscribeScheduler())
+                        .subscribe(new Consumer<Staff>() {
                             @Override
-                            public void onResponse(@NonNull Call<Staff> call, @NonNull Response<Staff> response) {
-                                getApp().updateCurrentStaff(response.body());
+                            public void accept(Staff staff) throws Exception {
+                                getApp().updateCurrentStaff(staff);
                             }
-
+                        }, new Consumer<Throwable>() {
                             @Override
-                            public void onFailure(@NonNull Call<Staff> call, @NonNull Throwable t) {
+                            public void accept(Throwable throwable) throws Exception {
                                 Toast.makeText(MainActivity.this,
-                                        "当日に登録したスタッフの場合、別途登録が必要です", Toast.LENGTH_SHORT).show();
+                                        "当日に登録したスタッフの場合、別途登録が必要です",
+                                        Toast.LENGTH_SHORT).show();
                                 getApp().updateCurrentStaff(new Staff(barcode));
                             }
                         });
                 break;
-            }
             case SALE:
                 Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show();
                 break;
@@ -252,8 +269,12 @@ public final class MainActivity extends BaseBarcodeReadableActivity
     private void showNotReachableErrorDialog() {
         AlertUtil.showErrorDialog(this,
                 "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                false,
-                (dialogInterface, i) -> SettingsActivity.createIntent(MainActivity.this));
+                false, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        SettingsActivity.createIntent(MainActivity.this);
+                    }
+                });
     }
 
     private static final class CheckReachableTask extends AsyncTask<Void, Void, Boolean> {
