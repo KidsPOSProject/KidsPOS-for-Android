@@ -15,7 +15,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import io.reactivex.Observable;
 
-public final class StoreRepository extends Repository {
+public final class StoreManager extends BaseManager {
     private static final String KEY_PREFERENCE_STORE_MANAGER = "preference_store_manager";
     private static final String KEY_LATEST_STORE = "LATEST_STORE";
     private static final String KEY_LATEST_STAFF = "LATEST_STAFF";
@@ -26,7 +26,7 @@ public final class StoreRepository extends Repository {
     @Nullable
     private Store mCurrentStore = null;
 
-    public StoreRepository(@NonNull final Context context, @NonNull APIAdapter apiAdapter, @NonNull final Listener listener) {
+    public StoreManager(@NonNull final Context context, @NonNull APIAdapter apiAdapter, @NonNull final Listener listener) {
         super(context, apiAdapter);
         this.mListener = listener;
         this.mCurrentStaff = getLatestStaff();

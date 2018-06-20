@@ -7,13 +7,13 @@ import android.support.annotation.NonNull;
 import info.nukoneko.cuc.android.kidspos.api.APIService;
 import info.nukoneko.cuc.android.kidspos.api.APIAdapter;
 
-public abstract class Repository {
+public abstract class BaseManager {
     @NonNull
     private final Context mContext;
     @NonNull
     private final APIAdapter mApiAdapter;
 
-    Repository(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
+    BaseManager(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
         mContext = context;
         mApiAdapter = apiAdapter;
     }

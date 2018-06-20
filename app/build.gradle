@@ -18,23 +18,30 @@ android {
         enabled true
     }
 
-    apply from: 'debug.gradle', to: android
-    apply from: 'release.gradle', to: android
-
     buildTypes {
         debug {
             minifyEnabled false
-            signingConfig signingConfigs.debug
-        }
-        betaTest {
-            minifyEnabled false
-            signingConfig signingConfigs.debug
-            debuggable true
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+        }
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        demo {
+            dimension "default"
+            applicationIdSuffix = '.demo'
+        }
+
+        prod {
+            dimension "default"
+        }
+
+        latestDev {
+            dimension "default"
+            minSdkVersion rootProject.ext.androidCompileSdkVersion
         }
     }
 

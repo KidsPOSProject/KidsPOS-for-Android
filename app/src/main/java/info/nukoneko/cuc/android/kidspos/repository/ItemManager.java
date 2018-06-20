@@ -7,8 +7,8 @@ import info.nukoneko.cuc.android.kidspos.api.APIAdapter;
 import info.nukoneko.cuc.android.kidspos.entity.Item;
 import io.reactivex.Observable;
 
-public final class ItemRepository extends Repository {
-    public ItemRepository(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
+public final class ItemManager extends BaseManager {
+    public ItemManager(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
         super(context, apiAdapter);
     }
 

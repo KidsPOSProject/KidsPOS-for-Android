@@ -208,7 +208,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
         // サーバから取得する
         switch (prefix) {
             case ITEM:
-                app.getItemRepository().getItem(barcode)
+                app.getItemManager().getItem(barcode)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(app.defaultSubscribeScheduler())
                         .subscribe(new Consumer<Item>() {
@@ -226,7 +226,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                         });
                 break;
             case STAFF:
-                app.getStaffRepository().getStaff(barcode)
+                app.getStaffManager().getStaff(barcode)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(app.defaultSubscribeScheduler())
                         .subscribe(new Consumer<Staff>() {

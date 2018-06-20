@@ -7,9 +7,9 @@ import info.nukoneko.cuc.android.kidspos.api.APIAdapter;
 import info.nukoneko.cuc.android.kidspos.entity.Sale;
 import io.reactivex.Observable;
 
-public final class SaleRepository extends Repository {
+public final class SaleManager extends BaseManager {
 
-    public SaleRepository(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
+    public SaleManager(@NonNull Context context, @NonNull APIAdapter apiAdapter) {
         super(context, apiAdapter);
     }
 
