@@ -168,7 +168,7 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
             progressDialog.setTitle("送信しています");
             progressDialog.show();
 
-            app.getSaleRepository().createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum.toString(), storeId, staffBarcode)
+            app.getSaleManager().createSale(mReceiveMoney, getSaleItems().length, getSumRiver(), sum.toString(), storeId, staffBarcode)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(app.defaultSubscribeScheduler())
                     .subscribe(new Consumer<Sale>() {

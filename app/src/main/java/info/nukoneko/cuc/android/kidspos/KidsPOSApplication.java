@@ -17,11 +17,11 @@ import java.util.Locale;
 
 import info.nukoneko.cuc.android.kidspos.api.APIService;
 import info.nukoneko.cuc.android.kidspos.api.APIAdapter;
-import info.nukoneko.cuc.android.kidspos.repository.ItemRepository;
-import info.nukoneko.cuc.android.kidspos.repository.SaleRepository;
+import info.nukoneko.cuc.android.kidspos.repository.ItemManager;
+import info.nukoneko.cuc.android.kidspos.repository.SaleManager;
 import info.nukoneko.cuc.android.kidspos.api.manager.SettingsManager;
-import info.nukoneko.cuc.android.kidspos.repository.StaffRepository;
-import info.nukoneko.cuc.android.kidspos.repository.StoreRepository;
+import info.nukoneko.cuc.android.kidspos.repository.StaffManager;
+import info.nukoneko.cuc.android.kidspos.repository.StoreManager;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 import info.nukoneko.cuc.android.kidspos.event.StaffUpdateEvent;
@@ -36,10 +36,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public final class KidsPOSApplication extends Application {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
-    private StoreRepository mStoreRepository = null;
-    private StaffRepository mStaffRepository = null;
-    private SaleRepository mSaleRepository = null;
-    private ItemRepository mItemRepository = null;
+    private StoreManager mStoreManager = null;
+    private StaffManager mStaffManager = null;
+    private SaleManager mSaleManager = null;
+    private ItemManager mItemManager = null;
 
     private SettingsManager mSettingsManager = null;
     private APIService mApiService = null;
@@ -62,7 +62,7 @@ public final class KidsPOSApplication extends Application {
 
         Logger.addLogAdapter(new AndroidLogAdapter());
 
-        mStoreRepository = new StoreRepository(this, mApiAdapter, new StoreRepository.Listener() {
+        mStoreManager = new StoreManager(this, mApiAdapter, new StoreManager.Listener() {
             @Override
             public void onUpdateStaff(@NonNull Staff staff) {
                 postEvent(new StaffUpdateEvent(staff));
@@ -74,31 +74,31 @@ public final class KidsPOSApplication extends Application {
             }
         });
 
-        mSaleRepository = new SaleRepository(this, mApiAdapter);
+        mSaleManager = new SaleManager(this, mApiAdapter);
 
-        mStaffRepository = new StaffRepository(this, mApiAdapter);
+        mStaffManager = new StaffManager(this, mApiAdapter);
 
-        mItemRepository = new ItemRepository(this, mApiAdapter);
+        mItemManager = new ItemManager(this, mApiAdapter);
 
         mSettingsManager = new SettingsManager(this);
     }
 
     @Nullable
     public Store getCurrentStore() {
-        return mStoreRepository.getCurrentStore();
+        return mStoreManager.getCurrentStore();
     }
 
     @Nullable
     public Staff getCurrentStaff() {
-        return mStoreRepository.getCurrentStaff();
+        return mStoreManager.getCurrentStaff();
     }
 
     public void updateCurrentStore(Store store) {
-        mStoreRepository.setCurrentStore(store);
+        mStoreManager.setCurrentStore(store);
     }
 
     public void updateCurrentStaff(Staff staff) {
-        mStoreRepository.setCurrentStaff(staff);
+        mStoreManager.setCurrentStaff(staff);
     }
 
     public boolean isPracticeModeEnabled() {
@@ -162,19 +162,19 @@ public final class KidsPOSApplication extends Application {
         mApiService = apiService;
     }
 
-    public StoreRepository getStoreRepository() {
-        return mStoreRepository;
+    public StoreManager getStoreManager() {
+        return mStoreManager;
     }
 
-    public SaleRepository getSaleRepository() {
-        return mSaleRepository;
+    public SaleManager getSaleManager() {
+        return mSaleManager;
     }
 
-    public StaffRepository getStaffRepository() {
-        return mStaffRepository;
+    public StaffManager getStaffManager() {
+        return mStaffManager;
     }
 
-    public ItemRepository getItemRepository() {
-        return mItemRepository;
+    public ItemManager getItemManager() {
+        return mItemManager;
     }
 }

@@ -51,7 +51,7 @@ public final class StoreListViewModel implements ViewModel {
         if (mContext == null) return;
         KidsPOSApplication app = KidsPOSApplication.get(mContext);
         if (app == null) return;
-        app.getStoreRepository().fetchStores()
+        app.getStoreManager().fetchStores()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(app.defaultSubscribeScheduler())
                 .subscribe(new Consumer<List<Store>>() {
