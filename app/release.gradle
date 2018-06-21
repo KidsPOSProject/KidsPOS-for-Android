@@ -1,8 +1,0 @@
-signingConfigs {
-    release {
-        storeFile file("./signingConfigs/release.keystore")
-        storePassword "iCxcftwvbqZE5sd"
-        keyAlias "kidspos_for_android"
-        keyPassword "CJ5Y5blQQ03MpxR"
-    }
-}
