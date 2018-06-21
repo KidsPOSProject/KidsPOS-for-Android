@@ -4,6 +4,7 @@ apply from: 'findbugs.gradle'
 check.dependsOn 'findbugs'
 
 apply plugin: 'deploygate'
+apply plugin: 'io.fabric'
 
 android {
     signingConfigs {
@@ -69,6 +70,10 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 dependencies {
     Map<String, String> dependencies = rootProject.ext.dependencies
     implementation dependencies.appCompat
@@ -83,8 +88,14 @@ dependencies {
     implementation dependencies.rxAndroid
     implementation dependencies.eventBus
     implementation dependencies.loger
+
     testImplementation dependencies.jUnit
     testImplementation dependencies.mockito
     testImplementation dependencies.robolectric
+
     implementation dependencies.deployGate
+
+    implementation(dependencies.crashlytics) {
+        transitive = true
+    }
 }
