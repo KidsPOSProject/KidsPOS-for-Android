@@ -22,6 +22,11 @@ android {
         debug {
             minifyEnabled false
         }
+        demo {
+            minifyEnabled false
+            debuggable true
+            applicationIdSuffix = '.demo'
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -30,11 +35,6 @@ android {
 
     flavorDimensions "default"
     productFlavors {
-        demo {
-            dimension "default"
-            applicationIdSuffix = '.demo'
-        }
-
         prod {
             dimension "default"
         }
