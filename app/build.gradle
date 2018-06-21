@@ -3,9 +3,12 @@ apply plugin: 'com.android.application'
 apply from: 'findbugs.gradle'
 check.dependsOn 'findbugs'
 
-android {
-    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+apply plugin: 'deploygate'
 
+android {
+    signingConfigs {
+    }
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
         minSdkVersion rootProject.ext.androidMinSdkVersion
@@ -13,26 +16,36 @@ android {
         versionCode 6
         versionName "1.0.5"
     }
-
     dataBinding {
         enabled true
+    }
+
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+        }
     }
 
     buildTypes {
         debug {
             minifyEnabled false
+            applicationIdSuffix = '.debug'
+            signingConfig signingConfigs.debug
         }
         demo {
             minifyEnabled false
             debuggable true
             applicationIdSuffix = '.demo'
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     flavorDimensions "default"
     productFlavors {
         prod {
@@ -44,30 +57,25 @@ android {
             minSdkVersion rootProject.ext.androidCompileSdkVersion
         }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
-
     lintOptions {
         abortOnError false
     }
 }
 
 dependencies {
-    Map<String, String> dependencies = rootProject.ext.dependencies;
-
+    Map<String, String> dependencies = rootProject.ext.dependencies
     implementation dependencies.appCompat
     implementation dependencies.preference
     implementation dependencies.recyclerview
     implementation dependencies.design
     implementation dependencies.cardView
-
     implementation dependencies.retrofit
     implementation dependencies.converterGson
     implementation dependencies.adapterRxJava
@@ -75,8 +83,8 @@ dependencies {
     implementation dependencies.rxAndroid
     implementation dependencies.eventBus
     implementation dependencies.loger
-
     testImplementation dependencies.jUnit
     testImplementation dependencies.mockito
     testImplementation dependencies.robolectric
+    implementation dependencies.deployGate
 }

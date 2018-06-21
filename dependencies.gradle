@@ -10,6 +10,8 @@ ext {
     mockitoVersion = "2.18.3"
     roboletricVersion = "3.8"
 
+    deployGateVersion = "4.1.0"
+
     dependencies = [
             appCompat: "com.android.support:appcompat-v7:$supportLibraryVersion",
             preference: "com.android.support:preference-v7:${supportLibraryVersion}",
@@ -27,6 +29,7 @@ ext {
 
             jUnit: "junit:junit:${junitVersion}",
             mockito: "org.mockito:mockito-core:${mockitoVersion}",
-            robolectric: "org.robolectric:robolectric:${roboletricVersion}"
+            robolectric: "org.robolectric:robolectric:${roboletricVersion}",
+            deployGate: "com.deploygate:sdk:${deployGateVersion}"
     ]
 }
