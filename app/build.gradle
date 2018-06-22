@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 apply from: 'findbugs.gradle'
 check.dependsOn 'findbugs'
 
+apply plugin: 'deploygate'
+apply plugin: 'io.fabric'
+
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
 
@@ -18,9 +21,26 @@ android {
         enabled true
     }
 
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false
+            applicationIdSuffix = '.debug'
+            signingConfig signingConfigs.debug
+        }
+        demo {
+            minifyEnabled false
+            debuggable true
+            applicationIdSuffix = '.demo'
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled true
@@ -30,11 +50,6 @@ android {
 
     flavorDimensions "default"
     productFlavors {
-        demo {
-            dimension "default"
-            applicationIdSuffix = '.demo'
-        }
-
         prod {
             dimension "default"
         }
@@ -59,15 +74,18 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 dependencies {
-    Map<String, String> dependencies = rootProject.ext.dependencies;
+    Map<String, String> dependencies = rootProject.ext.dependencies
 
     implementation dependencies.appCompat
     implementation dependencies.preference
     implementation dependencies.recyclerview
     implementation dependencies.design
     implementation dependencies.cardView
-
     implementation dependencies.retrofit
     implementation dependencies.converterGson
     implementation dependencies.adapterRxJava
@@ -79,4 +97,10 @@ dependencies {
     testImplementation dependencies.jUnit
     testImplementation dependencies.mockito
     testImplementation dependencies.robolectric
+
+    implementation dependencies.deployGate
+
+    implementation(dependencies.crashlytics) {
+        transitive = true
+    }
 }
