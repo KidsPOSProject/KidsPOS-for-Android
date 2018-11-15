@@ -22,7 +22,7 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 import info.nukoneko.cuc.android.kidspos.viewmodel.StoreListViewModel;
 
 public final class StoreListDialogFragment extends BaseDialogFragment
-        implements StoreListViewModel.DataListener, StoreAdapter.OnItemClickListener {
+        implements StoreListViewModel.DataListener, StoreAdapter.Listener {
     private FragmentDialogStoreListBinding mBinding;
     private StoreListViewModel mViewModel;
     private StoreAdapter mAdapter;
@@ -38,7 +38,8 @@ public final class StoreListDialogFragment extends BaseDialogFragment
                 .inflate(R.layout.fragment_dialog_store_list, null, false));
         mViewModel = new StoreListViewModel(getContext(), this);
         mBinding.setViewModel(mViewModel);
-        mAdapter = new StoreAdapter(this);
+        mAdapter = new StoreAdapter();
+        mAdapter.setListener(this);
         mBinding.recyclerView.setAdapter(mAdapter);
         setupRecyclerView();
 
@@ -68,7 +69,7 @@ public final class StoreListDialogFragment extends BaseDialogFragment
 
     @Override
     public void onStoresChanged(List<Store> stores) {
-        mAdapter.setStores(stores);
+        mAdapter.setData(stores);
     }
 
     @Override
