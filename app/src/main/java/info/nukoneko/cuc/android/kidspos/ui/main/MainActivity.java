@@ -193,13 +193,13 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             switch (prefix) {
                 case ITEM:
-                    mAdapter.add(new Item(barcode));
+                    mAdapter.add(Item.Companion.createTestObject(barcode));
                     break;
                 case STAFF:
                     mViewModel.setCurrentStaff(new Staff(barcode));
                     break;
                 default:
-                    mAdapter.add(new Item(barcode));
+                    mAdapter.add(Item.Companion.createTestObject(barcode));
                     mViewModel.setCurrentStaff(new Staff(barcode));
             }
             return;
