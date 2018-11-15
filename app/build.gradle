@@ -3,6 +3,13 @@ apply plugin: 'com.android.application'
 apply from: 'findbugs.gradle'
 check.dependsOn 'findbugs'
 
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+androidExtensions {
+    experimental = true
+}
+
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
 
@@ -62,6 +69,10 @@ android {
 
 dependencies {
     Map<String, String> dependencies = rootProject.ext.deps
+    
+    implementation dependencies.kotlin.core
+    implementation dependencies.kotlin.coroutines.core
+    implementation dependencies.kotlin.coroutines.android
 
     implementation dependencies.android.support.appCompat
     implementation dependencies.android.support.preference
