@@ -193,14 +193,14 @@ public final class MainActivity extends BaseBarcodeReadableActivity
             Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show();
             switch (prefix) {
                 case ITEM:
-                    mAdapter.add(new Item(barcode));
+                    mAdapter.add(Item.Companion.create(barcode));
                     break;
                 case STAFF:
-                    mViewModel.setCurrentStaff(new Staff(barcode));
+                    mViewModel.setCurrentStaff(Staff.Companion.create(barcode));
                     break;
                 default:
-                    mAdapter.add(new Item(barcode));
-                    mViewModel.setCurrentStaff(new Staff(barcode));
+                    mAdapter.add(Item.Companion.create(barcode));
+                    mViewModel.setCurrentStaff(Staff.Companion.create(barcode));
             }
             return;
         }
@@ -240,7 +240,7 @@ public final class MainActivity extends BaseBarcodeReadableActivity
                                 Toast.makeText(MainActivity.this,
                                         "当日に登録したスタッフの場合、別途登録が必要です",
                                         Toast.LENGTH_SHORT).show();
-                                getApp().updateCurrentStaff(new Staff(barcode));
+                                getApp().updateCurrentStaff(Staff.Companion.create(barcode));
                             }
                         });
                 break;
