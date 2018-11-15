@@ -22,13 +22,11 @@ android {
         debug {
             minifyEnabled false
             applicationIdSuffix = '.debug'
-            signingConfig signingConfigs.debug
         }
         demo {
             minifyEnabled false
             debuggable true
             applicationIdSuffix = '.demo'
-            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled true
