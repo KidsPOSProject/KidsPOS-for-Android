@@ -36,10 +36,6 @@
             android:name=".ui.setting.SettingsActivity"
             android:label="@string/drawer_setting"
             android:screenOrientation="landscape" />
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="061d5b33e651287ca7f0f61e0de17ee7958b6194" />
     </application>
 
 </manifest>
