@@ -61,22 +61,22 @@ android {
 }
 
 dependencies {
-    Map<String, String> dependencies = rootProject.ext.dependencies
+    Map<String, String> dependencies = rootProject.ext.deps
 
-    implementation dependencies.appCompat
-    implementation dependencies.preference
-    implementation dependencies.recyclerview
-    implementation dependencies.design
-    implementation dependencies.cardView
-    implementation dependencies.retrofit
-    implementation dependencies.converterGson
-    implementation dependencies.adapterRxJava
-    implementation dependencies.rxJava
-    implementation dependencies.rxAndroid
+    implementation dependencies.android.support.appCompat
+    implementation dependencies.android.support.preference
+    implementation dependencies.android.support.recyclerview
+    implementation dependencies.android.support.design
+    implementation dependencies.android.support.cardView
+    implementation dependencies.retrofit.client
+    implementation dependencies.retrofit.converterGson
+    implementation dependencies.retrofit.adapterRxJava
+    implementation dependencies.rx.java2
+    implementation dependencies.rx.android
     implementation dependencies.eventBus
     implementation dependencies.loger
 
-    testImplementation dependencies.jUnit
-    testImplementation dependencies.mockito
-    testImplementation dependencies.robolectric
+    testImplementation dependencies.test.jUnit
+    testImplementation dependencies.test.mockito
+    testImplementation dependencies.test.robolectric
 }
