@@ -1,5 +1,5 @@
 ext {
-    supportLibraryVersion = "27.1.1"
+    supportLibraryVersion = "28.0.0"
     retrofitVersion = "2.4.0"
     eventBusVersion = "3.0.0"
     rxJavaVersion = "2.1.14"
@@ -9,9 +9,6 @@ ext {
     junitVersion = "4.12"
     mockitoVersion = "2.18.3"
     roboletricVersion = "3.8"
-
-    deployGateVersion = "4.1.0"
-    crashlyticsVersion = "2.9.4@aar"
 
     dependencies = [
             appCompat: "com.android.support:appcompat-v7:$supportLibraryVersion",
@@ -30,9 +27,6 @@ ext {
 
             jUnit: "junit:junit:${junitVersion}",
             mockito: "org.mockito:mockito-core:${mockitoVersion}",
-            robolectric: "org.robolectric:robolectric:${roboletricVersion}",
-
-            deployGate: "com.deploygate:sdk:${deployGateVersion}",
-            crashlytics: "com.crashlytics.sdk.android:crashlytics:${crashlyticsVersion}"
+            robolectric: "org.robolectric:robolectric:${roboletricVersion}"
     ]
 }
