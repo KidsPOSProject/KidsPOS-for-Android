@@ -11,6 +11,7 @@ import org.robolectric.annotation.Config;
 
 import info.nukoneko.cuc.android.kidspos.BuildConfig;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
+import info.nukoneko.cuc.android.kidspos.ui.main.storelist.ItemStoreListContentViewModel;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +27,7 @@ public class ItemStoreViewModelTest {
     public void shouldGetStoreName() {
         Store store = new Gson().fromJson("{\"id\": 1, \"name\": \"ぬいぐるみ\"}", Store.class);
 
-        ItemStoreViewModel viewModel = new ItemStoreViewModel(store, null);
+        ItemStoreListContentViewModel viewModel = new ItemStoreListContentViewModel(store, null);
         assertEquals(store.getName(), viewModel.getStoreName());
     }
 
@@ -34,7 +35,7 @@ public class ItemStoreViewModelTest {
     public void shouldNotifyPropertyChangeWhenSetStore() {
         Store store = new Gson().fromJson("{\"id\": 1, \"name\": \"ぬいぐるみ\"}", Store.class);
 
-        ItemStoreViewModel viewModel = new ItemStoreViewModel(store, null);
+        ItemStoreListContentViewModel viewModel = new ItemStoreListContentViewModel(store, null);
         Observable.OnPropertyChangedCallback mockCallback =
                 mock(Observable.OnPropertyChangedCallback.class);
         viewModel.addOnPropertyChangedCallback(mockCallback);
