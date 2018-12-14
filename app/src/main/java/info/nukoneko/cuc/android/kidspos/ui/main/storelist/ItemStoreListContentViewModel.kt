@@ -6,10 +6,7 @@ import android.view.View
 import info.nukoneko.cuc.android.kidspos.entity.Store
 
 class ItemStoreListContentViewModel(private var store: Store, private val listener: Listener?) : BaseObservable() {
-
-    val storeName: String
-        get() = store.name
-
+    val storeName = store.name
     fun onItemClick(@Suppress("UNUSED_PARAMETER") view: View) {
         listener?.onStoreSelected(store)
     }
