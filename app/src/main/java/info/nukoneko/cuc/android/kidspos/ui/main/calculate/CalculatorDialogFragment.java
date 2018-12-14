@@ -22,7 +22,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Item;
 import info.nukoneko.cuc.android.kidspos.entity.Sale;
 import info.nukoneko.cuc.android.kidspos.entity.Staff;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
-import info.nukoneko.cuc.android.kidspos.event.SuccessSentSaleEvent;
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -137,7 +136,7 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
 
     private void finishFragment() {
         if (getContext() == null) return;
-        KidsPOSApplication app = KidsPOSApplication.get(getContext());
+        KidsPOSApplication app = KidsPOSApplication.Companion.get(getContext());
         if (app == null) return;
 
         if (mDialogFragment != null) mDialogFragment.getDialog().cancel();
@@ -147,7 +146,7 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
 
     private void sendToServer() {
         if (getContext() == null) return;
-        KidsPOSApplication app = KidsPOSApplication.get(getContext());
+        KidsPOSApplication app = KidsPOSApplication.Companion.get(getContext());
         if (app == null) return;
 
         StringBuilder sum = new StringBuilder();
@@ -155,8 +154,8 @@ public final class CalculatorDialogFragment extends BaseDialogFragment implement
             sum.append(String.valueOf(item.getId())).append(",");
         }
         sum = new StringBuilder(sum.substring(0, sum.length() - 1));
-        final Staff staff = app.getCurrentStaff();
-        final Store store = app.getCurrentStore();
+        final Staff staff = app.getStoreManager().getLastStaff();
+        final Store store = app.getStoreManager().getLastStore();
         final String staffBarcode = staff == null ? "" : staff.getBarcode();
         final int storeId = store == null ? 0 : store.getId();
 

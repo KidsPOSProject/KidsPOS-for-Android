@@ -57,6 +57,11 @@ android {
     lintOptions {
         abortOnError false
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -78,5 +83,6 @@ dependencies {
     implementation deps.loger
     testImplementation deps.test.jUnit
     testImplementation deps.test.mockito
+    testImplementation deps.test.mockitoKotlin
     testImplementation deps.test.robolectric
 }

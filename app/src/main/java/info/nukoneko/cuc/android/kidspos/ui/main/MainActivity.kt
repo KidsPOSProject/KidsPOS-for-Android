@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -10,38 +11,45 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.widget.Toast
 import info.nukoneko.cuc.android.kidspos.Constants
+import info.nukoneko.cuc.android.kidspos.KidsPOSApplication
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding
 import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.event.*
+import info.nukoneko.cuc.android.kidspos.event.ApplicationEvent
+import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
+import info.nukoneko.cuc.android.kidspos.event.Event
+import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogFragment
+import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewAdapter
 import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragment
-import info.nukoneko.cuc.android.kidspos.ui.setting.SettingsActivity
+import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil
-import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 
-abstract class MainActivity : BaseBarcodeReadableActivity(), MainItemViewAdapter.Listener {
+class MainActivity : BaseBarcodeReadableActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by lazy {
-        ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        ViewModelProviders.of(this).get(MainActivityViewModel::class.java).also {
+            it.listener = listener
+        }
     }
 
-    private var mAdapter: MainItemViewAdapter? = null
+    private val adapter: ItemListViewAdapter by lazy {
+        ItemListViewAdapter()
+    }
 
     private val navigationListener = NavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.setting -> SettingsActivity.createIntent(this@MainActivity)
+            R.id.setting -> SettingActivity.createIntent(this@MainActivity)
             R.id.change_store -> {
                 val fragment = StoreListDialogFragment.newInstance()
                 fragment.isCancelable = false
                 fragment.show(supportFragmentManager, "changeStore")
             }
-            R.id.input_dummy_item -> onBarcodeInput("1234567890", BarcodePrefix.ITEM)
-            R.id.input_dummy_store -> onBarcodeInput("1234567890", BarcodePrefix.STAFF)
+            R.id.input_dummy_item -> onBarcodeInput("1234567890", BarcodeKind.ITEM)
+            R.id.input_dummy_store -> onBarcodeInput("1234567890", BarcodeKind.STAFF)
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         true
@@ -52,17 +60,14 @@ abstract class MainActivity : BaseBarcodeReadableActivity(), MainItemViewAdapter
             showNotReachableErrorDialog()
         }
 
-        override fun onAddNewItem(item: Item) {
-            mAdapter?.add(item)
-        }
-
-        override fun onClear() {
-            mAdapter!!.clear()
-        }
-
-        override fun onAccount() {
-            CalculatorDialogFragment.newInstance(mAdapter!!.sumPrice, mAdapter!!.data)
-                    .show(supportFragmentManager, "Calculator")
+        override fun onStartAccount() {
+            viewModel.getTotalPrice().value?.let { totalPrice ->
+                viewModel.getData().value?.let { data ->
+                    CalculatorDialogFragment
+                            .newInstance(totalPrice, data)
+                            .show(supportFragmentManager, "Calculator")
+                }
+            }
         }
 
         override fun onChangeTitle(title: String) {
@@ -86,56 +91,43 @@ abstract class MainActivity : BaseBarcodeReadableActivity(), MainItemViewAdapter
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         binding.navView.setNavigationItemSelectedListener(navigationListener)
-
-        viewModel.listener = listener
         binding.appBarLayout.contentMain.viewModel = viewModel
+        binding.appBarLayout.contentMain.recyclerView.adapter = adapter
 
-        mAdapter = MainItemViewAdapter(this)
-        binding.appBarLayout.contentMain.recyclerView.adapter = mAdapter
+        setupSubscriber()
+    }
 
+    private fun setupSubscriber() {
+        KidsPOSApplication[this]?.let {
+            it.getGlobalEventObserver().observe(this, Observer<Event> { event ->
+                when (event) {
+                    BarcodeEvent.ReadStaffFailed -> Toast.makeText(this@MainActivity, R.string.request_staff_failed, Toast.LENGTH_SHORT).show()
+                    BarcodeEvent.ReadItemFailed -> Toast.makeText(this@MainActivity, R.string.request_item_failed, Toast.LENGTH_SHORT).show()
+                    BarcodeEvent.ReadReceiptFailed -> Toast.makeText(this@MainActivity, R.string.read_receipt_failed, Toast.LENGTH_SHORT).show()
+                    BarcodeEvent.ReadItemSuccess -> {
+                        if (adapter.itemCount > 0) {
+                            binding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0)
+                        }
+                    }
+                    SystemEvent.SentSaleSuccess -> {
+                        adapter.clear()
+                    }
+                    ApplicationEvent.AppModeChange -> {
+                        adapter.clear()
+                    }
+                }
+            })
+
+            viewModel.getData().observe(this, Observer<List<Item>> { data ->
+                adapter.setItems(data ?: emptyList())
+            })
+        }
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
         binding.navView.menu.setGroupVisible(R.id.beta_test, Constants.TEST_MODE)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onBinaryUpdate(event: BinaryUpdateEvent) {
-        Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onSumPriceUpdate(event: SumPriceUpdateEvent) {
-        viewModel.onSumPriceUpdate(event)
-        if (mAdapter!!.itemCount > 0) {
-            binding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0)
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onSuccessSentSale(event: SuccessSentSaleEvent) {
-        mAdapter!!.clear()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onStoreUpdate(event: StoreUpdateEvent) {
-        viewModel.onStoreUpdate(event)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onStaffUpdate(event: StaffUpdateEvent) {
-        Toast.makeText(this, "アップデートが有効になりました", Toast.LENGTH_SHORT).show()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onChangeState(event: ChangeStateEvent) {
-        mAdapter!!.clear()
-    }
-
-    override fun onUpdateSumPrice(sumPrice: Int) {
-        app!!.postEvent(SumPriceUpdateEvent(sumPrice))
     }
 
     /**
@@ -145,14 +137,14 @@ abstract class MainActivity : BaseBarcodeReadableActivity(), MainItemViewAdapter
      * @param barcode barcode
      * @param prefix  barcode type
      */
-    override fun onBarcodeInput(barcode: String, prefix: BarcodePrefix) {
+    override fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
         viewModel.onBarcodeInput(barcode, prefix)
     }
 
     private fun showNotReachableErrorDialog() {
         AlertUtil.showErrorDialog(this,
                 "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                false) { _, _ -> SettingsActivity.createIntent(this@MainActivity) }
+                false) { _, _ -> SettingActivity.createIntent(this@MainActivity) }
     }
 
     companion object {

@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="info.nukoneko.cuc.android.kidspos.viewmodel.StoreListViewModel" />
+            type="info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListViewModel" />
     </data>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"

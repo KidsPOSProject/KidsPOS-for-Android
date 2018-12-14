@@ -12,9 +12,8 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import info.nukoneko.cuc.android.kidspos.event.StoreUpdateEvent
-import info.nukoneko.cuc.android.kidspos.event.SumPriceUpdateEvent
-import info.nukoneko.cuc.android.kidspos.util.BarcodePrefix
+import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
+import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -23,33 +22,34 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 class MainActivityViewModel(app: Application): AndroidViewModel(app) {
-    private val sumPrice = MutableLiveData<Int>()
-    fun getSumPrice(): LiveData<Int> = sumPrice
+    private val totalPrice = MutableLiveData<Int>()
+    fun getTotalPrice(): LiveData<Int> = totalPrice
+
     private val currentStore = MutableLiveData<Store>()
     fun getCurrentStore(): LiveData<Store> = currentStore
     private val currentStaff = MutableLiveData<Staff>()
     fun getCurrentStaff(): LiveData<Staff> = currentStaff
     var listener: Listener? = null
 
-    init {
-        sumPrice.value = 0
-    }
+    private val data = MutableLiveData<List<Item>>()
+    fun getData(): LiveData<List<Item>> = data
 
-    private val app: KidsPOSApplication? = KidsPOSApplication.get(app)
+    private val app: KidsPOSApplication? = KidsPOSApplication[app]
 
     fun onClickClear(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onClear()
+        data.postValue(emptyList())
+        updateValues()
     }
 
     fun onClickAccount(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onAccount()
+        listener?.onStartAccount()
     }
 
     fun onResume() {
         val app = app ?: return
 
-        currentStore.postValue(app.currentStore)
-        currentStaff.postValue(app.currentStaff)
+        currentStore.postValue(app.storeManager.lastStore)
+        currentStaff.postValue(app.storeManager.lastStaff)
 
         requestUpdateTitle()
 
@@ -67,7 +67,7 @@ class MainActivityViewModel(app: Application): AndroidViewModel(app) {
 
         var actionBarTitle = app.getString(R.string.app_name)
 
-        app.currentStore?.name?.also { actionBarTitle += " [$it]" }
+        app.storeManager.lastStore?.name?.also { actionBarTitle += " [$it]" }
 
         if (app.isPracticeModeEnabled) actionBarTitle += " [練習モード]"
 
@@ -77,57 +77,80 @@ class MainActivityViewModel(app: Application): AndroidViewModel(app) {
         listener?.onChangeTitle(actionBarTitle)
     }
 
-    fun onBarcodeInput(barcode: String, prefix: BarcodePrefix) {
+    fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
         val app = app ?: return
 
         @Suppress("ConstantConditionIf")
         if (Constants.TEST_MODE) {
-//            Toast.makeText(this, String.format("%s", barcode), Toast.LENGTH_SHORT).show()
             when (prefix) {
-                BarcodePrefix.ITEM -> listener?.onAddNewItem(Item.create(barcode))
-                BarcodePrefix.STAFF -> currentStaff.postValue(Staff.create(barcode))
+                BarcodeKind.ITEM -> {
+                    addItem(Item.create(barcode))
+                }
+                BarcodeKind.STAFF -> currentStaff.postValue(Staff.create(barcode))
                 else -> {
-                    listener?.onAddNewItem(Item.create(barcode))
+                    addItem(Item.create(barcode))
                     currentStaff.postValue(Staff.create(barcode))
                 }
             }
-            return
-        }
-
-        // サーバから取得する
-        when (prefix) {
-            BarcodePrefix.ITEM -> app.itemManager.getItem(barcode)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(app.defaultSubscribeScheduler())
-                    .subscribe({ item -> listener?.onAddNewItem(item) }, {
-//                        Toast.makeText(this@MainActivity,
-//                                String.format("なにかがおかしいよ?\n%s", barcode),
-//                                Toast.LENGTH_SHORT).show()
-                    })
-            BarcodePrefix.STAFF -> app.staffManager.getStaff(barcode)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(app.defaultSubscribeScheduler())
-                    .subscribe({ staff -> app.updateCurrentStaff(staff) }, {
-//                        Toast.makeText(this@MainActivity,
-//                                "当日に登録したスタッフの場合、別途登録が必要です",
-//                                Toast.LENGTH_SHORT).show()
-                        app.updateCurrentStaff(Staff.create(barcode))
-                    })
-            BarcodePrefix.SALE -> {}//Toast.makeText(this, "レシートの読取は今はできません", Toast.LENGTH_SHORT).show()
-            BarcodePrefix.UNKNOWN -> {
+        } else {
+            // サーバから取得する
+            when (prefix) {
+                BarcodeKind.ITEM -> app.itemManager.getItem(barcode)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(app.getDefaultSubscribeScheduler())
+                        .subscribe({ item ->
+                            addItem(item)
+                            app.postEvent(BarcodeEvent.ReadItemSuccess)
+                        }, {
+                            app.postEvent(BarcodeEvent.ReadItemFailed)
+                        })
+                BarcodeKind.STAFF -> app.staffManager.getStaff(barcode)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(app.getDefaultSubscribeScheduler())
+                        .subscribe({ staff ->
+                            currentStaff.postValue(staff)
+                            app.storeManager.saveLatestStaff(staff)
+                            app.postEvent(BarcodeEvent.ReadStaffSuccess)
+                        }, {
+                            app.postEvent(BarcodeEvent.ReadStaffFailed)
+                        })
+                BarcodeKind.SALE -> app.postEvent(BarcodeEvent.ReadReceiptFailed)
+                BarcodeKind.UNKNOWN -> {
+                }
             }
         }
+
+        updateValues()
     }
 
-    fun onStoreUpdate(event: StoreUpdateEvent) {
-        currentStore.postValue(event.store)
-        requestUpdateTitle()
+    private fun updateValues() {
+        val total = data.value?.let {
+            var sum = 0
+            for (item in it) {
+                sum += item.price
+            }
+            sum
+        } ?: 0
+        totalPrice.postValue(total)
     }
 
-    private fun checkReachable(serverIp: String, serverPort: String) = GlobalScope.async {
+    private fun addItem(item: Item) {
+        var items = data.value ?: emptyList()
+        items += item
+        KidsPOSApplication[getApplication()]?.let {
+            it.postEvent(BarcodeEvent.ReadItemSuccess.apply {
+                value = item
+            })
+        }
+        data.postValue(items)
+
+        updateValues()
+    }
+
+    private fun checkReachable(serverIp: String, serverPort: Int) = GlobalScope.async {
         try {
             val sock = Socket()
-            sock.connect(InetSocketAddress(serverIp, Integer.parseInt(serverPort)), 2000)
+            sock.connect(InetSocketAddress(serverIp, serverPort), 2000)
             sock.close()
             return@async true
         } catch (e: Exception) {
@@ -136,18 +159,10 @@ class MainActivityViewModel(app: Application): AndroidViewModel(app) {
         }
     }
 
-    fun onSumPriceUpdate(event: SumPriceUpdateEvent) {
-        sumPrice.postValue(event.currentValue)
-    }
-
     interface Listener {
-        fun onClear()
-
-        fun onAccount()
+        fun onStartAccount()
 
         fun onChangeTitle(title: String)
-
-        fun onAddNewItem(item: Item)
 
         fun onNotReachableServer()
     }
