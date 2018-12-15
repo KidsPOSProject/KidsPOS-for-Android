@@ -67,6 +67,9 @@ android {
             includeAndroidResources = true
         }
     }
+    sourceSets.all {
+        java.srcDirs += "src/${name}/kotlin"
+    }
 }
 
 dependencies {
@@ -84,7 +87,6 @@ dependencies {
     implementation deps.retrofit.adapterRxJava
     implementation deps.rx.java2
     implementation deps.rx.android
-    implementation deps.eventBus
     implementation deps.loger
     testImplementation deps.test.jUnit
     testImplementation deps.test.mockito
