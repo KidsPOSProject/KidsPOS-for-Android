@@ -1,10 +1,9 @@
 apply plugin: 'com.android.application'
 
-apply from: 'findbugs.gradle'
-check.dependsOn 'findbugs'
-
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
+apply from: 'codeQuality.gradle'
 
 androidExtensions {
     experimental = true
@@ -58,6 +57,12 @@ android {
         abortOnError false
     }
     testOptions {
+        animationsDisabled = true
+        resultsDir = "$project.buildDir/test-results"
+        unitTests.all {
+            jvmArgs '-XX:MaxMetaspaceSize=256m'
+            systemProperty 'debug', 'true'
+        }
         unitTests {
             includeAndroidResources = true
         }
