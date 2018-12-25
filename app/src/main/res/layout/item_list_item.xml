@@ -2,10 +2,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-
         <variable
-            name="item"
-            type="info.nukoneko.cuc.android.kidspos.entity.Item" />
+            name="viewModel"
+            type="info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemItemListContentViewModel" />
     </data>
 
     <android.support.v7.widget.CardView
@@ -26,7 +25,7 @@
                 android:gravity="top|start"
                 android:maxLines="1"
                 android:padding="2dp"
-                android:text="@{item.name}"
+                android:text="@{viewModel.name}"
                 android:textSize="16sp" />
 
             <TextView
@@ -36,7 +35,7 @@
                 android:layout_below="@id/item_name"
                 android:gravity="center_horizontal"
                 android:maxLines="1"
-                android:text='@{String.format("%d", item.price)}'
+                android:text="@{viewModel.priceText}"
                 android:textSize="30sp" />
 
             <TextView
@@ -48,7 +47,7 @@
                 android:gravity="center_vertical|end"
                 android:maxLines="1"
                 android:padding="2dp"
-                android:text="@{item.barcode}"
+                android:text="@{viewModel.barcode}"
                 android:textSize="12sp" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
