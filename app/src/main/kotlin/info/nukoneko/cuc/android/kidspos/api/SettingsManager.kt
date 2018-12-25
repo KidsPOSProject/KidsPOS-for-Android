@@ -12,7 +12,7 @@ class SettingsManager(context: Context) {
         set(ip) = preference.edit().putString(KEY_SERVER_IP, ip).apply()
 
     var serverPort: Int
-        get() = preference.getInt(KEY_SERVER_PORT, DEFAULT_PORT) ?: DEFAULT_PORT
+        get() = preference.getInt(KEY_SERVER_PORT, DEFAULT_PORT)
         set(port) = preference.edit().putInt(KEY_SERVER_PORT, port).apply()
 
     var ipPort: String = "$serverIP:$serverPort"

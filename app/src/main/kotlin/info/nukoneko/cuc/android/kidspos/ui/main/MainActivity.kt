@@ -75,10 +75,6 @@ class MainActivity : BaseBarcodeReadableActivity() {
         }
     }
 
-    override fun shouldEventSubscribes(): Boolean {
-        return true
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

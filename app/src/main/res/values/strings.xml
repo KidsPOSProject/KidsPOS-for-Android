@@ -22,4 +22,8 @@
     <string name="settings_server_ip">IPアドレス</string>
     <string name="settings_server_port">接続ポート</string>
     <string name="settings_enable_practice_mode">練習モード</string>
+    <string name="back">もどる</string>
+    <string name="change">おつり</string>
+    <string name="deposit">おあずかり</string>
+    <string name="total">ごうけい</string>
 </resources>

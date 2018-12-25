@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import android.app.Dialog
 import android.app.ProgressDialog
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
@@ -19,6 +18,13 @@ import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class CalculatorDialogFragment : BaseDialogFragment(), AccountResultDialogFragment.Listener {
+    override fun onAccount() {
+        sendToServer()
+    }
+
+    override fun onAccountResultDialogBack() {
+
+    }
 
     private var deposit = 0
     private lateinit var binding: FragmentCalculatorBinding
@@ -79,18 +85,9 @@ class CalculatorDialogFragment : BaseDialogFragment(), AccountResultDialogFragme
 
             resultDialogFragment = AccountResultDialogFragment.newInstance(totalPrice, deposit)
             resultDialogFragment!!.isCancelable = false
-            resultDialogFragment!!.setListener(this@CalculatorDialogFragment)
             resultDialogFragment!!.show(childFragmentManager, "yesNoDialog")
         })
         binding.back.setOnClickListener { dismiss() }
-    }
-
-    override fun onClickPositiveButton(dialog: Dialog) {
-        sendToServer()
-    }
-
-    override fun onClickNegativeButton(dialog: Dialog) {
-        dialog.cancel()
     }
 
     private fun finishFragment() {
