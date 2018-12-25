@@ -14,8 +14,16 @@
     <string name="BetaDrawerTitleInputDummyItem">ダミー商品読み込み</string>
     <string name="BetaDrawerTitleInputDummyStaff">ダミースタッフ読み込み</string>
 
+    <string name="request_item_failed">商品の読み取りに失敗しました。連続で発生する場合、担当にお知らせください</string>
+    <string name="request_staff_failed">スタッフの読み込みに失敗しました。\n当日に登録した場合、読み込めません</string>
+    <string name="read_receipt_failed">レシートの読み取りはできません。</string>
+
     <!-- Settings -->
     <string name="settings_server_ip">IPアドレス</string>
     <string name="settings_server_port">接続ポート</string>
     <string name="settings_enable_practice_mode">練習モード</string>
+    <string name="back">もどる</string>
+    <string name="change">おつり</string>
+    <string name="deposit">おあずかり</string>
+    <string name="total">ごうけい</string>
 </resources>

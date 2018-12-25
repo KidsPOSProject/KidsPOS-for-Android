@@ -10,10 +10,6 @@
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.MainActivityViewModel" />
-
-        <variable
-            name="listener"
-            type="info.nukoneko.cuc.android.kidspos.ui.main.MainActivityViewModel.Listener" />
     </data>
 
     <RelativeLayout
@@ -32,7 +28,7 @@
             android:background="#E0E0E0"
             android:gravity="end"
             android:padding="8dp"
-            android:text='@{String.format("%d リバー", viewModel.sumPrice)}'
+            android:text='@{String.format("%d リバー", viewModel.totalPrice)}'
             android:textSize="24sp" />
 
         <LinearLayout
@@ -48,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
                 android:background="@drawable/layout_button_rect_red"
-                android:onClick="@{listener::onClickClear}"
+                android:onClick="@{viewModel::onClickClear}"
                 android:text="@string/delete"
                 android:textColor="@android:color/white"
                 android:textSize="22sp" />
@@ -84,8 +80,8 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:background="@drawable/layout_button_rect_white"
-                android:enabled="@{viewModel.sumPrice > 0}"
-                android:onClick="@{listener::onClickAccount}"
+                android:enabled="@{viewModel.totalPrice > 0}"
+                android:onClick="@{viewModel::onClickAccount}"
                 android:text="@string/account"
                 android:textSize="22sp"/>
         </LinearLayout>
@@ -97,7 +93,7 @@
             android:layout_above="@id/bottom_layout"
             android:layout_below="@id/price_view"
             android:background="#303030"
-            app:layoutManager="GridLayoutManager"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:spanCount="3" />
     </RelativeLayout>
 </layout>

@@ -33,7 +33,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".ui.setting.SettingsActivity"
+            android:name=".ui.setting.SettingActivity"
             android:label="@string/drawer_setting"
             android:screenOrientation="landscape" />
     </application>

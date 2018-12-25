@@ -3,10 +3,11 @@
     <data>
         <variable
             name="viewModel"
-            type="info.nukoneko.cuc.android.kidspos.viewmodel.ItemStoreViewModel" />
+            type="info.nukoneko.cuc.android.kidspos.ui.main.storelist.ItemStoreListContentViewModel" />
     </data>
 
     <TextView
+        android:id="@+id/item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

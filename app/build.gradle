@@ -1,30 +1,26 @@
 apply plugin: 'com.android.application'
 
-apply from: 'findbugs.gradle'
-check.dependsOn 'findbugs'
-
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
+apply from: 'codeQuality.gradle'
 
 androidExtensions {
     experimental = true
 }
 
 android {
-    compileSdkVersion rootProject.ext.androidCompileSdkVersion
-
+    compileSdkVersion 28
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion rootProject.ext.androidMinSdkVersion
-        targetSdkVersion rootProject.ext.androidTargetSdkVersion
+        minSdkVersion 28
+        targetSdkVersion 28
         versionCode 6
         versionName "1.0.5"
     }
-
     dataBinding {
         enabled true
     }
-
     buildTypes {
         debug {
             minifyEnabled false
@@ -40,54 +36,60 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     flavorDimensions "default"
     productFlavors {
         prod {
             dimension "default"
         }
-
         latestDev {
             dimension "default"
             minSdkVersion rootProject.ext.androidCompileSdkVersion
         }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
-
     lintOptions {
         abortOnError false
+    }
+    testOptions {
+        animationsDisabled = true
+        resultsDir = "$project.buildDir/test-results"
+        unitTests.all {
+            jvmArgs '-XX:MaxMetaspaceSize=256m'
+            systemProperty 'debug', 'true'
+        }
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets.all {
+        java.srcDirs += "src/${name}/kotlin"
     }
 }
 
 dependencies {
-    Map<String, String> dependencies = rootProject.ext.deps
-    
-    implementation dependencies.kotlin.core
-    implementation dependencies.kotlin.coroutines.core
-    implementation dependencies.kotlin.coroutines.android
-
-    implementation dependencies.android.support.appCompat
-    implementation dependencies.android.support.preference
-    implementation dependencies.android.support.recyclerview
-    implementation dependencies.android.support.design
-    implementation dependencies.android.support.cardView
-    implementation dependencies.retrofit.client
-    implementation dependencies.retrofit.converterGson
-    implementation dependencies.retrofit.adapterRxJava
-    implementation dependencies.rx.java2
-    implementation dependencies.rx.android
-    implementation dependencies.eventBus
-    implementation dependencies.loger
-
-    testImplementation dependencies.test.jUnit
-    testImplementation dependencies.test.mockito
-    testImplementation dependencies.test.robolectric
+    implementation deps.kotlin.core
+    implementation deps.kotlin.coroutines.core
+    implementation deps.kotlin.coroutines.android
+    implementation deps.android.arch.viewModelExtensions
+    implementation deps.android.support.appCompat
+    implementation deps.android.support.preference
+    implementation deps.android.support.recyclerview
+    implementation deps.android.support.design
+    implementation deps.android.support.cardView
+    implementation deps.retrofit.client
+    implementation deps.retrofit.converterGson
+    implementation deps.retrofit.adapterRxJava
+    implementation deps.rx.java2
+    implementation deps.rx.android
+    implementation deps.loger
+    testImplementation deps.test.jUnit
+    testImplementation deps.test.mockito
+    testImplementation deps.test.mockitoKotlin
+    testImplementation deps.test.robolectric
 }
