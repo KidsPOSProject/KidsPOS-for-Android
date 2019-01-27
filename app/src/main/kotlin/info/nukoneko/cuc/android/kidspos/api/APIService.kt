@@ -11,7 +11,7 @@ import retrofit2.http.*
 interface APIService {
 
     @GET("store/list")
-    fun storeList(): Observable<List<Store>>
+    fun fetchStores(): Observable<List<Store>>
 
     @FormUrlEncoded
     @POST("sale/create")

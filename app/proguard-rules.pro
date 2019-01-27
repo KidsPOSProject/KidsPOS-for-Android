@@ -23,10 +23,3 @@
 
 #------ Gson -------
 -keep class info.nukoneko.cuc.android.kidspos.entity.** { *; }
-
-#------ EventBus -------
--keepattributes *Annotation*
--keepclassmembers class ** {
-    @org.greenrobot.eventbus.Subscribe <methods>;
-}
--keep enum org.greenrobot.eventbus.ThreadMode { *; }

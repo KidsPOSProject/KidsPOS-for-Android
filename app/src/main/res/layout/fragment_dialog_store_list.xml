@@ -35,15 +35,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="再読み込み"
-                android:layout_margin="8dp"/>
+                android:text="@string/reload"
+                android:layout_margin="8dp"
+                android:onClick="@{viewModel::onReload}"/>
             <Button
                 style="?android:actionButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="閉じる"
-                android:layout_margin="8dp" />
+                android:text="@string/close"
+                android:layout_margin="8dp"
+                android:onClick="@{viewModel::onClose}"/>
         </LinearLayout>
 
     </FrameLayout>

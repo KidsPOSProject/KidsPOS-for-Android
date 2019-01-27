@@ -1,20 +1,21 @@
 ext {
     versions = [
-            jUnit           : "4.12",
-            mockito         : "2.18.3",
-            mockitoKotlin   : "2.0.0",
-            robolectric     : "3.8",
+            jUnit             : "4.12",
+            mockito           : "2.18.3",
+            mockitoKotlin     : "2.0.0",
+            robolectric       : "3.8",
             supportTestLibrary: "1.0.1",
 
-            kotlin          : "1.3.10",
-            kotlinCoroutines: "1.0.1",
+            kotlin            : "1.3.10",
+            kotlinCoroutines  : "1.0.1",
+            koin              : "1.0.2",
 
-            aac             : "1.1.1",
-            supportLibrary  : "28.0.0",
-            retrofit        : "2.4.0",
-            rxJava          : "2.1.14",
-            rxAndroid       : "2.0.2",
-            logger          : "2.2.0",
+            aac               : "1.1.1",
+            supportLibrary    : "28.0.0",
+            retrofit          : "2.4.0",
+            rxJava            : "2.1.14",
+            rxAndroid         : "2.0.2",
+            logger            : "2.2.0",
     ]
 
     deps = [
@@ -33,8 +34,15 @@ ext {
                             design      : "com.android.support:design:$versions.supportLibrary",
                             cardView    : "com.android.support:cardview-v7:$versions.supportLibrary",
                     ],
-                    arch:    [
+                    arch   : [
                             viewModelExtensions: "android.arch.lifecycle:extensions:$versions.aac",
+                    ]
+            ],
+            di      : [
+                    koin: [
+                            core     : "org.koin:koin-core:$versions.koin",
+                            android  : "org.koin:koin-android:$versions.koin",
+                            viewModel: "org.koin:koin-android-viewmodel:$versions.koin",
                     ]
             ],
             retrofit: [
@@ -48,11 +56,11 @@ ext {
             ],
             loger   : "com.orhanobut:logger:$versions.logger",
             test    : [
-                    jUnit      : "junit:junit:$versions.jUnit",
-                    mockito    : "org.mockito:mockito-core:$versions.mockito",
+                    jUnit        : "junit:junit:$versions.jUnit",
+                    mockito      : "org.mockito:mockito-core:$versions.mockito",
                     mockitoKotlin: "com.nhaarman.mockitokotlin2:mockito-kotlin:$versions.mockitoKotlin",
-                    robolectric: "org.robolectric:robolectric:$versions.robolectric",
-                    runner     : "com.android.support.test:runner:$versions.supportTestLibrary"
+                    robolectric  : "org.robolectric:robolectric:$versions.robolectric",
+                    runner       : "com.android.support.test:runner:$versions.supportTestLibrary"
             ]
     ]
 }

@@ -1,12 +1,11 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.ViewModel
 import android.view.View
 
-class AccountResultDialogViewModel(application: Application): AndroidViewModel(application) {
+class AccountResultDialogViewModel : ViewModel() {
     private val price = MutableLiveData<Int>()
     fun getPrice(): LiveData<Int> = price
 
