@@ -1,8 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -10,15 +9,10 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.widget.Toast
-import info.nukoneko.cuc.android.kidspos.KidsPOSApplication
 import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding
 import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.event.ApplicationEvent
-import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
-import info.nukoneko.cuc.android.kidspos.event.Event
-import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogFragment
 import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewAdapter
@@ -26,15 +20,12 @@ import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragme
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity
 import info.nukoneko.cuc.android.kidspos.util.AlertUtil
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseBarcodeReadableActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainActivityViewModel by lazy {
-        ViewModelProviders.of(this).get(MainActivityViewModel::class.java).also {
-            it.listener = listener
-        }
-    }
+    private val myViewModel: MainActivityViewModel by viewModel()
 
     private val adapter: ItemListViewAdapter by lazy {
         ItemListViewAdapter()
@@ -56,21 +47,43 @@ class MainActivity : BaseBarcodeReadableActivity() {
     }
 
     private val listener: MainActivityViewModel.Listener = object : MainActivityViewModel.Listener {
+        override fun onDataChanged(data: List<Item>) {
+            adapter.setItems(data)
+        }
+
+        override fun onSendSaleSuccess() {
+            adapter.clear()
+        }
+
+        override fun onAppModeChange() {
+            adapter.clear()
+        }
+
+        override fun onReadItemSuccess() {
+            if (adapter.itemCount > 0) {
+                binding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0)
+            }
+        }
+
+        override fun onShouldShowMessage(message: String) {
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onShouldShowMessage(messageId: Int) {
+            Toast.makeText(this@MainActivity, messageId, Toast.LENGTH_SHORT).show()
+        }
+
         override fun onNotReachableServer() {
             showNotReachableErrorDialog()
         }
 
         override fun onStartAccount() {
-            viewModel.getTotalPrice().value?.let { totalPrice ->
-                viewModel.getData().value?.let { data ->
-                    CalculatorDialogFragment
-                            .newInstance(totalPrice, data)
-                            .show(supportFragmentManager, "Calculator")
-                }
-            }
+            CalculatorDialogFragment
+                    .newInstance(myViewModel.data)
+                    .show(supportFragmentManager, "Calculator")
         }
 
-        override fun onChangeTitle(title: String) {
+        override fun onChangeTitleSuffix(title: String) {
             binding.appBarLayout.toolbar.title = title
         }
     }
@@ -87,42 +100,14 @@ class MainActivity : BaseBarcodeReadableActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         binding.navView.setNavigationItemSelectedListener(navigationListener)
-        binding.appBarLayout.contentMain.viewModel = viewModel
+        myViewModel.listener = listener
+        binding.appBarLayout.contentMain.viewModel = myViewModel
         binding.appBarLayout.contentMain.recyclerView.adapter = adapter
-
-        setupSubscriber()
-    }
-
-    private fun setupSubscriber() {
-        KidsPOSApplication[this]?.let {
-            it.getGlobalEventObserver().observe(this, Observer<Event> { event ->
-                when (event) {
-                    BarcodeEvent.ReadStaffFailed -> Toast.makeText(this@MainActivity, R.string.request_staff_failed, Toast.LENGTH_SHORT).show()
-                    BarcodeEvent.ReadItemFailed -> Toast.makeText(this@MainActivity, R.string.request_item_failed, Toast.LENGTH_SHORT).show()
-                    BarcodeEvent.ReadReceiptFailed -> Toast.makeText(this@MainActivity, R.string.read_receipt_failed, Toast.LENGTH_SHORT).show()
-                    BarcodeEvent.ReadItemSuccess -> {
-                        if (adapter.itemCount > 0) {
-                            binding.appBarLayout.contentMain.recyclerView.smoothScrollToPosition(0)
-                        }
-                    }
-                    SystemEvent.SentSaleSuccess -> {
-                        adapter.clear()
-                    }
-                    ApplicationEvent.AppModeChange -> {
-                        adapter.clear()
-                    }
-                }
-            })
-
-            viewModel.getData().observe(this, Observer<List<Item>> { data ->
-                adapter.setItems(data ?: emptyList())
-            })
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
+        myViewModel.onResume()
         binding.navView.menu.setGroupVisible(R.id.beta_test, ProjectSettings.TEST_MODE)
     }
 
@@ -134,13 +119,13 @@ class MainActivity : BaseBarcodeReadableActivity() {
      * @param prefix  barcode type
      */
     override fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
-        viewModel.onBarcodeInput(barcode, prefix)
+        myViewModel.onBarcodeInput(barcode, prefix)
     }
 
     private fun showNotReachableErrorDialog() {
         AlertUtil.showErrorDialog(this,
                 "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                false) { _, _ -> SettingActivity.createIntent(this@MainActivity) }
+                false, DialogInterface.OnClickListener { _, _ -> SettingActivity.createIntent(this@MainActivity) })
     }
 
     companion object {

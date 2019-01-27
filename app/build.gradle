@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: 'codeQuality.gradle'
@@ -13,7 +14,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion 28
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 6
         versionName "1.0.5"
@@ -26,11 +27,6 @@ android {
             minifyEnabled false
             applicationIdSuffix = '.debug'
         }
-        demo {
-            minifyEnabled false
-            debuggable true
-            applicationIdSuffix = '.demo'
-        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -41,9 +37,8 @@ android {
         prod {
             dimension "default"
         }
-        latestDev {
+        demo {
             dimension "default"
-            minSdkVersion rootProject.ext.androidCompileSdkVersion
         }
     }
     compileOptions {
@@ -67,8 +62,13 @@ android {
             includeAndroidResources = true
         }
     }
-    sourceSets.all {
-        java.srcDirs += "src/${name}/kotlin"
+    sourceSets {
+        all {
+            java.srcDirs += "src/${name}/kotlin"
+        }
+        main {
+            java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
+        }
     }
 }
 
@@ -88,6 +88,9 @@ dependencies {
     implementation deps.rx.java2
     implementation deps.rx.android
     implementation deps.loger
+    implementation deps.di.koin.core
+    implementation deps.di.koin.android
+    implementation deps.di.koin.viewModel
     testImplementation deps.test.jUnit
     testImplementation deps.test.mockito
     testImplementation deps.test.mockitoKotlin

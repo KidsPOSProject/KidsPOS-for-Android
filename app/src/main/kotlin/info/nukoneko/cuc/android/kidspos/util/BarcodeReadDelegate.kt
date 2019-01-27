@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.util
 
 import android.view.KeyEvent
-import info.nukoneko.cuc.android.kidspos.error.IllegalReadValueException
+import info.nukoneko.cuc.android.kidspos.error.IllegalBarcodeException
 
 class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
     private var readingValue: String = ""
@@ -16,7 +16,7 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
                         val prefix = readingValue.substring(2, 4)
                         listener?.onReadSuccess(readingValue, BarcodeKind.prefixOf(prefix))
                     }
-                    else -> listener?.onReadFailed(IllegalReadValueException(readingValue))
+                    else -> listener?.onReadFailed(IllegalBarcodeException(readingValue))
                 }
             }
             readingValue = ""
@@ -32,6 +32,6 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
     interface OnBarcodeReadListener {
         fun onReadSuccess(barcode: String, kind: BarcodeKind)
 
-        fun onReadFailed(e: IllegalReadValueException)
+        fun onReadFailed(e: IllegalBarcodeException)
     }
 }

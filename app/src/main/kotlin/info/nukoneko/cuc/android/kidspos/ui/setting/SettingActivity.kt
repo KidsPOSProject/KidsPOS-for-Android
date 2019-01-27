@@ -3,9 +3,9 @@ package info.nukoneko.cuc.android.kidspos.ui.setting
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity
+import android.support.v7.app.AppCompatActivity
 
-class SettingActivity : BaseActivity() {
+class SettingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

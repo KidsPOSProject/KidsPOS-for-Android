@@ -4,9 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
-        <import type="android.view.View" />
-
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.MainActivityViewModel" />
@@ -28,7 +25,7 @@
             android:background="#E0E0E0"
             android:gravity="end"
             android:padding="8dp"
-            android:text='@{String.format("%d リバー", viewModel.totalPrice)}'
+            android:text="@{viewModel.currentPriceText}"
             android:textSize="24sp" />
 
         <LinearLayout
@@ -55,7 +52,7 @@
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:visibility="@{viewModel.currentStaff == null ? View.INVISIBLE : View.VISIBLE}">
+                android:visibility="@{viewModel.currentStaffVisibility}">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -69,7 +66,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="0.6"
                     android:gravity="center_vertical"
-                    android:text='@{viewModel.currentStaff == null ? "" : viewModel.currentStaff.name}' />
+                    android:text='@{viewModel.currentStaffText}' />
             </LinearLayout>
 
             <Button
@@ -80,7 +77,7 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:background="@drawable/layout_button_rect_white"
-                android:enabled="@{viewModel.totalPrice > 0}"
+                android:enabled="@{viewModel.accountButtonEnabled}"
                 android:onClick="@{viewModel::onClickAccount}"
                 android:text="@string/account"
                 android:textSize="22sp"/>

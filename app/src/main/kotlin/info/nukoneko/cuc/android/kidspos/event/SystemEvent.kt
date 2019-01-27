@@ -5,4 +5,6 @@ sealed class SystemEvent : Event() {
 
     @Deprecated("いらないでしょ")
     object TotalPriceUpdate : SystemEvent()
+
+    object HostChanged : SystemEvent()
 }

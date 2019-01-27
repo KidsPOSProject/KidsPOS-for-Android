@@ -7,7 +7,7 @@ import android.support.v7.app.AlertDialog
 object AlertUtil {
     fun showErrorDialog(context: Context,
                         message: String, cancelable: Boolean,
-                        onClickListener: DialogInterface.OnClickListener) {
+                        onClickListener: DialogInterface.OnClickListener?) {
         AlertDialog.Builder(context)
                 .setCancelable(cancelable)
                 .setMessage(message)

@@ -1,17 +1,18 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.ViewModel
 import android.view.View
-import info.nukoneko.cuc.android.kidspos.KidsPOSApplication
+import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
-class StoreListViewModel(application: Application) : AndroidViewModel(application) {
-
+class StoreListViewModel(
+        private val api: APIService,
+        private val config: GlobalConfig) : ViewModel() {
     private val data = MutableLiveData<List<Store>>()
     fun getData(): LiveData<List<Store>> = data
 
@@ -44,16 +45,27 @@ class StoreListViewModel(application: Application) : AndroidViewModel(applicatio
         fetchStores()
     }
 
-    private fun fetchStores() {
-        val app = KidsPOSApplication[getApplication()] ?: return
+    fun onSelect(store: Store) {
+        config.currentStore = store
+        listener?.onDismiss()
+    }
 
+    fun onReload(@Suppress("UNUSED_PARAMETER") view: View?) {
+        fetchStores()
+    }
+
+    fun onClose(@Suppress("UNUSED_PARAMETER") view: View?) {
+        listener?.onDismiss()
+    }
+
+    private fun fetchStores() {
         progressVisibility.postValue(View.VISIBLE)
         recyclerViewVisibility.postValue(View.GONE)
         errorButtonVisibility.postValue(View.GONE)
 
-        val disposable = app.storeManager.fetchStores()
+        val disposable = api.fetchStores()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(app.getDefaultSubscribeScheduler())
+                .subscribeOn(config.getDefaultSubscribeScheduler())
                 .subscribe({ stores ->
                     onFetchStoresSuccess(stores)
                 }, {
@@ -80,5 +92,7 @@ class StoreListViewModel(application: Application) : AndroidViewModel(applicatio
 
     interface Listener {
         fun onError(message: String)
+
+        fun onDismiss()
     }
 }
