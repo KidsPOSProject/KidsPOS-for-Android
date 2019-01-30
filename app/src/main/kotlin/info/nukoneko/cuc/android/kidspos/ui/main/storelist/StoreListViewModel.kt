@@ -5,8 +5,8 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
-import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
+import info.nukoneko.cuc.android.kidspos.entity.Store
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 

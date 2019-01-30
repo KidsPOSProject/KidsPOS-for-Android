@@ -3,10 +3,10 @@ package info.nukoneko.cuc.android.kidspos.ui.setting
 import android.arch.lifecycle.ViewModel
 import android.content.SharedPreferences
 import android.text.TextUtils
-import info.nukoneko.cuc.android.kidspos.event.EventBus
-import info.nukoneko.cuc.android.kidspos.event.ApplicationEvent
-import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
+import info.nukoneko.cuc.android.kidspos.event.ApplicationEvent
+import info.nukoneko.cuc.android.kidspos.event.EventBus
+import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.ValidationUtil
 
 class SettingViewModel(private val config: GlobalConfig, private val eventBus: EventBus) : ViewModel() {
