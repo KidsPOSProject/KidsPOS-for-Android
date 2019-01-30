@@ -4,9 +4,9 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.support.annotation.RestrictTo
 import com.google.gson.GsonBuilder
-import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
@@ -28,7 +28,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
         defaultSubscribeScheduler = subscribeScheduler
     }
 
-    var baseUrl: String = "$DEFAULT_SERVER_URL:$DEFAULT_SERVER_PORT"
+    val baseUrl: String
         get() = "http://$serverUrl:$serverPort"
 
     var serverUrl: String
@@ -69,7 +69,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
 
     var currentStore: Store?
         get() {
-            preference.getString(KEY_STORE, null)?.let {
+            return preference.getString(KEY_STORE, null)?.let {
                 return gson.fromJson(it, Store::class.java)
             }
         }
@@ -82,7 +82,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
 
     var currentStaff: Staff?
         get() {
-            preference.getString(KEY_STAFF, null)?.let {
+            return preference.getString(KEY_STAFF, null)?.let {
                 return gson.fromJson(it, Staff::class.java)
             }
         }

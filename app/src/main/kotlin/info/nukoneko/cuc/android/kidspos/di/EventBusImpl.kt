@@ -1,14 +1,19 @@
 package info.nukoneko.cuc.android.kidspos.di
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.Event
+import info.nukoneko.cuc.android.kidspos.event.EventBus
 
 class EventBusImpl : EventBus {
-    private val eventObserver = MutableLiveData<Event>()
-    fun getGlobalEventObserver(): LiveData<Event> = eventObserver
+    private val bus = org.greenrobot.eventbus.EventBus.getDefault()
+    override fun register(obj: Any?) {
+        bus.register(obj)
+    }
+
+    override fun unregister(obj: Any?) {
+        bus.unregister(obj)
+    }
+
     override fun post(event: Event) {
-        eventObserver.postValue(event)
+        bus.post(event)
     }
 }

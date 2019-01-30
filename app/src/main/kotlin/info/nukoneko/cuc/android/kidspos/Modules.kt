@@ -5,9 +5,10 @@ import info.nukoneko.cuc.android.kidspos.di.EventBusImpl
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.di.HostSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.event.EventBus
-import info.nukoneko.cuc.android.kidspos.ui.main.MainActivityViewModel
+import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.AccountResultDialogViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel
+import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListViewModel
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingViewModel
 import okhttp3.Interceptor
@@ -42,7 +43,8 @@ val coreModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { MainActivityViewModel(get(), get(), get()) }
+    viewModel { MainViewModel(get(), get(), get()) }
+    viewModel { ItemListViewModel(get(), get()) }
     viewModel { StoreListViewModel(get(), get()) }
     viewModel { CalculatorDialogViewModel(get(), get(), get()) }
     viewModel { AccountResultDialogViewModel() }
