@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import info.nukoneko.cuc.android.kidspos.BuildConfig;
 import info.nukoneko.cuc.android.kidspos.entity.Store;
 
 import static junit.framework.Assert.assertEquals;
@@ -19,7 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
+@Config(sdk = 21)
 public class ItemStoreViewModelTest {
 
     @Test
