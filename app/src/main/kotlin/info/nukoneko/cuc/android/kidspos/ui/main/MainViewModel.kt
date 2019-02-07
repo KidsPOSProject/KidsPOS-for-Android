@@ -1,7 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModel
 import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.api.APIService
@@ -27,7 +25,7 @@ class MainViewModel(private val api: APIService,
 
     fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
         @Suppress("ConstantConditionIf")
-        if (ProjectSettings.TEST_MODE) {
+        if (ProjectSettings.DEMO_MODE) {
             when (prefix) {
                 BarcodeKind.ITEM -> {
                     onReadItemSuccess(Item.create(barcode))
@@ -111,7 +109,7 @@ class MainViewModel(private val api: APIService,
         if (config.isPracticeModeEnabled) titleSuffix += " [練習モード]"
 
         @Suppress("ConstantConditionIf")
-        if (ProjectSettings.TEST_MODE) titleSuffix += " [テストモード]"
+        if (ProjectSettings.DEMO_MODE) titleSuffix += " [テストモード]"
 
         listener?.onShouldChangeTitleSuffix(titleSuffix)
     }

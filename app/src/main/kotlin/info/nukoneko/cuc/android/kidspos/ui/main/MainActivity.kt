@@ -70,7 +70,7 @@ class MainActivity : BaseBarcodeReadableActivity() {
     override fun onResume() {
         super.onResume()
         myViewModel.onResume()
-        binding.navView.menu.setGroupVisible(R.id.beta_test, ProjectSettings.TEST_MODE)
+        binding.navView.menu.setGroupVisible(R.id.beta_test, ProjectSettings.DEMO_MODE)
     }
 
     override fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
