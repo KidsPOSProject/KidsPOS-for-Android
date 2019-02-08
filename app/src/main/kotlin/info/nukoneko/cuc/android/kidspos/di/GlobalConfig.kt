@@ -78,6 +78,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
                     KEY_STORE,
                     gson.toJson(value)
             ).apply()
+            eventBus.post(SystemEvent.SelectShop)
         }
 
     var currentStaff: Staff?

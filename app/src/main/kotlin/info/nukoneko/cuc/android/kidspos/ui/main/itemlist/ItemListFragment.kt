@@ -37,7 +37,7 @@ class ItemListFragment : Fragment() {
 
         override fun onStartAccount(data: List<Item>) {
             CalculatorDialogFragment
-                    .newInstance(data)
+                    .newInstance(ArrayList(data))
                     .show(childFragmentManager, "Calculator")
         }
     }
