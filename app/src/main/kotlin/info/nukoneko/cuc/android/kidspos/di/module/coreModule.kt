@@ -1,20 +1,12 @@
-package info.nukoneko.cuc.android.kidspos
+package info.nukoneko.cuc.android.kidspos.di.module
 
-import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.di.EventBusImpl
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.di.HostSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.event.EventBus
-import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
-import info.nukoneko.cuc.android.kidspos.ui.main.calculate.AccountResultDialogViewModel
-import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel
-import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewModel
-import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListViewModel
-import info.nukoneko.cuc.android.kidspos.ui.setting.SettingViewModel
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
-import org.koin.android.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -37,16 +29,4 @@ val coreModule = module {
                 .baseUrl((get<GlobalConfig>("config").baseUrl))
                 .build()
     }
-    single<APIService> {
-        (get<Retrofit>()).create(APIService::class.java)
-    }
-}
-
-val viewModelModule = module {
-    viewModel { MainViewModel(get(), get(), get()) }
-    viewModel { ItemListViewModel(get(), get()) }
-    viewModel { StoreListViewModel(get(), get()) }
-    viewModel { CalculatorDialogViewModel(get(), get(), get()) }
-    viewModel { AccountResultDialogViewModel() }
-    viewModel { SettingViewModel(get(), get()) }
 }

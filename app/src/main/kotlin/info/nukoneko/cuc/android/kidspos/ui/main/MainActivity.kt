@@ -67,6 +67,16 @@ class MainActivity : BaseBarcodeReadableActivity() {
                 .commit()
     }
 
+    override fun onStart() {
+        super.onStart()
+        myViewModel.onStart()
+    }
+
+    override fun onStop() {
+        myViewModel.onStop()
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         myViewModel.onResume()
