@@ -1,7 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -12,14 +11,21 @@ import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity
+import info.nukoneko.cuc.android.kidspos.ui.common.ErrorDialogFragment
 import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListFragment
 import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragment
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity
-import info.nukoneko.cuc.android.kidspos.util.AlertUtil
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : BaseBarcodeReadableActivity() {
+class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
+
     private lateinit var binding: ActivityMainBinding
     private val listener = object : MainViewModel.Listener {
         override fun onNotReachableServer() {
@@ -88,11 +94,13 @@ class MainActivity : BaseBarcodeReadableActivity() {
     }
 
     private fun showNotReachableErrorDialog() {
-        AlertUtil.showErrorDialog(this,
-                "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください",
-                false, DialogInterface.OnClickListener { _, _ ->
-            SettingActivity.createIntent(this)
-        })
+        launch {
+            val result = ErrorDialogFragment.showWithSuspend(supportFragmentManager,
+                    "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください")
+            when (result) {
+                ErrorDialogFragment.DialogResult.OK -> SettingActivity.createIntent(this@MainActivity)
+            }
+        }
     }
 
     companion object {

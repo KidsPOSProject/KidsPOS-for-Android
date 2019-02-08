@@ -7,16 +7,24 @@ import android.support.v7.preference.PreferenceFragmentCompat
 import android.support.v7.preference.SwitchPreferenceCompat
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.util.AlertUtil
+import info.nukoneko.cuc.android.kidspos.ui.common.ErrorDialogFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class SettingFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+class SettingFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     private val myViewModel: SettingViewModel by viewModel()
 
     private val listener = object : SettingViewModel.Listener {
         override fun onShouldShowMessage(message: String) {
-            AlertUtil.showErrorDialog(context!!, message, false, null)
+            launch {
+                ErrorDialogFragment.showWithSuspend(requireFragmentManager(), message)
+            }
         }
     }
 

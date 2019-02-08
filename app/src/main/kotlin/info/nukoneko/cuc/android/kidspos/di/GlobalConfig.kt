@@ -31,16 +31,16 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
                 return try {
                     it.toInt()
                 } catch (e: ClassCastException) {
-                    preference.edit().putString(KEY_SERVER_URL, DEFAULT_SERVER_PORT).apply()
+                    preference.edit().putString(KEY_SERVER_PORT, DEFAULT_SERVER_PORT).apply()
                     return DEFAULT_SERVER_PORT_VALUE
                 }
             } ?: kotlin.run {
-                preference.edit().putString(KEY_SERVER_URL, DEFAULT_SERVER_PORT).apply()
+                preference.edit().putString(KEY_SERVER_PORT, DEFAULT_SERVER_PORT).apply()
                 return DEFAULT_SERVER_PORT_VALUE
             }
         }
         set(port) {
-            preference.edit().putString(KEY_SERVER_URL, port.toString()).apply()
+            preference.edit().putString(KEY_SERVER_PORT, port.toString()).apply()
             eventBus.post(SystemEvent.HostChanged)
         }
 
