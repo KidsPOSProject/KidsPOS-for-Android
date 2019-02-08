@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
 import android.content.Context
-import android.support.v7.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatButton
 import android.util.AttributeSet
 import android.view.Gravity
 import info.nukoneko.cuc.android.kidspos.R

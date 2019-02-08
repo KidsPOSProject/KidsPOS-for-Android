@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <android.support.v7.preference.PreferenceCategory android:title="基本設定">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <androidx.preference.PreferenceCategory android:title="基本設定">
         <EditTextPreference
-            android:key="settings_server_ip"
-            android:title="@string/settings_server_ip" />
+            android:key="settings_server_url"
+            android:title="@string/settings_server_url" />
         <EditTextPreference
             android:key="settings_server_port"
             android:maxLength="2"
             android:numeric="integer"
             android:title="@string/settings_server_port" />
-        <android.support.v7.preference.SwitchPreferenceCompat
+        <androidx.preference.SwitchPreferenceCompat
             android:key="settings_enable_practice_mode"
             android:title="@string/settings_enable_practice_mode" />
-    </android.support.v7.preference.PreferenceCategory>
-</android.support.v7.preference.PreferenceScreen>
+    </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>

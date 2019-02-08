@@ -1,44 +1,39 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import android.view.View
 
-class AccountResultDialogViewModel(application: Application): AndroidViewModel(application) {
-    private val price = MutableLiveData<Int>()
-    fun getPrice(): LiveData<Int> = price
+class AccountResultDialogViewModel : ViewModel() {
+    private val priceText = MutableLiveData<String>()
+    fun getPriceText(): LiveData<String> = priceText
 
-    private val receiveMoney = MutableLiveData<Int>()
-    fun getReceiveMoney(): LiveData<Int> = receiveMoney
+    private val depositText = MutableLiveData<String>()
+    fun getDepositText(): LiveData<String> = depositText
+
+    private val chargeText = MutableLiveData<String>()
+    fun getChargeText(): LiveData<String> = chargeText
 
     var listener: Listener? = null
 
-    val chargeRiver: Int
-        get() = (receiveMoney.value ?: 0) - (price.value ?: 0)
-
-    init {
-        price.value = 0
-        receiveMoney.value = 0
+    fun setup(price: Int, deposit: Int) {
+        priceText.value = "$price リバー"
+        depositText.value = "$deposit リバー"
+        chargeText.value = "${deposit - price} リバー"
     }
 
-    fun setupValue(price: Int, receiveMoney: Int) {
-        this.price.postValue(price)
-        this.receiveMoney.postValue(receiveMoney)
+    fun onOkClick(@Suppress("UNUSED_PARAMETER") view: View?) {
+        listener?.onOk()
     }
 
-    fun onAccountClick(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onAccount()
-    }
-
-    fun onBackClick(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onBack()
+    fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View?) {
+        listener?.onCancel()
     }
 
     interface Listener {
-        fun onAccount()
+        fun onOk()
 
-        fun onBack()
+        fun onCancel()
     }
 }

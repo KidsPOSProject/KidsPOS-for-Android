@@ -2,12 +2,12 @@ package info.nukoneko.cuc.android.kidspos.ui.launch
 
 import android.os.Bundle
 import android.os.Handler
+import androidx.appcompat.app.AppCompatActivity
 
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.ui.common.BaseActivity
 import info.nukoneko.cuc.android.kidspos.ui.main.MainActivity
 
-class LaunchActivity : BaseActivity() {
+class LaunchActivity : AppCompatActivity() {
     private val handler = Handler()
     private val task = Runnable {
         if (isFinishing) return@Runnable

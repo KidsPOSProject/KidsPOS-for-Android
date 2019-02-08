@@ -1,45 +1,36 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
-import android.app.Dialog
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
-import android.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import info.nukoneko.cuc.android.kidspos.KidsPOSApplication
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogStoreListBinding
+import info.nukoneko.cuc.android.kidspos.databinding.FragmentStoreListDialogBinding
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment
+import org.koin.android.viewmodel.ext.android.viewModel
 
-class StoreListDialogFragment : BaseDialogFragment() {
-    private lateinit var binding: FragmentDialogStoreListBinding
-
+class StoreListDialogFragment : DialogFragment() {
+    private lateinit var binding: FragmentStoreListDialogBinding
+    private val myViewModel: StoreListViewModel by viewModel()
     private val listener = object : StoreListViewModel.Listener {
-        override fun onError(message: String) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        override fun onDismiss() {
+            dismiss()
         }
-    }
 
-    private val viewModel: StoreListViewModel by lazy {
-        ViewModelProviders.of(this).get(StoreListViewModel::class.java).also {
-            it.listener = listener
+        override fun onShouldShowErrorDialog(message: String) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
     private val adapterListener = object : StoreListViewAdapter.Listener {
         override fun onStoreSelect(store: Store) {
-            context?.let {
-                KidsPOSApplication[it]?.setStore(store)
-            }
-
-            dismiss()
+            myViewModel.onSelect(store)
         }
     }
 
@@ -49,31 +40,24 @@ class StoreListDialogFragment : BaseDialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.fragment_dialog_store_list, null, false)
-        binding.viewModel = viewModel
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_store_list_dialog, container, false)
         binding.setLifecycleOwner(this)
-
-        val dialog = AlertDialog.Builder(context!!)
-                .setTitle("おみせの変更")
-                .setView(binding.root)
-                .create()
-
-        val window = dialog.window
-        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT)
-        return dialog
+        myViewModel.listener = listener
+        binding.viewModel = myViewModel
+        return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         setupRecyclerView()
         setupSubscriber()
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
+        myViewModel.onResume()
     }
 
     private fun setupRecyclerView() {
@@ -83,7 +67,7 @@ class StoreListDialogFragment : BaseDialogFragment() {
     }
 
     private fun setupSubscriber() {
-        viewModel.getData().observe(this, Observer<List<Store>> { stores ->
+        myViewModel.getData().observe(this, Observer<List<Store>> { stores ->
             val newData = stores ?: emptyList()
             adapter.data = newData
         })
