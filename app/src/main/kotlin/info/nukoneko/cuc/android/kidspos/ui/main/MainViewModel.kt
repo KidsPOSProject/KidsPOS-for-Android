@@ -1,6 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig

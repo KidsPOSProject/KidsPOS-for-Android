@@ -1,11 +1,10 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
-import android.databinding.Observable
+import androidx.databinding.Observable
 import com.google.gson.Gson
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.support.KidsPOSRobolectricTestRunner
 import junit.framework.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -15,11 +14,6 @@ import org.mockito.Mockito.verify
 
 @RunWith(KidsPOSRobolectricTestRunner::class)
 class ItemStoreViewModelTest {
-
-    @Before
-    fun setUp() {
-
-    }
 
     @Test
     fun shouldGetStoreName() {

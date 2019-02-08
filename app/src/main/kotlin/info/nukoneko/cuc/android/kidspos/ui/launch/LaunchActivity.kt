@@ -2,7 +2,7 @@ package info.nukoneko.cuc.android.kidspos.ui.launch
 
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.ui.main.MainActivity

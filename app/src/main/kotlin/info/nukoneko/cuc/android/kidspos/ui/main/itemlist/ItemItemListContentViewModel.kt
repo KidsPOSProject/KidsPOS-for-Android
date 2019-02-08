@@ -1,6 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.itemlist
 
-import android.databinding.BaseObservable
+import androidx.databinding.BaseObservable
 import info.nukoneko.cuc.android.kidspos.entity.Item
 
 class ItemItemListContentViewModel(data: Item) : BaseObservable() {
