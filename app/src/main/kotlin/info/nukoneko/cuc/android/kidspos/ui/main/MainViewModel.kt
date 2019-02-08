@@ -10,14 +10,14 @@ import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
-import kotlinx.coroutines.*
+import info.nukoneko.cuc.android.kidspos.util.NetworkUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.net.InetSocketAddress
-import java.net.Socket
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel(private val api: APIService,
                     private val config: GlobalConfig,
@@ -84,11 +84,10 @@ class MainViewModel(private val api: APIService,
         updateTitle()
 
         if (!config.isPracticeModeEnabled) {
-            GlobalScope.launch(Dispatchers.IO) {
-                if (!checkReachability(config.serverUrl, config.serverPort)) {
-                    launch(Dispatchers.Main) {
-                        listener?.onNotReachableServer()
-                    }
+            launch {
+                val reachable = NetworkUtil.checkReachability(config.serverUrl, config.serverPort)
+                if (!reachable) {
+                    listener?.onNotReachableServer()
                 }
             }
         }
@@ -136,17 +135,6 @@ class MainViewModel(private val api: APIService,
 
     private suspend fun requestGetStaff(barcode: String) = withContext(Dispatchers.IO) {
         api.getStaff(barcode).await()
-    }
-
-    private suspend fun checkReachability(hostName: String, serverPort: Int) = suspendCoroutine<Boolean> {
-        try {
-            val sock = Socket()
-            sock.connect(InetSocketAddress(hostName, serverPort), 2000)
-            sock.close()
-            it.resume(true)
-        } catch (e: Throwable) {
-            it.resume(false)
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

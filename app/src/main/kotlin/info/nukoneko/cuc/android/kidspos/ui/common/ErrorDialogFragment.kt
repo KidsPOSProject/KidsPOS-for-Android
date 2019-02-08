@@ -9,12 +9,11 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class ErrorDialogFragment: DialogFragment(), CoroutineScope {
+class ErrorDialogFragment : DialogFragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
     private val message: String by lazyWithArgs(EXTRA_MESSAGE)
@@ -34,7 +33,11 @@ class ErrorDialogFragment: DialogFragment(), CoroutineScope {
                         channel.send(DialogResult.OK)
                     }
                 }
-                .create()
+                .setCancelable(false)
+                .create().also {
+                    it.setCancelable(false)
+                    it.setCanceledOnTouchOutside(false)
+                }
     }
 
     companion object {
