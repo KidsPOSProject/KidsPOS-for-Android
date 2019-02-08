@@ -2,31 +2,15 @@ package info.nukoneko.cuc.android.kidspos.di
 
 import android.content.Context
 import android.preference.PreferenceManager
-import android.support.annotation.RestrictTo
 import com.google.gson.GsonBuilder
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
-import io.reactivex.Scheduler
-import io.reactivex.schedulers.Schedulers
 
 class GlobalConfig(context: Context, private val eventBus: EventBus) {
     private val preference = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
     private val gson = GsonBuilder().create()
-
-    private var defaultSubscribeScheduler: Scheduler? = null
-    fun getDefaultSubscribeScheduler(): Scheduler {
-        if (defaultSubscribeScheduler == null) {
-            defaultSubscribeScheduler = Schedulers.io()
-        }
-        return defaultSubscribeScheduler!!
-    }
-
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    fun setDefaultSubscribeScheduler(subscribeScheduler: Scheduler) {
-        defaultSubscribeScheduler = subscribeScheduler
-    }
 
     val baseUrl: String
         get() = "http://$serverUrl:$serverPort"
