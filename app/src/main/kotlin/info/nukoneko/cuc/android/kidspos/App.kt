@@ -5,6 +5,9 @@ import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.di.HostSelectionInterceptor
+import info.nukoneko.cuc.android.kidspos.di.module.apiModule
+import info.nukoneko.cuc.android.kidspos.di.module.coreModule
+import info.nukoneko.cuc.android.kidspos.di.module.viewModelModule
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import okhttp3.Interceptor
@@ -20,7 +23,7 @@ open class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Logger.addLogAdapter(AndroidLogAdapter())
-        startKoin(this, listOf(coreModule, viewModelModule))
+        startKoin(this, listOf(coreModule, apiModule, viewModelModule))
 
         event.register(this)
     }
