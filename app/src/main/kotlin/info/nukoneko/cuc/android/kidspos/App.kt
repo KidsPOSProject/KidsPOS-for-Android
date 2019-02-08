@@ -12,7 +12,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.android.startKoin
 
-class MainApplication : Application() {
+open class App : Application() {
     private val event: EventBus by inject()
     private val config: GlobalConfig by inject()
     private val hostSelectionInterceptor: Interceptor by inject("hostSelection")
