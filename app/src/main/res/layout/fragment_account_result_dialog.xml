@@ -40,24 +40,23 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/sum_river"
-                        android:text="@string/total"
-                        android:textSize="24sp" />
+                        android:maxLines="1"
+                        android:text="@string/total" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/sum_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
-                        android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.price)}'
-                        android:textSize="48sp"
+                        android:maxLines="1"
+                        android:text='@{viewModel.priceText}'
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="0dp"
                         android:textStyle="bold"
                         tools:ignore="Autofill" />
                 </LinearLayout>
@@ -72,31 +71,30 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/receive_river"
-                        android:text="@string/deposit"
-                        android:textSize="24sp" />
+                        android:maxLines="1"
+                        android:text="@string/deposit" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/receive_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
-                        android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.receiveMoney)}'
-                        android:textSize="48sp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="0dp"
+                        android:maxLines="1"
+                        android:text='@{viewModel.depositText}'
                         android:textStyle="bold"
                         tools:ignore="Autofill" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="80dp"
                     android:orientation="horizontal"
                     android:weightSum="1">
 
@@ -104,24 +102,23 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
                         android:labelFor="@+id/change_river"
-                        android:text="@string/change"
-                        android:textSize="24sp" />
+                        android:maxLines="1"
+                        android:text="@string/change" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/change_river"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
+                        android:autoSizeTextType="uniform"
                         android:gravity="end|center_vertical"
-                        android:inputType="none"
-                        android:text='@{String.format("%d リバー", viewModel.chargeRiver)}'
-                        android:textSize="48sp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="0dp"
+                        android:maxLines="1"
+                        android:text='@{viewModel.chargeText}'
                         android:textStyle="bold"
                         tools:ignore="Autofill" />
                 </LinearLayout>
@@ -130,42 +127,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="bottom"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@android:color/black"
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp" />
+                    <Button
+                        android:id="@+id/no"
+                        style="@style/Widget.AppCompat.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
+                        android:onClick="@{viewModel::onCancelClick}"
+                        android:text="@string/back" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/no"
-                            style="@style/Widget.AppCompat.Button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:onClick="@{viewModel::onAccountClick}"
-                            android:text="@string/back"
-                            android:textSize="36sp" />
-
-                        <Button
-                            android:id="@+id/yes"
-                            style="@style/Widget.AppCompat.Button.Colored"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="64dp"
-                            android:layout_marginEnd="0dp"
-                            android:layout_weight="1"
-                            android:onClick="@{viewModel::onBackClick}"
-                            android:text="@string/account"
-                            android:textSize="36sp" />
-                    </LinearLayout>
+                    <Button
+                        android:id="@+id/yes"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="0dp"
+                        android:layout_weight="1"
+                        android:autoSizeTextType="uniform"
+                        android:onClick="@{viewModel::onOkClick}"
+                        android:text="@android:string/ok" />
                 </LinearLayout>
             </LinearLayout>
         </info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout>

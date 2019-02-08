@@ -27,6 +27,9 @@ class CalculatorDialogViewModel(
     private val totalPriceText = MutableLiveData<String>()
     fun getTotalPriceText(): LiveData<String> = totalPriceText
 
+    private val accountButtonEnabled = MutableLiveData<Boolean>()
+    fun getAccountButtonEnabled(): LiveData<Boolean> = accountButtonEnabled
+
     private val totalPrice: Int
         get() = totalPriceText.value?.toIntOrNull() ?: 0
 
@@ -34,6 +37,7 @@ class CalculatorDialogViewModel(
         set(value) {
             field = value
             depositText.postValue("$value")
+            accountButtonEnabled.postValue(totalPrice in 1..value)
         }
 
     private val depositText = MutableLiveData<String>()
@@ -44,7 +48,8 @@ class CalculatorDialogViewModel(
 
     init {
         totalPriceText.value = "0"
-        deposit = 200
+        accountButtonEnabled.value = false
+        deposit = 0
     }
 
     fun setup(items: List<Item>, totalPrice: Int) {
@@ -54,9 +59,10 @@ class CalculatorDialogViewModel(
 
     var listener: Listener? = null
 
-    fun onAccount() {
+    fun onOk() {
         if (config.isPracticeModeEnabled) {
             listener?.onShouldShowErrorMessage("練習モードのためレシートは出ません")
+            event.post(SystemEvent.SentSaleSuccess)
             listener?.onDismiss()
             return
         }
@@ -68,6 +74,7 @@ class CalculatorDialogViewModel(
                     it.value = sale
                 })
             } catch (e: Throwable) {
+                e.printStackTrace()
             }
             listener?.onDismiss()
         }

@@ -1,57 +1,62 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import android.content.Context
 import android.databinding.DataBindingUtil
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
+import android.support.v4.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogAccountResultBinding
+import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialogBinding
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class AccountResultDialogFragment : DialogFragment() {
-    private var listener: Listener? = null
+class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
-    private val viewModelListener = object : AccountResultDialogViewModel.Listener {
-        override fun onAccount() {
-            listener?.onAccount()
-            dialog.dismiss()
+    enum class DialogResult {
+        OK,
+        Cancel
+    }
+
+    private val channel = BroadcastChannel<DialogResult>(1)
+
+    private val listener = object : AccountResultDialogViewModel.Listener {
+        override fun onOk() {
+            launch {
+                channel.send(DialogResult.OK)
+                dialog.dismiss()
+            }
         }
 
-        override fun onBack() {
-            listener?.onAccountResultDialogBack()
-            dialog.dismiss()
+        override fun onCancel() {
+            launch {
+                channel.send(DialogResult.Cancel)
+                dialog.dismiss()
+            }
         }
     }
 
-    private lateinit var binding: FragmentDialogAccountResultBinding
+    private lateinit var binding: FragmentAccountResultDialogBinding
 
     private val myViewModel: AccountResultDialogViewModel by viewModel()
 
     private val price: Int by lazyWithArgs(EXTRA_PRICE)
-
     private val receiveMoney: Int by lazyWithArgs(EXTRA_RECEIVE_MONEY)
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        listener = context as? Listener
-    }
-
-    override fun onDetach() {
-        listener = null
-        super.onDetach()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.fragment_dialog_account_result, container, false)
-        myViewModel.listener = viewModelListener
-        binding.viewModel = myViewModel.apply {
-            setupValue(price, receiveMoney)
-        }
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account_result_dialog, container, false)
+        myViewModel.listener = listener
+        myViewModel.setup(price, receiveMoney)
+        binding.viewModel = myViewModel
         return binding.root
     }
 
@@ -67,10 +72,9 @@ class AccountResultDialogFragment : DialogFragment() {
         }
     }
 
-    interface Listener {
-        fun onAccount()
-
-        fun onAccountResultDialogBack()
+    suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {
+        show(fm, tag)
+        return channel.openSubscription().receive()
     }
 
     companion object {
