@@ -48,7 +48,7 @@ class CalculatorDialogFragment : DialogFragment(), AccountResultDialogFragment.L
             myViewModel.onNumberClick(number)
         }
 
-        override fun onClear(view: View) {
+        override fun onClearClick() {
             myViewModel.onClearClick()
         }
     }
@@ -56,7 +56,7 @@ class CalculatorDialogFragment : DialogFragment(), AccountResultDialogFragment.L
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_calculator_dialog, container, false)
         binding.setLifecycleOwner(this)
-//        binding.calculatorLayout.listener = calculatorListener
+        binding.calculatorLayout.listener = calculatorListener
         myViewModel.listener = listener
         myViewModel.setup(items, totalPrice)
         binding.viewModel = myViewModel

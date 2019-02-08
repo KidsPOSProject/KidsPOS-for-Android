@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
-import info.nukoneko.cuc.android.kidspos.api.RequestStatus
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
@@ -25,9 +24,6 @@ class CalculatorDialogViewModel(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
 
-    private val progressViewVisibility = MutableLiveData<Int>()
-    fun getProgressViewVisibility(): LiveData<Int> = progressViewVisibility
-
     private val totalPriceText = MutableLiveData<String>()
     fun getTotalPriceText(): LiveData<String> = totalPriceText
 
@@ -45,24 +41,6 @@ class CalculatorDialogViewModel(
     fun getDepositText(): LiveData<String> = depositText
 
     private lateinit var items: List<Item>
-    private var requestStatus: RequestStatus = RequestStatus.IDLE
-        set(value) {
-            field = value
-            when (value) {
-                RequestStatus.IDLE -> {
-                    progressViewVisibility.value = View.GONE
-                }
-                RequestStatus.REQUESTING -> {
-                    progressViewVisibility.value = View.VISIBLE
-                }
-                RequestStatus.SUCCESS -> {
-                    progressViewVisibility.value = View.GONE
-                }
-                RequestStatus.FAILURE -> {
-                    progressViewVisibility.value = View.GONE
-                }
-            }
-        }
 
     init {
         totalPriceText.value = "0"
@@ -83,20 +61,13 @@ class CalculatorDialogViewModel(
             return
         }
 
-        if (requestStatus == RequestStatus.REQUESTING) {
-            return
-        }
-
-        requestStatus = RequestStatus.REQUESTING
         launch {
             try {
                 val sale: Sale? = requestCreateSale()
                 event.post(SystemEvent.SentSaleSuccess.also {
                     it.value = sale
                 })
-                requestStatus = RequestStatus.SUCCESS
             } catch (e: Throwable) {
-                requestStatus = RequestStatus.FAILURE
             }
             listener?.onDismiss()
         }
