@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewModel" />
@@ -72,13 +73,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
                 android:background="@drawable/layout_button_rect_white"
                 android:enabled="@{viewModel.accountButtonEnabled}"
                 android:onClick="@{viewModel::onClickAccount}"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="@string/account"
-                android:textSize="22sp"/>
+                android:textSize="22sp" />
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView

@@ -7,9 +7,11 @@
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel" />
     </data>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -146,13 +148,15 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/progress_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:background="#30808080"
+            android:gravity="center"
             android:visibility="@{viewModel.progressViewVisibility}">
+
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
