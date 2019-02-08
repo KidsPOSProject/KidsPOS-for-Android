@@ -1,6 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.setting
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import android.content.SharedPreferences
 import android.text.TextUtils
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
