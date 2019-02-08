@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
+import info.nukoneko.cuc.android.kidspos.api.RequestStatus
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
@@ -33,13 +34,39 @@ class CalculatorDialogViewModel(
     private val totalPrice: Int
         get() = totalPriceText.value?.toIntOrNull() ?: 0
 
-    private val deposit = MutableLiveData<Int>()
-    fun getDeposit(): LiveData<Int> = deposit
+    private var deposit: Int = 0
+        set(value) {
+            field = value
+            depositText.postValue("$value")
+        }
+
+    private val depositText = MutableLiveData<String>()
+    @Suppress("unused")
+    fun getDepositText(): LiveData<String> = depositText
 
     private lateinit var items: List<Item>
+    private var requestStatus: RequestStatus = RequestStatus.IDLE
+        set(value) {
+            field = value
+            when (value) {
+                RequestStatus.IDLE -> {
+                    progressViewVisibility.value = View.GONE
+                }
+                RequestStatus.REQUESTING -> {
+                    progressViewVisibility.value = View.VISIBLE
+                }
+                RequestStatus.SUCCESS -> {
+                    progressViewVisibility.value = View.GONE
+                }
+                RequestStatus.FAILURE -> {
+                    progressViewVisibility.value = View.GONE
+                }
+            }
+        }
 
     init {
         totalPriceText.value = "0"
+        deposit = 200
     }
 
     fun setup(items: List<Item>, totalPrice: Int) {
@@ -49,10 +76,6 @@ class CalculatorDialogViewModel(
 
     var listener: Listener? = null
 
-    fun onUpdateDeposit(deposit: Int) {
-        this.deposit.postValue(deposit)
-    }
-
     fun onAccount() {
         if (config.isPracticeModeEnabled) {
             listener?.onShouldShowErrorMessage("練習モードのためレシートは出ません")
@@ -60,20 +83,27 @@ class CalculatorDialogViewModel(
             return
         }
 
+        if (requestStatus == RequestStatus.REQUESTING) {
+            return
+        }
+
+        requestStatus = RequestStatus.REQUESTING
         launch {
             try {
                 val sale: Sale? = requestCreateSale()
                 event.post(SystemEvent.SentSaleSuccess.also {
                     it.value = sale
                 })
+                requestStatus = RequestStatus.SUCCESS
             } catch (e: Throwable) {
+                requestStatus = RequestStatus.FAILURE
             }
             listener?.onDismiss()
         }
     }
 
     fun onDoneClick(@Suppress("UNUSED_PARAMETER") view: View) {
-        listener?.onShouldShowResultDialog(totalPrice ?: 0, deposit.value ?: 0)
+        listener?.onShouldShowResultDialog(totalPrice, deposit)
     }
 
     fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View) {
@@ -81,18 +111,9 @@ class CalculatorDialogViewModel(
     }
 
     private suspend fun requestCreateSale() = withContext(Dispatchers.IO) {
-        val depositMoney = deposit.value ?: 0
-        if (depositMoney == 0) {
-            throw IllegalStateException("おかしい")
-        }
-        val totalMoney = totalPrice ?: 0
-        if (totalMoney == 0) {
-            throw IllegalStateException("おかしい")
-        }
-
-        api.createSale(depositMoney,
+        api.createSale(deposit,
                 items.size,
-                totalMoney,
+                totalPrice,
                 items.map { it.id }.joinToString(","),
                 config.currentStore?.id ?: 0,
                 config.currentStaff?.barcode ?: "").await()
@@ -104,25 +125,21 @@ class CalculatorDialogViewModel(
     }
 
     fun onNumberClick(number: Int) {
-        /*
-            if (deposit > 100000) return
+        if (deposit > 100000) return
 
-            deposit = if (deposit == 0) {
-                number
-            } else {
-                deposit * 10 + number
-            }
-         */
+        deposit = if (deposit == 0) {
+            number
+        } else {
+            deposit * 10 + number
+        }
     }
 
     fun onClearClick() {
-        /*
-            if (10 > deposit) {
-                deposit = 0
-            } else {
-                deposit = Math.floor((deposit / 10).toDouble()).toInt()
-            }
-         */
+        deposit = if (10 > deposit) {
+            0
+        } else {
+            Math.floor((deposit / 10).toDouble()).toInt()
+        }
     }
 
     interface Listener {

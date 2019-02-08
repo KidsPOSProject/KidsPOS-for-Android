@@ -2,141 +2,161 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+
         <variable
             name="viewModel"
             type="info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel" />
     </data>
-
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:baselineAligned="false"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout
-            android:layout_width="0dp"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="0.5"
-            android:background="@android:drawable/alert_light_frame"
-            android:gravity="center">
+            android:baselineAligned="false"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="1">
 
-            <!--<info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorLayout-->
-            <!--android:id="@+id/calculator_layout"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
-        </info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.3"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="center"
-                        android:labelFor="@+id/sum_river"
-                        android:maxLines="1"
-                        android:text="ごうけい" />
-
-                    <TextView
-                        android:id="@+id/sum_river"
-                        android:text="@{viewModel.totalPriceText}"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.7"
-                        android:autoSizeTextType="uniform"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:gravity="center_vertical|end"
-                        android:inputType="none"
-                        android:maxLines="1"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.3"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="center"
-                        android:labelFor="@+id/receive_river"
-                        android:maxLines="1"
-                        android:text="おあずかり" />
-
-                    <EditText
-                        android:id="@+id/receive_river"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.7"
-                        android:autoSizeTextType="uniform"
-                        android:cursorVisible="false"
-                        android:gravity="center_vertical|end"
-                        android:inputType="none"
-                        android:maxLines="1"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:background="@android:drawable/alert_light_frame"
+                android:gravity="center">
 
-                <Button
-                    android:id="@+id/back"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|bottom"
-                    android:layout_weight="0.5"
-                    android:autoSizeTextType="uniform"
-                    android:maxLines="1"
-                    android:onClick="@{viewModel::onCancelClick}"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="22dp"
-                    android:text="もどる" />
+                <!--<info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorLayout-->
+                <!--android:id="@+id/calculator_layout"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent" />-->
+            </info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout>
 
-                <Button
-                    android:id="@+id/done"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end|bottom"
-                    android:layout_weight="0.5"
-                    android:autoSizeTextType="uniform"
-                    android:maxLines="1"
-                    android:onClick="@{viewModel::onDoneClick}"
-                    android:paddingTop="16dp"
-                    android:paddingBottom="22dp"
-                    android:text="おかいけい" />
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:orientation="horizontal"
+                        android:weightSum="1">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.3"
+                            android:autoSizeTextType="uniform"
+                            android:gravity="center"
+                            android:labelFor="@+id/sum_river"
+                            android:maxLines="1"
+                            android:text="@string/total" />
+
+                        <TextView
+                            android:id="@+id/sum_river"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.7"
+                            android:autoSizeTextType="uniform"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:gravity="center_vertical|end"
+                            android:inputType="none"
+                            android:maxLines="1"
+                            android:text="@{viewModel.totalPriceText}"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:orientation="horizontal"
+                        android:weightSum="1">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.3"
+                            android:autoSizeTextType="uniform"
+                            android:gravity="center"
+                            android:labelFor="@+id/receive_river"
+                            android:maxLines="1"
+                            android:text="@string/deposit" />
+
+                        <EditText
+                            android:id="@+id/receive_river"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.7"
+                            android:autoSizeTextType="uniform"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:gravity="center_vertical|end"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
+                            android:maxLines="1"
+                            android:text="@{viewModel.depositText}"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/back"
+                        style="@style/Widget.AppCompat.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_weight="0.5"
+                        android:autoSizeTextType="uniform"
+                        android:maxLines="1"
+                        android:onClick="@{viewModel::onCancelClick}"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="22dp"
+                        android:text="@string/go_back" />
+
+                    <Button
+                        android:id="@+id/done"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_weight="0.5"
+                        android:autoSizeTextType="uniform"
+                        android:maxLines="1"
+                        android:onClick="@{viewModel::onDoneClick}"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="22dp"
+                        android:text="@string/account" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/progress_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="#30808080"
+            android:visibility="@{viewModel.progressViewVisibility}">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </FrameLayout>
 </layout>

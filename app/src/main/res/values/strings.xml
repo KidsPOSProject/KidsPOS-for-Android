@@ -28,4 +28,5 @@
     <string name="total">ごうけい</string>
     <string name="close">閉じる</string>
     <string name="reload">再読み込み</string>
+    <string name="go_back">もどる</string>
 </resources>
