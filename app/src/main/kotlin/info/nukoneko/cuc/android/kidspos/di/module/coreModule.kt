@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.di.module
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import info.nukoneko.cuc.android.kidspos.di.EventBusImpl
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.di.HostSelectionInterceptor
@@ -9,7 +10,6 @@ import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 val coreModule = module {
@@ -24,7 +24,7 @@ val coreModule = module {
     single<Retrofit> {
         Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(get())
                 .baseUrl((get<GlobalConfig>("config").baseUrl))
                 .build()

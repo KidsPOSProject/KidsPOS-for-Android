@@ -10,20 +10,21 @@ import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
-import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.net.InetSocketAddress
 import java.net.Socket
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class MainViewModel(private val api: APIService,
                     private val config: GlobalConfig,
-                    private val eventBus: EventBus) : ViewModel() {
+                    private val eventBus: EventBus) : ViewModel(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
+
     var listener: Listener? = null
 
     fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
@@ -44,22 +45,26 @@ class MainViewModel(private val api: APIService,
         } else {
             // サーバから取得する
             when (prefix) {
-                BarcodeKind.ITEM -> api.getItem(barcode)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(config.getDefaultSubscribeScheduler())
-                        .subscribe({ item ->
+                BarcodeKind.ITEM -> {
+                    launch {
+                        try {
+                            val item = requestGetItem(barcode)
                             onReadItemSuccess(item)
-                        }, { e ->
+                        } catch (e: Throwable) {
                             onReadItemFailure(e)
-                        })
-                BarcodeKind.STAFF -> api.getStaff(barcode)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(config.getDefaultSubscribeScheduler())
-                        .subscribe({ staff ->
+                        }
+                    }
+                }
+                BarcodeKind.STAFF -> {
+                    launch {
+                        try {
+                            val staff = requestGetStaff(barcode)
                             onReadStaffSuccess(staff)
-                        }, { e ->
+                        } catch (e: Throwable) {
                             onReadStaffFailure(e)
-                        })
+                        }
+                    }
+                }
                 BarcodeKind.SALE -> eventBus.post(BarcodeEvent.ReadReceiptFailed)
                 BarcodeKind.UNKNOWN -> {
                 }
@@ -123,6 +128,14 @@ class MainViewModel(private val api: APIService,
         if (ProjectSettings.DEMO_MODE) titleSuffix += " [テストモード]"
 
         listener?.onShouldChangeTitleSuffix(titleSuffix)
+    }
+
+    private suspend fun requestGetItem(barcode: String) = withContext(Dispatchers.IO) {
+        api.getItem(barcode).await()
+    }
+
+    private suspend fun requestGetStaff(barcode: String) = withContext(Dispatchers.IO) {
+        api.getStaff(barcode).await()
     }
 
     private suspend fun checkReachability(hostName: String, serverPort: Int) = suspendCoroutine<Boolean> {
