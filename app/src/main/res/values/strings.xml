@@ -30,4 +30,5 @@
     <string name="reload">再読み込み</string>
     <string name="go_back">もどる</string>
     <string name="clear_one_num">↪️</string>
+    <string name="error">エラー</string>
 </resources>

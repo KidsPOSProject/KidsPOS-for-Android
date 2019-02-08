@@ -32,7 +32,7 @@ class SettingViewModel(private val config: GlobalConfig, private val eventBus: E
             GlobalConfig.KEY_SERVER_PORT -> {
                 sharedPreferences?.let {
                     val port = it.getString(key, "")
-                    val portValue = port?.toInt()
+                    val portValue = port?.toIntOrNull()
                     if (TextUtils.isEmpty(port) || portValue == null || !ValidationUtil.isUsablePort(portValue)) {
                         listener?.onShouldShowMessage("ポートが間違っています")
                         config.serverPort = GlobalConfig.DEFAULT_SERVER_PORT_VALUE
