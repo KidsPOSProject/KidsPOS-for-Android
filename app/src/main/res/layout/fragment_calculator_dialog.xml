@@ -138,6 +138,8 @@
                     android:onClick="@{viewModel::onDoneClick}"
                     android:paddingTop="16dp"
                     android:paddingBottom="22dp"
+                    android:enabled="@{viewModel.accountButtonEnabled}"
+                    android:clickable="@{viewModel.accountButtonEnabled}"
                     android:text="@string/account" />
             </LinearLayout>
         </LinearLayout>

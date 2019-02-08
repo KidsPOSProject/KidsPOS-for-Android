@@ -6,38 +6,34 @@ import android.arch.lifecycle.ViewModel
 import android.view.View
 
 class AccountResultDialogViewModel : ViewModel() {
-    private val price = MutableLiveData<Int>()
-    fun getPrice(): LiveData<Int> = price
+    private val priceText = MutableLiveData<String>()
+    fun getPriceText(): LiveData<String> = priceText
 
-    private val receiveMoney = MutableLiveData<Int>()
-    fun getReceiveMoney(): LiveData<Int> = receiveMoney
+    private val depositText = MutableLiveData<String>()
+    fun getDepositText(): LiveData<String> = depositText
+
+    private val chargeText = MutableLiveData<String>()
+    fun getChargeText(): LiveData<String> = chargeText
 
     var listener: Listener? = null
 
-    val chargeRiver: Int
-        get() = (receiveMoney.value ?: 0) - (price.value ?: 0)
-
-    init {
-        price.value = 0
-        receiveMoney.value = 0
+    fun setup(price: Int, deposit: Int) {
+        priceText.value = "$price リバー"
+        depositText.value = "$deposit リバー"
+        chargeText.value = "${deposit - price} リバー"
     }
 
-    fun setupValue(price: Int, receiveMoney: Int) {
-        this.price.postValue(price)
-        this.receiveMoney.postValue(receiveMoney)
+    fun onOkClick(@Suppress("UNUSED_PARAMETER") view: View?) {
+        listener?.onOk()
     }
 
-    fun onAccountClick(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onAccount()
-    }
-
-    fun onBackClick(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onBack()
+    fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View?) {
+        listener?.onCancel()
     }
 
     interface Listener {
-        fun onAccount()
+        fun onOk()
 
-        fun onBack()
+        fun onCancel()
     }
 }

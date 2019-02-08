@@ -11,9 +11,15 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentCalculatorDialogBinding
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class CalculatorDialogFragment : DialogFragment(), AccountResultDialogFragment.Listener {
+class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
     private val totalPrice: Int by lazyWithArgs(EXTRA_SUM_RIVER)
     private val items: List<Item> by lazyWithArgs(EXTRA_SALE_ITEMS)
 
@@ -21,9 +27,18 @@ class CalculatorDialogFragment : DialogFragment(), AccountResultDialogFragment.L
     private val myViewModel: CalculatorDialogViewModel by viewModel()
     private val listener = object : CalculatorDialogViewModel.Listener {
         override fun onShouldShowResultDialog(totalPrice: Int, deposit: Int) {
-            AccountResultDialogFragment.newInstance(totalPrice, deposit).also {
-                it.isCancelable = false
-            }.show(childFragmentManager, "yesNoDialog")
+            launch {
+                val result = AccountResultDialogFragment.newInstance(totalPrice, deposit).also {
+                    it.isCancelable = false
+                }.showAndSuspend(requireFragmentManager(), "yesNoDialog")
+                when (result) {
+                    AccountResultDialogFragment.DialogResult.OK -> {
+                        myViewModel.onOk()
+                    }
+                    else -> {
+                    }
+                }
+            }
         }
 
         override fun onShouldShowErrorMessage(message: String) {
@@ -33,14 +48,6 @@ class CalculatorDialogFragment : DialogFragment(), AccountResultDialogFragment.L
         override fun onDismiss() {
             dismiss()
         }
-    }
-
-    override fun onAccount() {
-        myViewModel.onAccount()
-    }
-
-    override fun onAccountResultDialogBack() {
-
     }
 
     private val calculatorListener = object : CalculatorLayout.Listener {
