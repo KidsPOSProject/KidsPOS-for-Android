@@ -1,25 +1,31 @@
-#------ KidsPOS4j ------
+## kotlin
+-dontwarn kotlin.**
 
-##------ Retrofit -------
--dontwarn retrofit2.**
--keep class retrofit2.** { *; }
--keepattributes Signature
--keepattributes Exceptions
-
--keepclasseswithmembers class * {
-    @retrofit2.http.* <methods>;
+## kotlinx.coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
 }
 
--dontwarn com.squareup.okhttp.*
--dontwarn com.squareup.okhttp3.**
--keep class com.squareup.okhttp3.* { *; }
--dontwarn okio.**
--dontwarn com.google.appengine.api.urlfetch.*
+## Retrofit
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+-dontwarn javax.annotation.**
+-dontwarn kotlin.Unit
+-dontwarn retrofit2.-KotlinExtensions
+-if interface * { @retrofit2.http.* <methods>; }
+-keep,allowobfuscation interface <1>
 
-#------ Android Support -------
--dontwarn android.support.**
--keep class android.support.** { *; }
--keep interface android.support.** { *; }
+## EventBus
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
 
 #------ Gson -------
 -keep class info.nukoneko.cuc.android.kidspos.entity.** { *; }

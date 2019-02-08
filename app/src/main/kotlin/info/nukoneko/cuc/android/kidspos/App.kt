@@ -12,6 +12,7 @@ import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import okhttp3.Interceptor
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.android.startKoin
 
@@ -28,7 +29,7 @@ open class App : Application() {
         event.register(this)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onHostChangedEvent(event: SystemEvent.HostChanged) {
         (hostSelectionInterceptor as? HostSelectionInterceptor)?.host = config.baseUrl
     }

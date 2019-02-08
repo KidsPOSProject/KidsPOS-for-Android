@@ -70,31 +70,31 @@ class ItemListViewModel(
         currentStaff.postValue("たんとう: ${config.currentStaff?.name ?: ""}")
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadItemSuccessEvent(event: BarcodeEvent.ReadItemSuccess) {
         val item = event.value as? Item ?: return
         data.add(item)
         updateViews()
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadStaffSuccessEvent(event: BarcodeEvent.ReadStaffSuccess) {
         val staff = event.value as? Staff ?: return
         config.currentStaff = staff
         updateViews()
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadItemFailedEvent(event: BarcodeEvent.ReadItemFailed) {
         listener?.onShouldShowMessage(R.string.request_item_failed)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadStaffFailedEvent(event: BarcodeEvent.ReadStaffFailed) {
         listener?.onShouldShowMessage(R.string.request_staff_failed)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadReceiptFailedEvent(event: BarcodeEvent.ReadReceiptFailed) {
         listener?.onShouldShowMessage(R.string.read_receipt_failed)
     }
