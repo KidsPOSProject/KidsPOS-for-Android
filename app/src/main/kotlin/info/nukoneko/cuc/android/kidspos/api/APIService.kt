@@ -12,7 +12,7 @@ import retrofit2.http.*
 interface APIService {
 
     @GET("store/list")
-    fun fetchStores(): Observable<List<Store>>
+    fun fetchStores(): Deferred<List<Store>>
 
     @FormUrlEncoded
     @POST("sale/create")

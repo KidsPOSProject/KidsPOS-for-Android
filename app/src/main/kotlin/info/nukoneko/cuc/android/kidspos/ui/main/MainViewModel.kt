@@ -8,11 +8,14 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
+import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.net.InetSocketAddress
 import java.net.Socket
 import kotlin.coroutines.resume
@@ -62,6 +65,14 @@ class MainViewModel(private val api: APIService,
                 }
             }
         }
+    }
+
+    fun onStart() {
+        eventBus.register(this)
+    }
+
+    fun onStop() {
+        eventBus.unregister(this)
     }
 
     fun onResume() {
@@ -123,6 +134,11 @@ class MainViewModel(private val api: APIService,
         } catch (e: Throwable) {
             it.resume(false)
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onSelectShopEvent(event: SystemEvent.SelectShop) {
+        updateTitle()
     }
 
     interface Listener {
