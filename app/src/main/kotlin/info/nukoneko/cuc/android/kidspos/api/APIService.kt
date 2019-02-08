@@ -6,6 +6,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import retrofit2.http.*
 
 interface APIService {
@@ -21,7 +22,7 @@ interface APIService {
             @Field("price") sumPrice: Int,
             @Field("items") saleItemsList: String,
             @Field("storeId") storeId: Int,
-            @Field("staffBarcode") staffCode: String): Single<Sale>
+            @Field("staffBarcode") staffCode: String): Deferred<Sale>
 
     @GET("item/{barcode}")
     fun getItem(@Path("barcode") itemBarcode: String): Single<Item>

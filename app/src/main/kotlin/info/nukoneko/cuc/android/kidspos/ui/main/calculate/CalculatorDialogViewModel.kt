@@ -3,67 +3,132 @@ package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 class CalculatorDialogViewModel(
         private val api: APIService,
         private val config: GlobalConfig,
-        private val event: EventBus) : ViewModel() {
+        private val event: EventBus) : ViewModel(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
+
+    private val progressViewVisibility = MutableLiveData<Int>()
+    fun getProgressViewVisibility(): LiveData<Int> = progressViewVisibility
+
     private val totalPriceText = MutableLiveData<String>()
     fun getTotalPriceText(): LiveData<String> = totalPriceText
 
-    private val compositeDisposable = CompositeDisposable()
+    private val totalPrice: Int
+        get() = totalPriceText.value?.toIntOrNull() ?: 0
+
+    private val deposit = MutableLiveData<Int>()
+    fun getDeposit(): LiveData<Int> = deposit
+
+    private lateinit var items: List<Item>
+
+    init {
+        totalPriceText.value = "0"
+    }
+
+    fun setup(items: List<Item>, totalPrice: Int) {
+        this.items = items
+        this.totalPriceText.value = "$totalPrice"
+    }
 
     var listener: Listener? = null
 
-    fun sendToServer(items: List<Item>, totalPrice: Int, deposit: Int) {
-        var sum = StringBuilder()
-        for ((id) in items) {
-            sum.append(id.toString()).append(",")
-        }
-        sum = StringBuilder(sum.substring(0, sum.length - 1))
-        val staff = config.currentStaff
-        val store = config.currentStore
-        val staffBarcode = staff?.barcode ?: ""
-        val storeId = store?.id ?: 0
+    fun onUpdateDeposit(deposit: Int) {
+        this.deposit.postValue(deposit)
+    }
 
+    fun onAccount() {
         if (config.isPracticeModeEnabled) {
-            listener?.showMessage("練習モードのためレシートは出ません")
+            listener?.onShouldShowErrorMessage("練習モードのためレシートは出ません")
             listener?.onDismiss()
-        } else {
-//            val progressDialog = ProgressDialog(context)
-//            progressDialog.setTitle("送信しています")
-//            progressDialog.show()
-
-            val disposable = api.createSale(deposit, items.size, totalPrice, sum.toString(), storeId, staffBarcode)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(config.getDefaultSubscribeScheduler())
-                    .subscribe({ (_, barcode, createdAt, points, price, items, storeId1, staffId) ->
-                        //                        progressDialog.dismiss()
-                        event.post(SystemEvent.SentSaleSuccess)
-                        listener?.onDismiss()
-                    }, { throwable ->
-                        throwable.printStackTrace()
-//                        progressDialog.dismiss()
-                        listener?.onDismiss()
-                    })
-            compositeDisposable.add(disposable)
+            return
         }
+
+        launch {
+            try {
+                val sale: Sale? = requestCreateSale()
+                event.post(SystemEvent.SentSaleSuccess.also {
+                    it.value = sale
+                })
+            } catch (e: Throwable) {
+            }
+            listener?.onDismiss()
+        }
+    }
+
+    fun onDoneClick(@Suppress("UNUSED_PARAMETER") view: View) {
+        listener?.onShouldShowResultDialog(totalPrice ?: 0, deposit.value ?: 0)
+    }
+
+    fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View) {
+        listener?.onDismiss()
+    }
+
+    private suspend fun requestCreateSale() = withContext(Dispatchers.IO) {
+        val depositMoney = deposit.value ?: 0
+        if (depositMoney == 0) {
+            throw IllegalStateException("おかしい")
+        }
+        val totalMoney = totalPrice ?: 0
+        if (totalMoney == 0) {
+            throw IllegalStateException("おかしい")
+        }
+
+        api.createSale(depositMoney,
+                items.size,
+                totalMoney,
+                items.map { it.id }.joinToString(","),
+                config.currentStore?.id ?: 0,
+                config.currentStaff?.barcode ?: "").await()
     }
 
     override fun onCleared() {
-        compositeDisposable.clear()
+        listener = null
         super.onCleared()
     }
 
+    fun onNumberClick(number: Int) {
+        /*
+            if (deposit > 100000) return
+
+            deposit = if (deposit == 0) {
+                number
+            } else {
+                deposit * 10 + number
+            }
+         */
+    }
+
+    fun onClearClick() {
+        /*
+            if (10 > deposit) {
+                deposit = 0
+            } else {
+                deposit = Math.floor((deposit / 10).toDouble()).toInt()
+            }
+         */
+    }
+
     interface Listener {
-        fun showMessage(message: String)
+        fun onShouldShowResultDialog(totalPrice: Int, deposit: Int)
+
+        fun onShouldShowErrorMessage(message: String)
 
         fun onDismiss()
     }
