@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
-import android.widget.Button
 import android.widget.LinearLayout
 import info.nukoneko.cuc.android.kidspos.R
 
@@ -20,22 +19,27 @@ class CalculatorLayout : LinearLayout {
         when (view) {
             is CalculatorView -> listener?.onNumberClick(view.number)
             else -> {
-                if (id == R.id.calc_num_C) listener?.onClear(view)
+                if (view.id == R.id.btn_delete_one) listener?.onClearClick()
             }
         }
     }
 
+    private val viewIds: Array<Int> = arrayOf(
+            R.id.btn_0, R.id.btn_1, R.id.btn_2,
+            R.id.btn_3, R.id.btn_4, R.id.btn_5,
+            R.id.btn_6, R.id.btn_7, R.id.btn_8,
+            R.id.btn_9, R.id.btn_delete_one)
+
     init {
-        val view = LayoutInflater.from(context).inflate(R.layout.view_calculator, this) as LinearLayout
-        for (i in 0 until view.childCount) {
-            val childView = view.getChildAt(i)
-            if (childView is Button) childView.setOnClickListener(onClickListener)
+        val root = LayoutInflater.from(context).inflate(R.layout.view_calculator_layout, this)
+        for (viewId in viewIds) {
+            root.findViewById<View>(viewId).setOnClickListener(onClickListener)
         }
     }
 
     interface Listener {
         fun onNumberClick(number: Int)
 
-        fun onClear(view: View)
+        fun onClearClick()
     }
 }

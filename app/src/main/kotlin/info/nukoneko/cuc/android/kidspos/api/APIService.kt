@@ -4,14 +4,13 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import io.reactivex.Observable
-import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import retrofit2.http.*
 
 interface APIService {
 
     @GET("store/list")
-    fun storeList(): Observable<List<Store>>
+    fun fetchStores(): Deferred<List<Store>>
 
     @FormUrlEncoded
     @POST("sale/create")
@@ -21,11 +20,11 @@ interface APIService {
             @Field("price") sumPrice: Int,
             @Field("items") saleItemsList: String,
             @Field("storeId") storeId: Int,
-            @Field("staffBarcode") staffCode: String): Single<Sale>
+            @Field("staffBarcode") staffCode: String): Deferred<Sale>
 
     @GET("item/{barcode}")
-    fun getItem(@Path("barcode") itemBarcode: String): Single<Item>
+    fun getItem(@Path("barcode") itemBarcode: String): Deferred<Item>
 
     @GET("staff")
-    fun getStaff(@Query("barcode") staffBarcode: String): Single<Staff>
+    fun getStaff(@Query("barcode") staffBarcode: String): Deferred<Staff>
 }

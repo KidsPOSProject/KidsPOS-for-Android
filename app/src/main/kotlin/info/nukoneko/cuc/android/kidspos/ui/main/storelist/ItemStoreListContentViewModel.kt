@@ -1,6 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
-import android.databinding.BaseObservable
+import androidx.databinding.BaseObservable
 import android.view.View
 
 import info.nukoneko.cuc.android.kidspos.entity.Store

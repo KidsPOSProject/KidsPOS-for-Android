@@ -4,15 +4,12 @@ import android.view.KeyEvent
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import info.nukoneko.cuc.android.kidspos.BuildConfig
+import info.nukoneko.cuc.android.kidspos.support.KidsPOSRobolectricTestRunner
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = [21], manifest = Config.NONE)
+@RunWith(KidsPOSRobolectricTestRunner::class)
 class BarcodeReadDelegateTest {
 
     private lateinit var delegate: BarcodeReadDelegate

@@ -1,59 +1,62 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
-import android.databinding.DataBindingUtil
+import androidx.databinding.DataBindingUtil
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.databinding.FragmentDialogAccountResultBinding
+import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialogBinding
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
-import info.nukoneko.cuc.android.kidspos.ui.common.BaseDialogFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.launch
+import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class AccountResultDialogFragment : BaseDialogFragment() {
-    private var listener: Listener? = null
+class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
-    private lateinit var binding: FragmentDialogAccountResultBinding
+    enum class DialogResult {
+        OK,
+        Cancel
+    }
 
-    private val viewModel: AccountResultDialogViewModel by lazy {
-        ViewModelProviders.of(this)[AccountResultDialogViewModel::class.java].also {
-            it.listener = object: AccountResultDialogViewModel.Listener {
-                override fun onAccount() {
-                    listener?.onAccount()
-                    dialog.dismiss()
-                }
+    private val channel = BroadcastChannel<DialogResult>(1)
 
-                override fun onBack() {
-                    listener?.onAccountResultDialogBack()
-                    dialog.dismiss()
-                }
+    private val listener = object : AccountResultDialogViewModel.Listener {
+        override fun onOk() {
+            launch {
+                channel.send(DialogResult.OK)
+                dialog.dismiss()
+            }
+        }
+
+        override fun onCancel() {
+            launch {
+                channel.send(DialogResult.Cancel)
+                dialog.dismiss()
             }
         }
     }
 
-    private val price: Int by lazyWithArgs(EXTRA_PRICE)
+    private lateinit var binding: FragmentAccountResultDialogBinding
 
+    private val myViewModel: AccountResultDialogViewModel by viewModel()
+
+    private val price: Int by lazyWithArgs(EXTRA_PRICE)
     private val receiveMoney: Int by lazyWithArgs(EXTRA_RECEIVE_MONEY)
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        listener = context as? Listener
-    }
-
-    override fun onDetach() {
-        listener = null
-        super.onDetach()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.fragment_dialog_account_result, container, false)
-        binding.viewModel = viewModel.apply {
-            setupValue(price, receiveMoney)
-        }
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account_result_dialog, container, false)
+        myViewModel.listener = listener
+        myViewModel.setup(price, receiveMoney)
+        binding.viewModel = myViewModel
         return binding.root
     }
 
@@ -69,10 +72,9 @@ class AccountResultDialogFragment : BaseDialogFragment() {
         }
     }
 
-    interface Listener {
-        fun onAccount()
-
-        fun onAccountResultDialogBack()
+    suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {
+        show(fm, tag)
+        return channel.openSubscription().receive()
     }
 
     companion object {

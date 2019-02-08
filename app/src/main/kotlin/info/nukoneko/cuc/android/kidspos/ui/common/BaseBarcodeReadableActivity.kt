@@ -1,16 +1,16 @@
 package info.nukoneko.cuc.android.kidspos.ui.common
 
+import androidx.appcompat.app.AppCompatActivity
 import android.view.KeyEvent
 import com.orhanobut.logger.Logger
-import info.nukoneko.cuc.android.kidspos.error.IllegalReadValueException
+import info.nukoneko.cuc.android.kidspos.error.IllegalBarcodeException
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.BarcodeReadDelegate
 
-abstract class BaseBarcodeReadableActivity : BaseActivity() {
+abstract class BaseBarcodeReadableActivity : AppCompatActivity() {
 
     private val onBarcodeReadListener = object : BarcodeReadDelegate.OnBarcodeReadListener {
-        override fun onReadFailed(e: IllegalReadValueException) {
-            // TODO
+        override fun onReadFailed(e: IllegalBarcodeException) {
             Logger.e(e, "onReadFailed")
         }
 
@@ -23,7 +23,7 @@ abstract class BaseBarcodeReadableActivity : BaseActivity() {
 
     abstract fun onBarcodeInput(barcode: String, prefix: BarcodeKind)
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    final override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         return barcodeDelegate.onKeyEvent(event)
     }
 }

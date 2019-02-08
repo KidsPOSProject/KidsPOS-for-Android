@@ -19,11 +19,16 @@
     <string name="read_receipt_failed">レシートの読み取りはできません。</string>
 
     <!-- Settings -->
-    <string name="settings_server_ip">IPアドレス</string>
+    <string name="settings_server_url">IPアドレス</string>
     <string name="settings_server_port">接続ポート</string>
     <string name="settings_enable_practice_mode">練習モード</string>
     <string name="back">もどる</string>
     <string name="change">おつり</string>
     <string name="deposit">おあずかり</string>
     <string name="total">ごうけい</string>
+    <string name="close">閉じる</string>
+    <string name="reload">再読み込み</string>
+    <string name="go_back">もどる</string>
+    <string name="clear_one_num">↪️</string>
+    <string name="error">エラー</string>
 </resources>
