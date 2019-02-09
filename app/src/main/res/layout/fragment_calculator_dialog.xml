@@ -24,8 +24,8 @@
             android:layout_weight="0.5"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingLeft="32dp"
-            android:paddingRight="32dp">
+            android:paddingLeft="64dp"
+            android:paddingRight="64dp">
 
             <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorLayout
                 android:id="@+id/calculator_layout"
