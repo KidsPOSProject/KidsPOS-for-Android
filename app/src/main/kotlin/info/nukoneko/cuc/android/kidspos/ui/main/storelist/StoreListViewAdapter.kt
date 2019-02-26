@@ -1,10 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
-import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding
 import info.nukoneko.cuc.android.kidspos.entity.Store

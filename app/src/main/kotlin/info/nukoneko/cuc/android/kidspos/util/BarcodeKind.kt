@@ -17,3 +17,4 @@ enum class BarcodeKind(val prefix: String) {
         }
     }
 }
+//1001000000

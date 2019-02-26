@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.common
 
-import androidx.appcompat.app.AppCompatActivity
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatActivity
 import com.orhanobut.logger.Logger
 import info.nukoneko.cuc.android.kidspos.error.IllegalBarcodeException
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind

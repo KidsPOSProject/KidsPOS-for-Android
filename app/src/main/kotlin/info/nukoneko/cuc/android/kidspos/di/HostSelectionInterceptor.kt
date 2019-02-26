@@ -11,7 +11,8 @@ class HostSelectionInterceptor(baseUrl: String) : Interceptor {
         var request = chain.request()
         host.let {
             if (it.isNotEmpty()) {
-                request = request.newBuilder().url(HttpUrl.parse(it)!!).build()
+                val url = "${HttpUrl.parse(it)!!}api/${request.url().pathSegments().joinToString("/")}"
+                request = request.newBuilder().url(url).build()
             }
         }
         return chain.proceed(request)

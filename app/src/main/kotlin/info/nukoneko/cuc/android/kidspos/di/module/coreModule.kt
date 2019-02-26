@@ -18,8 +18,7 @@ val coreModule = module {
     single<Interceptor>("hostSelection") { HostSelectionInterceptor((get<GlobalConfig>("config").baseUrl)) }
     single {
         OkHttpClient.Builder()
-                .addInterceptor(get("hostSelection"))
-                .build()
+                .addInterceptor(get("hostSelection")).build()
     }
     single<Retrofit> {
         Retrofit.Builder()

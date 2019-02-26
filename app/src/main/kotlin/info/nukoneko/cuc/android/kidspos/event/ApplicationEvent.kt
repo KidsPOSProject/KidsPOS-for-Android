@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.event
 
-sealed class ApplicationEvent : Event() {
-    object AppModeChange : ApplicationEvent()
+sealed class ApplicationEvent<T : Any>(v: T? = null) : Event<T>(v) {
+    object AppModeChange : ApplicationEvent<Any>()
 
-    object AppUpdateAvailable : ApplicationEvent()
+    object AppUpdateAvailable : ApplicationEvent<Any>()
 }

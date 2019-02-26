@@ -1,9 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.api.RequestStatus
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig

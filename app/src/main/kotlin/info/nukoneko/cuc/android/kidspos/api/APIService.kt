@@ -15,16 +15,14 @@ interface APIService {
     @FormUrlEncoded
     @POST("sale/create")
     fun createSale(
-            @Field("received") receiveMoney: Int,
-            @Field("points") saleItemCount: Int,
-            @Field("price") sumPrice: Int,
-            @Field("items") saleItemsList: String,
             @Field("storeId") storeId: Int,
-            @Field("staffBarcode") staffCode: String): Deferred<Sale>
+            @Field("staffBarcode") staffBarcode: String,
+            @Field("deposit") deposit: Int,
+            @Field("itemIds") itemIds: String): Deferred<Sale>
 
     @GET("item/{barcode}")
     fun getItem(@Path("barcode") itemBarcode: String): Deferred<Item>
 
-    @GET("staff")
-    fun getStaff(@Query("barcode") staffBarcode: String): Deferred<Staff>
+    @GET("staff/{barcode}")
+    fun getStaff(@Path("barcode") staffBarcode: String): Deferred<Staff>
 }

@@ -1,5 +1,3 @@
 package info.nukoneko.cuc.android.kidspos.event
 
-abstract class Event {
-    var value: Any? = null
-}
+abstract class Event<T : Any>(var value: T? = null)

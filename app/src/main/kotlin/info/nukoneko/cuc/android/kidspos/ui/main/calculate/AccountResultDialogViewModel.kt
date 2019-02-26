@@ -1,9 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.view.View
 
 class AccountResultDialogViewModel : ViewModel() {
     private val priceText = MutableLiveData<String>()

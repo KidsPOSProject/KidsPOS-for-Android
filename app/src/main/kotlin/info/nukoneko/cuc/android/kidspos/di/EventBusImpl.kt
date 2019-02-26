@@ -13,7 +13,7 @@ class EventBusImpl : EventBus {
         bus.unregister(obj)
     }
 
-    override fun post(event: Event) {
+    override fun <T : Any> post(event: Event<T>) {
         bus.post(event)
     }
 }

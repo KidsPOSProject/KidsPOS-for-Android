@@ -1,9 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
 import android.content.Context
-import androidx.appcompat.widget.AppCompatButton
 import android.util.AttributeSet
 import android.view.Gravity
+import androidx.appcompat.widget.AppCompatButton
 import info.nukoneko.cuc.android.kidspos.R
 
 class CalculatorView : AppCompatButton {

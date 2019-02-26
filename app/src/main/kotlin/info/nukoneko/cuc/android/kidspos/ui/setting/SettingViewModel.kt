@@ -1,8 +1,8 @@
 package info.nukoneko.cuc.android.kidspos.ui.setting
 
-import androidx.lifecycle.ViewModel
 import android.content.SharedPreferences
 import android.text.TextUtils
+import androidx.lifecycle.ViewModel
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.event.ApplicationEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus

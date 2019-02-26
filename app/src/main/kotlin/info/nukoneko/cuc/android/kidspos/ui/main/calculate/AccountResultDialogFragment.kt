@@ -1,13 +1,13 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
-import androidx.databinding.DataBindingUtil
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialogBinding
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs

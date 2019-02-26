@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 
 class MainViewModel(private val api: APIService,
@@ -65,7 +66,7 @@ class MainViewModel(private val api: APIService,
                         }
                     }
                 }
-                BarcodeKind.SALE -> eventBus.post(BarcodeEvent.ReadReceiptFailed)
+                BarcodeKind.SALE -> eventBus.post(BarcodeEvent.ReadReceiptFailed(IOException("まだ対応していない")))
                 BarcodeKind.UNKNOWN -> {
                 }
             }
@@ -94,27 +95,19 @@ class MainViewModel(private val api: APIService,
     }
 
     private fun onReadItemSuccess(item: Item) {
-        eventBus.post(BarcodeEvent.ReadItemSuccess.apply {
-            value = item
-        })
+        eventBus.post(BarcodeEvent.ReadItemSuccess(item))
     }
 
     private fun onReadItemFailure(e: Throwable) {
-        eventBus.post(BarcodeEvent.ReadItemFailed.apply {
-            value = e
-        })
+        eventBus.post(BarcodeEvent.ReadItemFailed(e))
     }
 
     private fun onReadStaffSuccess(staff: Staff) {
-        eventBus.post(BarcodeEvent.ReadStaffSuccess.apply {
-            value = staff
-        })
+        eventBus.post(BarcodeEvent.ReadStaffSuccess(staff))
     }
 
     private fun onReadStaffFailure(e: Throwable) {
-        eventBus.post(BarcodeEvent.ReadStaffFailed.apply {
-            value = e
-        })
+        eventBus.post(BarcodeEvent.ReadStaffFailed(e))
     }
 
     private fun updateTitle() {

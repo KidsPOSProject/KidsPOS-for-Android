@@ -1,9 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.view.View
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
@@ -62,7 +62,7 @@ class CalculatorDialogViewModel(
     fun onOk() {
         if (config.isPracticeModeEnabled) {
             listener?.onShouldShowErrorMessage("練習モードのためレシートは出ません")
-            event.post(SystemEvent.SentSaleSuccess)
+            event.post(SystemEvent.SentSaleSuccess(null))
             listener?.onDismiss()
             return
         }
@@ -70,13 +70,11 @@ class CalculatorDialogViewModel(
         launch {
             try {
                 val sale: Sale? = requestCreateSale()
-                event.post(SystemEvent.SentSaleSuccess.also {
-                    it.value = sale
-                })
+                event.post(SystemEvent.SentSaleSuccess(sale))
+                listener?.onDismiss()
             } catch (e: Throwable) {
-                e.printStackTrace()
+                listener?.onShouldShowErrorMessage(e.localizedMessage)
             }
-            listener?.onDismiss()
         }
     }
 
@@ -89,12 +87,10 @@ class CalculatorDialogViewModel(
     }
 
     private suspend fun requestCreateSale() = withContext(Dispatchers.IO) {
-        api.createSale(deposit,
-                items.size,
-                totalPrice,
-                items.map { it.id }.joinToString(","),
-                config.currentStore?.id ?: 0,
-                config.currentStaff?.barcode ?: "").await()
+        val ids = items.map { it.id.toString() }
+        val joinedIds = ids.joinToString(",")
+        api.createSale(config.currentStore?.id ?: 0, config.currentStaff?.barcode
+                ?: "", deposit, joinedIds).await()
     }
 
     override fun onCleared() {

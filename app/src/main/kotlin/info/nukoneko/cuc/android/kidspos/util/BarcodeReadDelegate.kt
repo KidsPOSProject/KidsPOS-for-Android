@@ -8,6 +8,9 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
 
     // android パッケージのKeyEventを受け取りたくない...
     fun onKeyEvent(event: KeyEvent): Boolean {
+        if (event.action != KeyEvent.ACTION_DOWN) {
+            return false
+        }
         if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
             if (readingValue.isNotEmpty() && readingValue.length >= 5) {
                 // 10桁なら返す
