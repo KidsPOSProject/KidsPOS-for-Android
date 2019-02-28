@@ -53,8 +53,5 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
             return fragment.channel.openSubscription().receive()
         }
 
-        suspend fun showWithSuspend(fragmentManager: FragmentManager, e: Throwable): ErrorDialogFragment.DialogResult {
-            return showWithSuspend(fragmentManager, e.localizedMessage)
-        }
     }
 }

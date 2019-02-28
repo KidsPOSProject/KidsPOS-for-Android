@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
@@ -72,14 +71,14 @@ class ItemListViewModel(
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadItemSuccessEvent(event: BarcodeEvent.ReadItemSuccess) {
-        val item = event.value as? Item ?: return
+        val item = event.item
         data.add(item)
         updateViews()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadStaffSuccessEvent(event: BarcodeEvent.ReadStaffSuccess) {
-        val staff = event.value as? Staff ?: return
+        val staff = event.staff
         config.currentStaff = staff
         updateViews()
     }

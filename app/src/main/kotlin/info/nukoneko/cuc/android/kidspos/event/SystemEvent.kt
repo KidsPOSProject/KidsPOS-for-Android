@@ -2,14 +2,14 @@ package info.nukoneko.cuc.android.kidspos.event
 
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.util.Mode
 
-sealed class SystemEvent<T : Any>(v: T? = null) : Event<T>(v) {
-    data class SentSaleSuccess(val sale: Sale?) : SystemEvent<Sale>(sale)
+sealed class SystemEvent : Event {
+    data class SentSaleSuccess(val sale: Sale?) : SystemEvent()
 
-    data class SelectShop(val store: Store?) : SystemEvent<Store>(store)
+    data class SelectShop(val store: Store?) : SystemEvent()
 
-    @Deprecated("いらないでしょ")
-    object TotalPriceUpdate : SystemEvent<Any>()
+    data class ServerAddressChanged(val newServerAddress: String) : SystemEvent()
 
-    object HostChanged : SystemEvent<Any>()
+    data class RunningModeChanged(val newRunningMode: Mode) : SystemEvent()
 }

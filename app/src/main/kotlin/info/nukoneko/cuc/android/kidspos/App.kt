@@ -3,8 +3,7 @@ package info.nukoneko.cuc.android.kidspos
 import android.app.Application
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
-import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.di.HostSelectionInterceptor
+import info.nukoneko.cuc.android.kidspos.di.ServerSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.di.module.apiModule
 import info.nukoneko.cuc.android.kidspos.di.module.coreModule
 import info.nukoneko.cuc.android.kidspos.di.module.viewModelModule
@@ -18,8 +17,7 @@ import org.koin.android.ext.android.startKoin
 
 open class App : Application() {
     private val event: EventBus by inject()
-    private val config: GlobalConfig by inject()
-    private val hostSelectionInterceptor: Interceptor by inject("hostSelection")
+    private val serverSelectionInterceptor: Interceptor by inject("serverSelection")
 
     override fun onCreate() {
         super.onCreate()
@@ -30,7 +28,7 @@ open class App : Application() {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onHostChangedEvent(event: SystemEvent.HostChanged) {
-        (hostSelectionInterceptor as? HostSelectionInterceptor)?.host = config.baseUrl
+    fun onServerAddressChangedEvent(event: SystemEvent.ServerAddressChanged) {
+        (serverSelectionInterceptor as? ServerSelectionInterceptor)?.serverAddress = event.newServerAddress
     }
 }

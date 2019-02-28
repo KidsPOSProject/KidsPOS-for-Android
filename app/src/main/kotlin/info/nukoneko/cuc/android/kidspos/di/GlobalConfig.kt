@@ -7,49 +7,31 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
+import info.nukoneko.cuc.android.kidspos.util.Mode
 
 class GlobalConfig(context: Context, private val eventBus: EventBus) {
     private val preference = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
     private val gson = GsonBuilder().create()
 
-    val baseUrl: String
-        get() = "http://$serverUrl:$serverPort"
-
-    var serverUrl: String
+    var currentServerAddress: String
         get() = preference.getString(
-                KEY_SERVER_URL,
-                DEFAULT_SERVER_URL
-        ) ?: DEFAULT_SERVER_URL
-        set(ip) {
-            preference.edit().putString(KEY_SERVER_URL, ip).apply()
-            eventBus.post(SystemEvent.HostChanged)
+                KEY_SERVER_INFO,
+                DEFAULT_SERVER_INFO
+        ) ?: DEFAULT_SERVER_INFO
+        set(value) {
+            preference.edit().putString(KEY_SERVER_INFO, value).apply()
+            eventBus.post(SystemEvent.ServerAddressChanged(value))
         }
 
-    var serverPort: Int
-        get() {
-            return preference.getString(KEY_SERVER_PORT, null)?.let {
-                return try {
-                    it.toInt()
-                } catch (e: ClassCastException) {
-                    preference.edit().putString(KEY_SERVER_PORT, DEFAULT_SERVER_PORT).apply()
-                    return DEFAULT_SERVER_PORT_VALUE
-                }
-            } ?: kotlin.run {
-                preference.edit().putString(KEY_SERVER_PORT, DEFAULT_SERVER_PORT).apply()
-                return DEFAULT_SERVER_PORT_VALUE
-            }
+    var currentRunningMode: Mode
+        get() = Mode.nameOf(preference.getString(
+                KEY_RUNNING_MODE,
+                Mode.PRACTICE.name
+        ))
+        set(value) {
+            preference.edit().putString(KEY_RUNNING_MODE, value.name).apply()
+            eventBus.post(SystemEvent.RunningModeChanged(value))
         }
-        set(port) {
-            preference.edit().putString(KEY_SERVER_PORT, port.toString()).apply()
-            eventBus.post(SystemEvent.HostChanged)
-        }
-
-    var isPracticeModeEnabled: Boolean
-        get() = preference.getBoolean(
-                KEY_ENABLE_PRACTICE_MODE,
-                true
-        )
-        set(value) = preference.edit().putBoolean(KEY_ENABLE_PRACTICE_MODE, value).apply()
 
     var currentStore: Store?
         get() {
@@ -79,13 +61,10 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
         }
 
     companion object {
-        const val KEY_SERVER_URL = "settings_server_url"
-        const val KEY_SERVER_PORT = "settings_server_port"
-        const val KEY_ENABLE_PRACTICE_MODE = "settings_enable_practice_mode"
+        const val KEY_SERVER_INFO = "setting_server_info"
+        const val KEY_RUNNING_MODE = "setting_running_mode"
+        const val DEFAULT_SERVER_INFO = "http://192.168.0.220:8080"
         const val KEY_STORE = "store"
         const val KEY_STAFF = "staff"
-        const val DEFAULT_SERVER_URL = "192.128.0.220"
-        const val DEFAULT_SERVER_PORT = "8080"
-        const val DEFAULT_SERVER_PORT_VALUE = 8080
     }
 }

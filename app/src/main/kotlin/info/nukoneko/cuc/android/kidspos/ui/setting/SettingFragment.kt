@@ -1,70 +1,71 @@
 package info.nukoneko.cuc.android.kidspos.ui.setting
 
-import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.preference.EditTextPreference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.google.zxing.integration.android.IntentIntegrator
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.ui.common.ErrorDialogFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.koin.android.viewmodel.ext.android.viewModel
-import kotlin.coroutines.CoroutineContext
+import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.android.synthetic.main.fragment_setting.*
+import org.koin.android.ext.android.inject
 
-class SettingFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
+/**
+ * このクラスはDataBinding + ViewModelを使っていない
+ */
+class SettingFragment : Fragment() {
+    private val config: GlobalConfig by inject()
 
-    private val myViewModel: SettingViewModel by viewModel()
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_setting, container, false)
+    }
 
-    private val listener = object : SettingViewModel.Listener {
-        override fun onShouldShowMessage(message: String) {
-            launch {
-                ErrorDialogFragment.showWithSuspend(requireFragmentManager(), message)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        loadSettingButton.setOnClickListener {
+            launchQrReader()
+        }
+
+        changeModeButton.setOnClickListener {
+            val newMode = when (config.currentRunningMode) {
+                Mode.PRODUCTION -> Mode.PRACTICE
+                Mode.PRACTICE -> Mode.PRODUCTION
             }
-        }
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        myViewModel.listener = listener
-        addPreferencesFromResource(R.xml.settings)
-        updateSummaries()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        myViewModel.onSharedPreferenceChanged(sharedPreferences, key)
-        updateSummaries()
-    }
-
-    private fun updateSummaries() {
-        run {
-            val pref = findPreference(GlobalConfig.KEY_SERVER_URL) as EditTextPreference
-            pref.summary = pref.text
-        }
-        run {
-            val pref = findPreference(GlobalConfig.KEY_SERVER_PORT) as EditTextPreference
-            pref.summary = pref.text
-        }
-        run {
-            val pref = findPreference(GlobalConfig.KEY_ENABLE_PRACTICE_MODE) as SwitchPreferenceCompat
-            pref.summary = if (pref.isChecked) "練習モード" else "通常モード"
+            config.currentRunningMode = newMode
+            Toast.makeText(requireContext(), "${newMode.modeName} モードへ切り替えました", Toast.LENGTH_SHORT).show()
+            updateValues()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        updateValues()
     }
 
-    override fun onPause() {
-        preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        super.onPause()
+    private fun launchQrReader() {
+        if (activity is SettingActivity) {
+            IntentIntegrator(activity).initiateScan()
+        }
+    }
+
+    private fun updateValues() {
+        currentServerAddress.text = config.currentServerAddress
+
+        val currentMode = config.currentRunningMode
+        currentRunningModeText.text = "現在は ${currentMode.modeName} モードです"
+
+        val nextMode = when (currentMode) {
+            Mode.PRODUCTION -> Mode.PRACTICE
+            Mode.PRACTICE -> Mode.PRODUCTION
+        }
+        changeModeButton.text = "${nextMode.modeName} に切り替える"
     }
 
     companion object {
-        fun newInstance(): SettingFragment = SettingFragment()
+        fun newInstance() = SettingFragment()
     }
 }

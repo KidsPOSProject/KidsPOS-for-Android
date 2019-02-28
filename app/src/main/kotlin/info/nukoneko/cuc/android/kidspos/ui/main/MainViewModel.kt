@@ -10,7 +10,7 @@ import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
-import info.nukoneko.cuc.android.kidspos.util.NetworkUtil
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +27,12 @@ class MainViewModel(private val api: APIService,
         get() = Dispatchers.Main
 
     var listener: Listener? = null
+
+    enum class ConnectionStatus {
+        CONNECTING, CONNECTED, NOT_CONNECTED
+    }
+
+    private var status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
 
     fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
         @Suppress("ConstantConditionIf")
@@ -84,11 +90,24 @@ class MainViewModel(private val api: APIService,
     fun onResume() {
         updateTitle()
 
-        if (!config.isPracticeModeEnabled) {
-            launch {
-                val reachable = NetworkUtil.checkReachability(config.serverUrl, config.serverPort)
-                if (!reachable) {
-                    listener?.onNotReachableServer()
+        if (config.currentRunningMode == Mode.PRODUCTION) {
+            if (status != ConnectionStatus.NOT_CONNECTED) {
+                return
+            }
+            safetyShowMessage("接続中です...")
+            status = ConnectionStatus.CONNECTING
+            launch(Dispatchers.IO) {
+                try {
+                    val ret = api.getStatus().await()
+
+                    status = ConnectionStatus.CONNECTED
+                    safetyShowMessage("接続しました")
+                } catch (e: Throwable) {
+                    launch(Dispatchers.Main) {
+                        listener?.onNotReachableServer()
+                        status = ConnectionStatus.NOT_CONNECTED
+                    }
+                    safetyShowMessage("接続に失敗しました")
                 }
             }
         }
@@ -110,11 +129,17 @@ class MainViewModel(private val api: APIService,
         eventBus.post(BarcodeEvent.ReadStaffFailed(e))
     }
 
+    private fun safetyShowMessage(message: String) {
+        launch(Dispatchers.Main) {
+            listener?.onShouldShowMessage(message)
+        }
+    }
+
     private fun updateTitle() {
         var titleSuffix = ""
         config.currentStore?.name?.also { titleSuffix += " [$it]" }
 
-        if (config.isPracticeModeEnabled) titleSuffix += " [練習モード]"
+        titleSuffix += " [${config.currentRunningMode.modeName}モード]"
 
         @Suppress("ConstantConditionIf")
         if (ProjectSettings.DEMO_MODE) titleSuffix += " [テストモード]"
@@ -139,5 +164,7 @@ class MainViewModel(private val api: APIService,
         fun onShouldChangeTitleSuffix(titleSuffix: String)
 
         fun onNotReachableServer()
+
+        fun onShouldShowMessage(message: String)
     }
 }
