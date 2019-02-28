@@ -94,17 +94,20 @@ class MainViewModel(private val api: APIService,
             if (status != ConnectionStatus.NOT_CONNECTED) {
                 return
             }
+            safetyShowMessage("接続中です...")
             status = ConnectionStatus.CONNECTING
             launch(Dispatchers.IO) {
                 try {
                     val ret = api.getStatus().await()
 
                     status = ConnectionStatus.CONNECTED
+                    safetyShowMessage("接続しました")
                 } catch (e: Throwable) {
                     launch(Dispatchers.Main) {
                         listener?.onNotReachableServer()
                         status = ConnectionStatus.NOT_CONNECTED
                     }
+                    safetyShowMessage("接続に失敗しました")
                 }
             }
         }
@@ -124,6 +127,12 @@ class MainViewModel(private val api: APIService,
 
     private fun onReadStaffFailure(e: Throwable) {
         eventBus.post(BarcodeEvent.ReadStaffFailed(e))
+    }
+
+    private fun safetyShowMessage(message: String) {
+        launch(Dispatchers.Main) {
+            listener?.onShouldShowMessage(message)
+        }
     }
 
     private fun updateTitle() {
@@ -155,5 +164,7 @@ class MainViewModel(private val api: APIService,
         fun onShouldChangeTitleSuffix(titleSuffix: String)
 
         fun onNotReachableServer()
+
+        fun onShouldShowMessage(message: String)
     }
 }

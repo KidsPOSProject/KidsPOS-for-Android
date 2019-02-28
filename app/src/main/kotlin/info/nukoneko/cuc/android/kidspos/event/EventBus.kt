@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.event
 
 interface EventBus {
-    fun <T : Any> post(event: Event<T>)
+    fun post(event: Event)
 
     fun register(obj: Any?)
 

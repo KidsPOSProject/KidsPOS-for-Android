@@ -19,9 +19,6 @@
     <string name="read_receipt_failed">レシートの読み取りはできません。</string>
 
     <!-- Settings -->
-    <string name="settings_server_url">IPアドレス</string>
-    <string name="settings_server_port">接続ポート</string>
-    <string name="settings_enable_practice_mode">練習モード</string>
     <string name="back">もどる</string>
     <string name="change">おつり</string>
     <string name="deposit">おあずかり</string>
@@ -31,4 +28,8 @@
     <string name="go_back">もどる</string>
     <string name="clear_one_num">↪️</string>
     <string name="error">エラー</string>
+    <string name="current_connetion_target">現在の接続先</string>
+    <string name="load_setting">設定を読み込む</string>
+    <string name="change_mode">練習モードに切り替える</string>
+    <string name="current_mode">現在のモード</string>
 </resources>

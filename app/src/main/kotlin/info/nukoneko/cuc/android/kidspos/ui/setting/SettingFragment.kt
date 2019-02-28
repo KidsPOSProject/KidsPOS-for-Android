@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.zxing.integration.android.IntentIntegrator
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.util.Mode
@@ -15,7 +16,7 @@ import org.koin.android.ext.android.inject
 /**
  * このクラスはDataBinding + ViewModelを使っていない
  */
-class SettingFragment: Fragment() {
+class SettingFragment : Fragment() {
     private val config: GlobalConfig by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -24,14 +25,13 @@ class SettingFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateValues()
 
         loadSettingButton.setOnClickListener {
-
+            launchQrReader()
         }
 
         changeModeButton.setOnClickListener {
-            val newMode = when(config.currentRunningMode) {
+            val newMode = when (config.currentRunningMode) {
                 Mode.PRODUCTION -> Mode.PRACTICE
                 Mode.PRACTICE -> Mode.PRODUCTION
             }
@@ -41,13 +41,24 @@ class SettingFragment: Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateValues()
+    }
+
+    private fun launchQrReader() {
+        if (activity is SettingActivity) {
+            IntentIntegrator(activity).initiateScan()
+        }
+    }
+
     private fun updateValues() {
         currentServerAddress.text = config.currentServerAddress
 
         val currentMode = config.currentRunningMode
         currentRunningModeText.text = "現在は ${currentMode.modeName} モードです"
 
-        val nextMode = when(currentMode) {
+        val nextMode = when (currentMode) {
             Mode.PRODUCTION -> Mode.PRACTICE
             Mode.PRACTICE -> Mode.PRODUCTION
         }

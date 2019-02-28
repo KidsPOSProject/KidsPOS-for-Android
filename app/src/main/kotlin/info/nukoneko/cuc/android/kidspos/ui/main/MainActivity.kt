@@ -3,6 +3,7 @@ package info.nukoneko.cuc.android.kidspos.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -28,6 +29,10 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
 
     private lateinit var binding: ActivityMainBinding
     private val listener = object : MainViewModel.Listener {
+        override fun onShouldShowMessage(message: String) {
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        }
+
         override fun onNotReachableServer() {
             showNotReachableErrorDialog()
         }

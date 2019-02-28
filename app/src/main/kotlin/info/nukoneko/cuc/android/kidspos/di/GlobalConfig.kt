@@ -63,7 +63,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     companion object {
         const val KEY_SERVER_INFO = "setting_server_info"
         const val KEY_RUNNING_MODE = "setting_running_mode"
-        const val DEFAULT_SERVER_INFO = "http://192.128.0.220:8080"
+        const val DEFAULT_SERVER_INFO = "http://192.168.0.220:8080"
         const val KEY_STORE = "store"
         const val KEY_STAFF = "staff"
     }
