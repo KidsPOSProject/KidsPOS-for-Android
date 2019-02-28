@@ -10,6 +10,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ class CalculatorDialogViewModel(
     var listener: Listener? = null
 
     fun onOk() {
-        if (config.isPracticeModeEnabled) {
+        if (config.currentRunningMode == Mode.PRACTICE) {
             listener?.onShouldShowErrorMessage("練習モードのためレシートは出ません")
             event.post(SystemEvent.SentSaleSuccess(null))
             listener?.onDismiss()

@@ -25,4 +25,7 @@ interface APIService {
 
     @GET("staff/{barcode}")
     fun getStaff(@Path("barcode") staffBarcode: String): Deferred<Staff>
+
+    @GET("setting/status")
+    fun getStatus(): Deferred<Any>
 }
