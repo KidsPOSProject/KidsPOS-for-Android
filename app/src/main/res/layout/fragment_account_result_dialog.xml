@@ -14,147 +14,136 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@android:color/transparent"
-        android:baselineAligned="false"
-        android:gravity="center">
+        android:background="@android:drawable/alert_light_frame"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:gravity="end|center_vertical"
+                android:labelFor="@+id/sum_river"
+                android:maxLines="1"
+                android:text="@string/total"
+                android:textSize="64sp" />
+
+            <TextView
+                android:id="@+id/sum_river"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="0dp"
+                android:layout_weight="0.7"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:text='@{viewModel.priceText}'
+                android:textSize="64sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:autoSizeTextType="uniform"
+                android:gravity="end|center_vertical"
+                android:labelFor="@+id/receive_river"
+                android:maxLines="1"
+                android:text="@string/deposit"
+                android:textSize="64sp" />
+
+            <TextView
+                android:id="@+id/receive_river"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="0dp"
+                android:layout_weight="0.7"
+                android:autoSizeTextType="uniform"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:text='@{viewModel.depositText}'
+                android:textSize="64sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:autoSizeTextType="uniform"
+                android:gravity="end|center_vertical"
+                android:labelFor="@+id/change_river"
+                android:maxLines="1"
+                android:text="@string/change"
+                android:textSize="64sp" />
+
+            <TextView
+                android:id="@+id/change_river"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="0dp"
+                android:layout_weight="0.7"
+                android:autoSizeTextType="uniform"
+                android:gravity="end|center_vertical"
+                android:maxLines="1"
+                android:text='@{viewModel.chargeText}'
+                android:textSize="64sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@android:drawable/alert_light_frame"
-            android:gravity="center">
+            android:gravity="bottom"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="8dp"
-                android:orientation="vertical">
+            <Button
+                android:id="@+id/no"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autoSizeTextType="uniform"
+                android:maxLines="1"
+                android:onClick="@{viewModel::onCancelClick}"
+                android:text="@string/back"
+                android:textSize="48sp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.3"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:labelFor="@+id/sum_river"
-                        android:maxLines="1"
-                        android:text="@string/total" />
-
-                    <TextView
-                        android:id="@+id/sum_river"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.7"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:maxLines="1"
-                        android:text='@{viewModel.priceText}'
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="0dp"
-                        android:textStyle="bold"
-                        tools:ignore="Autofill" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.3"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:labelFor="@+id/receive_river"
-                        android:maxLines="1"
-                        android:text="@string/deposit" />
-
-                    <TextView
-                        android:id="@+id/receive_river"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.7"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="0dp"
-                        android:maxLines="1"
-                        android:text='@{viewModel.depositText}'
-                        android:textStyle="bold"
-                        tools:ignore="Autofill" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.3"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:labelFor="@+id/change_river"
-                        android:maxLines="1"
-                        android:text="@string/change" />
-
-                    <TextView
-                        android:id="@+id/change_river"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.7"
-                        android:autoSizeTextType="uniform"
-                        android:gravity="end|center_vertical"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="0dp"
-                        android:maxLines="1"
-                        android:text='@{viewModel.chargeText}'
-                        android:textStyle="bold"
-                        tools:ignore="Autofill" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/no"
-                        style="@style/Widget.AppCompat.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="100dp"
-                        android:layout_weight="1"
-                        android:autoSizeTextType="uniform"
-                        android:onClick="@{viewModel::onCancelClick}"
-                        android:maxLines="1"
-                        android:text="@string/back" />
-
-                    <Button
-                        android:id="@+id/yes"
-                        style="@style/Widget.AppCompat.Button.Colored"
-                        android:layout_width="wrap_content"
-                        android:layout_height="100dp"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="0dp"
-                        android:layout_weight="1"
-                        android:autoSizeTextType="uniform"
-                        android:onClick="@{viewModel::onOkClick}"
-                        android:maxLines="1"
-                        android:text="@android:string/ok" />
-                </LinearLayout>
-            </LinearLayout>
-        </info.nukoneko.cuc.android.kidspos.ui.common.SquareLayout>
+            <Button
+                android:id="@+id/yes"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="0dp"
+                android:layout_weight="1"
+                android:autoSizeTextType="uniform"
+                android:maxLines="1"
+                android:onClick="@{viewModel::onOkClick}"
+                android:text="@android:string/ok"
+                android:textSize="48sp" />
+        </LinearLayout>
     </LinearLayout>
 </layout>
