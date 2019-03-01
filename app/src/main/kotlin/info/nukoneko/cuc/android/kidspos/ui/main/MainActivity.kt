@@ -72,7 +72,7 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
         binding.viewModel = myViewModel.also {
             it.listener = listener
         }
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, ItemListFragment.newInstance(), "itemList")
                 .commit()
