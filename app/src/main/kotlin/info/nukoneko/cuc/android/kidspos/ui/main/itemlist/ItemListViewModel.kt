@@ -42,6 +42,7 @@ class ItemListViewModel(
 
     fun onClickClear(@Suppress("UNUSED_PARAMETER") view: View?) {
         data.clear()
+        listener?.onDataClear()
         updateViews()
     }
 
@@ -62,7 +63,6 @@ class ItemListViewModel(
     }
 
     private fun updateViews() {
-        listener?.onDataChanged(data)
         currentPrice.postValue("${currentTotal()} リバー")
         accountButtonEnabled.postValue(data.isNotEmpty())
         currentStaffVisibility.value = if (config.currentStaff == null) View.INVISIBLE else View.VISIBLE
@@ -73,6 +73,7 @@ class ItemListViewModel(
     fun onReadItemSuccessEvent(event: BarcodeEvent.ReadItemSuccess) {
         val item = event.item
         data.add(item)
+        listener?.onDataAdded(item)
         updateViews()
     }
 
@@ -101,11 +102,14 @@ class ItemListViewModel(
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onSentSaleSuccessEvent(event: SystemEvent.SentSaleSuccess) {
         data.clear()
+        listener?.onDataClear()
         updateViews()
     }
 
     interface Listener {
-        fun onDataChanged(data: List<Item>)
+        fun onDataClear()
+
+        fun onDataAdded(data: Item)
 
         fun onStartAccount(data: List<Item>)
 

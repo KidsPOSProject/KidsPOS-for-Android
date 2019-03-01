@@ -1,22 +1,18 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.itemlist
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.databinding.ItemListItemBinding
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import java.util.*
 
 class ItemListViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding: ItemListItemBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(viewGroup.context),
-                R.layout.item_list_item,
-                viewGroup, false)
-
-        return ContentViewHolder(binding)
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_list_item, viewGroup, false)
+        return ContentViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -48,13 +44,14 @@ class ItemListViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     companion object {
-        private class ContentViewHolder(private val binding: ItemListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        private class ContentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            private val itemNameText: TextView = view.findViewById(R.id.item_name)
+            private val itemPriceText: TextView = view.findViewById(R.id.item_price)
+            private val itemBarcodeText: TextView = view.findViewById(R.id.item_barcode)
             fun bind(data: Item) {
-                if (binding.viewModel == null) {
-                    binding.viewModel = ItemItemListContentViewModel(data)
-                } else {
-                    binding.viewModel!!.data = data
-                }
+                itemNameText.text = data.name
+                itemPriceText.text = "${data.price}"
+                itemBarcodeText.text = data.barcode
             }
         }
     }

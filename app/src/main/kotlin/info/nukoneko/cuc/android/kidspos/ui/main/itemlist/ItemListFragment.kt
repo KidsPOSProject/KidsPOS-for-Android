@@ -23,8 +23,12 @@ class ItemListFragment : Fragment() {
     }
 
     private val listener: ItemListViewModel.Listener = object : ItemListViewModel.Listener {
-        override fun onDataChanged(data: List<Item>) {
-            adapter.setItems(data)
+        override fun onDataAdded(data: Item) {
+            adapter.add(data)
+        }
+
+        override fun onDataClear() {
+            adapter.clear()
         }
 
         override fun onShouldShowMessage(message: String) {
