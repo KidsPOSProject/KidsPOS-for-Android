@@ -1,48 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-        <variable
-            name="item"
-            type="info.nukoneko.cuc.android.kidspos.entity.Item" />
-    </data>
-    <android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp">
-        <RelativeLayout
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/item_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp">
-            <TextView
-                android:id="@+id/item_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-                android:text="@{item.name}"
-                android:maxLines="1"
-                android:gravity="top|start"
-                android:ellipsize="end"
-                android:textSize="16sp" />
-            <TextView
-                android:id="@+id/item_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/item_name"
-                android:text='@{String.format("%d", item.price)}'
-                android:maxLines="1"
-                android:gravity="center_horizontal"
-                android:textSize="30sp" />
-            <TextView
-                android:id="@+id/item_barcode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/item_price"
-                android:padding="2dp"
-                android:text="@{item.barcode}"
-                android:maxLines="1"
-                android:gravity="center_vertical|end"
-                android:ellipsize="end"
-                android:textSize="12sp" />
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
-</layout>
+            android:ellipsize="end"
+            android:gravity="top|start"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:text="@{viewModel.name}"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/item_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_name"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="@{viewModel.priceText}"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/item_barcode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_price"
+            android:ellipsize="end"
+            android:gravity="center_vertical|end"
+            android:maxLines="1"
+            android:padding="2dp"
+            android:text="@{viewModel.barcode}"
+            android:textSize="12sp" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

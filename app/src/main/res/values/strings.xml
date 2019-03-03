@@ -1,27 +1,35 @@
 <resources>
-    <string name="app_name">KidsPOS</string>
-    <string name="label_toppage">トップ画面</string>
-    <string name="label_calc">電卓</string>
-
     <string name="project_name">キッズビジネスタウンいちかわ</string>
     <string name="icon_launcher_description">アプリのアイコン</string>
-    <string name="navigation_open">open drawer</string>
-    <string name="navigation_close">close drawer</string>
 
     <string name="drawer_setting">設定</string>
 
-    <string name="dialog_kakunin">かくにん</string>
     <string name="delete">けす</string>
     <string name="account">かいけい</string>
-
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="DrawerTitleSettings">設定</string>
     <string name="DrawerTitleChangeStore">おみせの切り替え</string>
+    <string name="BetaDrawerTitleInputDummyItem">ダミー商品読み込み</string>
+    <string name="BetaDrawerTitleInputDummyStaff">ダミースタッフ読み込み</string>
+
+    <string name="request_item_failed">商品の読み取りに失敗しました。連続で発生する場合、担当にお知らせください</string>
+    <string name="request_staff_failed">スタッフの読み込みに失敗しました。\n当日に登録した場合、読み込めません</string>
+    <string name="read_receipt_failed">レシートの読み取りはできません。</string>
 
     <!-- Settings -->
-    <string name="settings_server_ip">IPアドレス</string>
-    <string name="settings_server_port">接続ポート</string>
-    <string name="settings_enable_practice_mode">練習モード</string>
+    <string name="back">もどる</string>
+    <string name="change">おつり</string>
+    <string name="deposit">おあずかり</string>
+    <string name="total">ごうけい</string>
+    <string name="close">閉じる</string>
+    <string name="reload">再読み込み</string>
+    <string name="go_back">もどる</string>
+    <string name="clear_one_num">↪️</string>
+    <string name="error">エラー</string>
+    <string name="current_connetion_target">現在の接続先</string>
+    <string name="load_setting">設定を読み込む</string>
+    <string name="change_mode">練習モードに切り替える</string>
+    <string name="current_mode">現在のモード</string>
 </resources>

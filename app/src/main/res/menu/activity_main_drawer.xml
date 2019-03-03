@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/setting"
+    <item
+        android:id="@+id/setting"
         android:icon="@drawable/ic_settings"
         android:title="@string/DrawerTitleSettings" />
-    <item android:id="@+id/change_store"
+    <item
+        android:id="@+id/change_store"
         android:icon="@drawable/ic_store"
         android:title="@string/DrawerTitleChangeStore" />
+    <group
+        android:id="@+id/beta_test"
+        android:visible="false">
+        <item android:id="@+id/input_dummy_item"
+            android:title="@string/BetaDrawerTitleInputDummyItem"/>
+        <item android:id="@+id/input_dummy_store"
+            android:title="@string/BetaDrawerTitleInputDummyStaff"/>
+    </group>
 </menu>

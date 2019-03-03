@@ -1,82 +1,122 @@
 apply plugin: 'com.android.application'
 
-apply from: 'findbugs.gradle'
-check.dependsOn 'findbugs'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+apply from: 'codeQuality.gradle'
+
+androidExtensions {
+    experimental = true
+}
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
     defaultConfig {
         applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion 23
+        targetSdkVersion 28
         versionCode 6
         versionName "1.0.5"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
     dataBinding {
         enabled true
     }
-
-    apply from: 'signingConfigs/debug.gradle', to: android
-    apply from: 'signingConfigs/release.gradle', to: android
-
     buildTypes {
-        applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                output.outputFile = new File(
-                        output.outputFile.parent,
-                        output.outputFile.name.replace(".apk", "-${variant.versionName}-${variant.versionCode}.apk")
-                )
-            }
-        }
-
         debug {
             minifyEnabled false
-            versionNameSuffix "-SNAPSHOT"
-            signingConfig signingConfigs.debug
+            applicationIdSuffix = '.debug'
         }
-
         release {
-            shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+    flavorDimensions "default"
+    productFlavors {
+        prod {
+            dimension "default"
+        }
+        demo {
+            dimension "default"
+        }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
-
     lintOptions {
         abortOnError false
+    }
+    testOptions {
+        animationsDisabled = true
+        resultsDir = "$project.buildDir/test-results"
+        unitTests.all {
+            jvmArgs '-XX:MaxMetaspaceSize=256m'
+            systemProperty 'debug', 'true'
+        }
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        all {
+            java.srcDirs += "src/${name}/kotlin"
+        }
+        main {
+            java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
+        }
     }
 }
 
 dependencies {
-    // SupportLibrary
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:preference-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    def kotlinx_coroutines_version = "1.1.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_coroutines_version"
 
-    compile 'org.greenrobot:eventbus:3.0.0'
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
 
-    debugCompile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    def koin_version = "1.0.2"
+    implementation "org.koin:koin-core:$koin_version"
+    implementation "org.koin:koin-android:$koin_version"
+    implementation "org.koin:koin-android-viewmodel:$koin_version"
 
-    testCompile 'junit:junit:4.12'
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation "androidx.preference:preference:1.0.0"
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "com.google.android.material:material:1.0.0"
+
+    implementation "com.google.zxing:core:3.3.2"
+
+    implementation ("com.journeyapps:zxing-android-embedded:3.6.0") {
+        transitive = false
+    }
+
+    def okhttp_version = "3.13.1"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+    def retrofit_version = "2.5.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    implementation "com.orhanobut:logger:2.2.0"
+    implementation 'org.greenrobot:eventbus:3.1.1'
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.koin:koin-test:$koin_version"
+    testImplementation "org.mockito:mockito-core:2.23.4"
+    testImplementation "org.mockito:mockito-android:2.23.4"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    testImplementation "org.robolectric:robolectric:4.1"
 }
