@@ -13,9 +13,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:showIn="@layout/activity_main"
-        android:layout_marginTop="?attr/actionBarSize">
+        tools:showIn="@layout/activity_main">
 
         <TextView
             android:id="@+id/price_view"
@@ -41,11 +41,11 @@
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
                 android:background="@drawable/layout_button_rect_red"
+                android:maxLines="1"
                 android:onClick="@{viewModel::onClickClear}"
                 android:text="@string/delete"
                 android:textColor="@android:color/white"
-                android:textSize="22sp"
-                android:maxLines="1" />
+                android:textSize="22sp" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -54,12 +54,13 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:visibility="@{viewModel.currentStaffVisibility}">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="0.6"
-                    android:maxLines="1"
                     android:gravity="center_vertical"
+                    android:maxLines="1"
                     android:text='@{viewModel.currentStaffText}' />
             </LinearLayout>
 
@@ -70,10 +71,10 @@
                 android:layout_margin="4dp"
                 android:background="@drawable/layout_button_rect_white"
                 android:enabled="@{viewModel.accountButtonEnabled}"
+                android:maxLines="1"
                 android:onClick="@{viewModel::onClickAccount}"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:maxLines="1"
                 android:text="@string/account"
                 android:textSize="22sp" />
         </LinearLayout>

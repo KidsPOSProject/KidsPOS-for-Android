@@ -59,11 +59,11 @@
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
                         android:autoSizeTextType="uniform"
-                        app:autoSizeTextType="uniform"
                         android:gravity="center"
                         android:labelFor="@+id/sum_river"
                         android:maxLines="1"
-                        android:text="@string/total" />
+                        android:text="@string/total"
+                        app:autoSizeTextType="uniform" />
 
                     <TextView
                         android:id="@+id/sum_river"
@@ -71,7 +71,6 @@
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
                         android:autoSizeTextType="uniform"
-                        app:autoSizeTextType="uniform"
                         android:clickable="false"
                         android:focusable="false"
                         android:focusableInTouchMode="false"
@@ -79,7 +78,8 @@
                         android:inputType="none"
                         android:maxLines="1"
                         android:text="@{viewModel.totalPriceText}"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:autoSizeTextType="uniform" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -93,11 +93,11 @@
                         android:layout_height="match_parent"
                         android:layout_weight="0.3"
                         android:autoSizeTextType="uniform"
-                        app:autoSizeTextType="uniform"
                         android:gravity="center"
                         android:labelFor="@+id/receive_river"
                         android:maxLines="1"
-                        android:text="@string/deposit" />
+                        android:text="@string/deposit"
+                        app:autoSizeTextType="uniform" />
 
                     <TextView
                         android:id="@+id/receive_river"
@@ -105,12 +105,12 @@
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
                         android:autoSizeTextType="uniform"
-                        app:autoSizeTextType="uniform"
                         android:clickable="false"
                         android:gravity="center_vertical|end"
                         android:maxLines="1"
                         android:text="@{viewModel.depositText}"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        app:autoSizeTextType="uniform" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -127,12 +127,12 @@
                     android:layout_gravity="end|bottom"
                     android:layout_weight="0.5"
                     android:autoSizeTextType="uniform"
-                    app:autoSizeTextType="uniform"
                     android:maxLines="1"
                     android:onClick="@{viewModel::onCancelClick}"
                     android:paddingTop="16dp"
                     android:paddingBottom="22dp"
-                    android:text="@string/go_back" />
+                    android:text="@string/go_back"
+                    app:autoSizeTextType="uniform" />
 
                 <Button
                     android:id="@+id/done"
@@ -142,14 +142,14 @@
                     android:layout_gravity="end|bottom"
                     android:layout_weight="0.5"
                     android:autoSizeTextType="uniform"
-                    app:autoSizeTextType="uniform"
+                    android:clickable="@{viewModel.accountButtonEnabled}"
+                    android:enabled="@{viewModel.accountButtonEnabled}"
                     android:maxLines="1"
                     android:onClick="@{viewModel::onDoneClick}"
                     android:paddingTop="16dp"
                     android:paddingBottom="22dp"
-                    android:enabled="@{viewModel.accountButtonEnabled}"
-                    android:clickable="@{viewModel.accountButtonEnabled}"
-                    android:text="@string/account" />
+                    android:text="@string/account"
+                    app:autoSizeTextType="uniform" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

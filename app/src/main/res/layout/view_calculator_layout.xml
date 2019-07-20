@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="UnusedAttribute">
 
     <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
@@ -139,9 +139,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
         android:gravity="center"
         android:text="@string/clear_one_num"
+        app:autoSizeTextType="uniform"
         app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintEnd_toEndOf="@+id/btn_3"
         app:layout_constraintStart_toStartOf="@+id/btn_3"

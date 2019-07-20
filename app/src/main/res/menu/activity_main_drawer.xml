@@ -11,9 +11,11 @@
     <group
         android:id="@+id/beta_test"
         android:visible="false">
-        <item android:id="@+id/input_dummy_item"
-            android:title="@string/BetaDrawerTitleInputDummyItem"/>
-        <item android:id="@+id/input_dummy_store"
-            android:title="@string/BetaDrawerTitleInputDummyStaff"/>
+        <item
+            android:id="@+id/input_dummy_item"
+            android:title="@string/BetaDrawerTitleInputDummyItem" />
+        <item
+            android:id="@+id/input_dummy_store"
+            android:title="@string/BetaDrawerTitleInputDummyStaff" />
     </group>
 </menu>
