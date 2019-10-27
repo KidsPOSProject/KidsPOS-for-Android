@@ -79,11 +79,11 @@ class CalculatorDialogViewModel(
         }
     }
 
-    fun onDoneClick(@Suppress("UNUSED_PARAMETER") view: View) {
+    fun onDoneClick(@Suppress("UNUSED_PARAMETER") view: View?) {
         listener?.onShouldShowResultDialog(totalPrice, deposit)
     }
 
-    fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View) {
+    fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View?) {
         listener?.onDismiss()
     }
 

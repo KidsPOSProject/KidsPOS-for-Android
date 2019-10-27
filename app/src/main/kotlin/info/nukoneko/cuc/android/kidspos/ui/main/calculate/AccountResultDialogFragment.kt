@@ -35,14 +35,14 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         override fun onOk() {
             launch {
                 channel.send(DialogResult.OK)
-                dialog.dismiss()
+                dialog?.dismiss()
             }
         }
 
         override fun onCancel() {
             launch {
                 channel.send(DialogResult.Cancel)
-                dialog.dismiss()
+                dialog?.dismiss()
             }
         }
     }
@@ -65,9 +65,9 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        dialog.setCancelable(false)
+        dialog?.setCancelable(false)
 
-        val dialogWindow = dialog.window
+        val dialogWindow = dialog?.window
         if (dialogWindow != null) {
             dialogWindow.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             dialogWindow.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
