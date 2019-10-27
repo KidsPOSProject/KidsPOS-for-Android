@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
 import android.graphics.drawable.ColorDrawable
