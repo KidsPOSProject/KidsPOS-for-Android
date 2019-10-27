@@ -98,8 +98,7 @@ class MainViewModel(private val api: APIService,
             status = ConnectionStatus.CONNECTING
             launch(Dispatchers.IO) {
                 try {
-                    val ret = api.getStatus().await()
-
+                    api.getStatus().await()
                     status = ConnectionStatus.CONNECTED
                     safetyShowMessage("接続しました")
                 } catch (e: Throwable) {
@@ -156,7 +155,7 @@ class MainViewModel(private val api: APIService,
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onSelectShopEvent(event: SystemEvent.SelectShop) {
+    fun onSelectShopEvent(@Suppress("UNUSED_PARAMETER") event: SystemEvent.SelectShop) {
         updateTitle()
     }
 

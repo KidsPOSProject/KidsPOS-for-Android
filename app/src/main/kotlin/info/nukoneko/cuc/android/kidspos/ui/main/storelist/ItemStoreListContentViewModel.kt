@@ -9,7 +9,7 @@ class ItemStoreListContentViewModel(private var store: Store, private val listen
     @Bindable
     val storeName = store.name
 
-    fun onItemClick(@Suppress("UNUSED_PARAMETER") view: View) {
+    fun onItemClick(@Suppress("UNUSED_PARAMETER") view: View?) {
         listener?.onStoreSelected(store)
     }
 

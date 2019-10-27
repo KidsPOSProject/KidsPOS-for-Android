@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package info.nukoneko.cuc.android.kidspos.ui.common
 
 import android.app.Dialog
@@ -43,7 +45,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
     companion object {
         private const val EXTRA_MESSAGE: String = "message"
 
-        suspend fun showWithSuspend(fragmentManager: FragmentManager, message: String): ErrorDialogFragment.DialogResult {
+        suspend fun showWithSuspend(fragmentManager: FragmentManager, message: String): DialogResult {
             val fragment = ErrorDialogFragment().also {
                 it.arguments = Bundle().apply {
                     putString(EXTRA_MESSAGE, message)

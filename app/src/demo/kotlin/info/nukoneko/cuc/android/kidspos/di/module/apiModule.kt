@@ -7,7 +7,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import org.koin.dsl.module.module
+import org.koin.dsl.module
 import java.util.*
 
 val apiModule = module {

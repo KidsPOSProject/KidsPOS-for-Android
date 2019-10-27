@@ -85,22 +85,22 @@ class ItemListViewModel(
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReadItemFailedEvent(event: BarcodeEvent.ReadItemFailed) {
+    fun onReadItemFailedEvent(@Suppress("UNUSED_PARAMETER") event: BarcodeEvent.ReadItemFailed) {
         listener?.onShouldShowMessage(R.string.request_item_failed)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReadStaffFailedEvent(event: BarcodeEvent.ReadStaffFailed) {
+    fun onReadStaffFailedEvent(@Suppress("UNUSED_PARAMETER") event: BarcodeEvent.ReadStaffFailed) {
         listener?.onShouldShowMessage(R.string.request_staff_failed)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReadReceiptFailedEvent(event: BarcodeEvent.ReadReceiptFailed) {
+    fun onReadReceiptFailedEvent(@Suppress("UNUSED_PARAMETER") event: BarcodeEvent.ReadReceiptFailed) {
         listener?.onShouldShowMessage(R.string.read_receipt_failed)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onSentSaleSuccessEvent(event: SystemEvent.SentSaleSuccess) {
+    fun onSentSaleSuccessEvent(@Suppress("UNUSED_PARAMETER") event: SystemEvent.SentSaleSuccess) {
         data.clear()
         listener?.onDataClear()
         updateViews()

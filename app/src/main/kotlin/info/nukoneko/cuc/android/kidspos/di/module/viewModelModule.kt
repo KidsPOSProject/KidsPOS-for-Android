@@ -5,8 +5,8 @@ import info.nukoneko.cuc.android.kidspos.ui.main.calculate.AccountResultDialogVi
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListViewModel
-import org.koin.android.viewmodel.ext.koin.viewModel
-import org.koin.dsl.module.module
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { MainViewModel(get(), get(), get()) }

@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
 import android.graphics.drawable.ColorDrawable
@@ -15,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.coroutines.CoroutineContext
 
 class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
@@ -33,14 +35,14 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         override fun onOk() {
             launch {
                 channel.send(DialogResult.OK)
-                dialog.dismiss()
+                dialog?.dismiss()
             }
         }
 
         override fun onCancel() {
             launch {
                 channel.send(DialogResult.Cancel)
-                dialog.dismiss()
+                dialog?.dismiss()
             }
         }
     }
@@ -63,9 +65,9 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        dialog.setCancelable(false)
+        dialog?.setCancelable(false)
 
-        val dialogWindow = dialog.window
+        val dialogWindow = dialog?.window
         if (dialogWindow != null) {
             dialogWindow.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             dialogWindow.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
