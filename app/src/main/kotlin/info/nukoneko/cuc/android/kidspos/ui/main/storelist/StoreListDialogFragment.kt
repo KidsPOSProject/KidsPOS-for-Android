@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentStoreListDialogBinding
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StoreListDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentStoreListDialogBinding

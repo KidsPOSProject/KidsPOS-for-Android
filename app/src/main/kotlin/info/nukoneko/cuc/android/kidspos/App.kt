@@ -13,16 +13,21 @@ import okhttp3.Interceptor
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
-import org.koin.android.ext.android.startKoin
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
 
 open class App : Application() {
     private val event: EventBus by inject()
-    private val serverSelectionInterceptor: Interceptor by inject("serverSelection")
+    private val serverSelectionInterceptor: Interceptor by inject(named("serverSelection"))
 
     override fun onCreate() {
         super.onCreate()
         Logger.addLogAdapter(AndroidLogAdapter())
-        startKoin(this, listOf(coreModule, apiModule, viewModelModule))
+        startKoin {
+            androidContext(this@App)
+            modules(listOf(coreModule, apiModule, viewModelModule))
+        }
 
         event.register(this)
     }

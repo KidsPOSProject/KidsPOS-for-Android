@@ -14,7 +14,7 @@ import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.coroutines.CoroutineContext
 
 class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
