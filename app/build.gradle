@@ -30,7 +30,7 @@ android {
         }
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     flavorDimensions "default"
@@ -66,9 +66,6 @@ android {
     sourceSets {
         all {
             java.srcDirs += "src/${name}/kotlin"
-        }
-        main {
-            java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
         }
     }
 }
