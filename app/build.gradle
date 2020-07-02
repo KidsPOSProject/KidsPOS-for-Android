@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 
 apply from: 'codeQuality.gradle'
 
+def isCi = "true" == System.getenv("CI")
+
 androidExtensions {
     experimental = true
 }
@@ -19,17 +21,20 @@ android {
         versionCode 7
         versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs "ja"
     }
     dataBinding {
         enabled true
     }
     buildTypes {
         debug {
+            testCoverageEnabled isCi
             minifyEnabled false
             applicationIdSuffix = '.debug'
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -45,9 +50,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-    configurations.all {
-        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
     }
     lintOptions {
         abortOnError false
@@ -67,6 +69,9 @@ android {
         all {
             java.srcDirs += "src/${name}/kotlin"
         }
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
