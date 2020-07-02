@@ -1,11 +1,13 @@
+import dependencies.Dep
+
 buildscript {
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath Dep.GradlePlugin.android
+        classpath Dep.GradlePlugin.kotlin
     }
 }
 
