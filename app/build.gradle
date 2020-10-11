@@ -97,6 +97,9 @@ dependencies {
     implementation Dep.AndroidX.appCompat
     implementation Dep.AndroidX.preference
     implementation Dep.AndroidX.card
+    implementation Dep.AndroidX.coreKtx
+    implementation Dep.AndroidX.activityKtx
+    implementation Dep.AndroidX.fragmentKtx
     implementation Dep.AndroidX.design
     implementation Dep.AndroidX.constraintLayout
 
