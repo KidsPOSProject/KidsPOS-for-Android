@@ -1,35 +1,43 @@
-apply plugin: 'com.android.application'
+import dependencies.Dep
+import dependencies.Packages
+import dependencies.Versions
 
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+}
 
 apply from: 'codeQuality.gradle'
 
-androidExtensions {
-    experimental = true
-}
+def isCi = "true" == System.getenv("CI")
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion Versions.compileSdk
     defaultConfig {
-        applicationId "info.nukoneko.cuc.android.kidspos"
-        minSdkVersion 23
-        targetSdkVersion 28
-        versionCode 7
-        versionName "1.0.6"
+        applicationId Packages.production
+        minSdkVersion Versions.minSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode Versions.versionCode
+        versionName Versions.versionName
+        testApplicationId Packages.test
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs "ja"
     }
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
     buildTypes {
         debug {
+            testCoverageEnabled isCi
             minifyEnabled false
             applicationIdSuffix = '.debug'
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -46,9 +54,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    configurations.all {
-        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.2'
-    }
     lintOptions {
         abortOnError false
     }
@@ -58,9 +63,14 @@ android {
         unitTests.all {
             jvmArgs '-XX:MaxMetaspaceSize=256m'
             systemProperty 'debug', 'true'
+
+            jacoco {
+                includeNoLocationClasses true
+            }
         }
         unitTests {
-            includeAndroidResources = true
+            includeAndroidResources true
+            returnDefaultValues = true
         }
     }
     sourceSets {
@@ -68,51 +78,66 @@ android {
             java.srcDirs += "src/${name}/kotlin"
         }
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_coroutines_version"
+    implementation Dep.Kotlin.stdlibJvm
+    implementation Dep.Kotlin.coroutines
+    implementation Dep.Kotlin.coroutinesAndroid
 
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
 
-    def koin_version = "2.0.1"
-    implementation "org.koin:koin-core:$koin_version"
-    implementation "org.koin:koin-android:$koin_version"
-    implementation "org.koin:koin-androidx-viewmodel:$koin_version"
+    implementation Dep.Koin.core
+    implementation Dep.Koin.android
 
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation Dep.AndroidX.appCompat
+    implementation Dep.AndroidX.preference
+    implementation Dep.AndroidX.card
+    implementation Dep.AndroidX.coreKtx
+    implementation Dep.AndroidX.activityKtx
+    implementation Dep.AndroidX.fragmentKtx
+    implementation Dep.AndroidX.design
+    implementation Dep.AndroidX.constraintLayout
 
-    implementation "androidx.appcompat:appcompat:1.1.0"
-    implementation "androidx.preference:preference:1.1.0"
-    implementation "androidx.recyclerview:recyclerview:1.0.0"
-    implementation "androidx.cardview:cardview:1.0.0"
-    implementation "com.google.android.material:material:1.0.0"
-
-    implementation "com.google.zxing:core:3.3.2"
-
-    implementation ("com.journeyapps:zxing-android-embedded:3.6.0") {
+    implementation Dep.Zxing.core
+    implementation(Dep.Zxing.android) {
         transitive = false
     }
 
-    def okhttp_version = "4.2.1"
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation Dep.OkHttp.client
+    implementation Dep.Retrofit.client
+    implementation Dep.Retrofit.converterGson
 
-    def retrofit_version = "2.6.2"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation Dep.logger
+    implementation Dep.eventBus
 
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation Dep.Test.junit
+    testImplementation Dep.Koin.test
+    testImplementation Dep.Test.archCore
+    testImplementation Dep.Test.testCoreKtx
+    testImplementation Dep.Test.androidJunit4Ktx
+    testImplementation Dep.Test.testRunner
+    testImplementation Dep.Test.testRules
+    testImplementation Dep.Test.coroutinesTest
+    testImplementation Dep.Test.Mockito.core
+    testImplementation Dep.Test.Mockito.kotlin
+    testImplementation Dep.Test.Robolectric.client
+    testImplementation Dep.OkHttp.mockWebServer
 
-    implementation "com.orhanobut:logger:2.2.0"
-    implementation 'org.greenrobot:eventbus:3.1.1'
-
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.koin:koin-test:$koin_version"
-    testImplementation "org.mockito:mockito-core:2.23.4"
-    testImplementation "org.mockito:mockito-android:2.23.4"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
-    testImplementation "org.robolectric:robolectric:4.1"
+    androidTestImplementation Dep.Test.androidJunit4Ktx
+    androidTestImplementation Dep.Test.testRunner
+    androidTestImplementation(Dep.Test.Espresso.core) {
+        exclude module: 'support-annotations'
+    }
+    androidTestImplementation(Dep.Test.Espresso.contrib) {
+        exclude module: 'support-annotations'
+        exclude module: 'design'
+        exclude module: 'recyclerview-v7'
+        exclude module: 'support-v4'
+    }
+    androidTestImplementation Dep.OkHttp.mockWebServer
+    androidTestImplementation Dep.Test.Mockito.android
 }

@@ -30,7 +30,7 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
             launch {
                 val result = AccountResultDialogFragment.newInstance(totalPrice, deposit).also {
                     it.isCancelable = false
-                }.showAndSuspend(requireFragmentManager(), "yesNoDialog")
+                }.showAndSuspend(parentFragmentManager, "yesNoDialog")
                 when (result) {
                     AccountResultDialogFragment.DialogResult.OK -> {
                         myViewModel.onOk()
@@ -60,9 +60,14 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_calculator_dialog, container, false)
-        binding.setLifecycleOwner(this)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_calculator_dialog, container, false)
+        binding.lifecycleOwner = this
         binding.calculatorLayout.listener = calculatorListener
         myViewModel.listener = listener
         myViewModel.setup(items, totalPrice)
@@ -70,9 +75,12 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
     }
 
     companion object {
@@ -80,8 +88,9 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         private const val EXTRA_SALE_ITEMS = "sales_model"
 
         fun newInstance(saleItems: ArrayList<Item>) = CalculatorDialogFragment().apply {
+            val totalRiver = saleItems.sumOf { it.price }
             arguments = Bundle().apply {
-                putInt(EXTRA_SUM_RIVER, saleItems.sumBy { it.price })
+                putInt(EXTRA_SUM_RIVER, totalRiver)
                 putParcelableArrayList(EXTRA_SALE_ITEMS, saleItems)
             }
         }

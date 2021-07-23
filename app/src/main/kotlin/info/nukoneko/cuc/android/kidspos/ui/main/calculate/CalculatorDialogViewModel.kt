@@ -18,9 +18,10 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class CalculatorDialogViewModel(
-        private val api: APIService,
-        private val config: GlobalConfig,
-        private val event: EventBus) : ViewModel(), CoroutineScope {
+    private val api: APIService,
+    private val config: GlobalConfig,
+    private val event: EventBus
+) : ViewModel(), CoroutineScope {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
@@ -42,6 +43,7 @@ class CalculatorDialogViewModel(
         }
 
     private val depositText = MutableLiveData<String>()
+
     @Suppress("unused")
     fun getDepositText(): LiveData<String> = depositText
 
@@ -90,8 +92,10 @@ class CalculatorDialogViewModel(
     private suspend fun requestCreateSale() = withContext(Dispatchers.IO) {
         val ids = items.map { it.id.toString() }
         val joinedIds = ids.joinToString(",")
-        api.createSale(config.currentStore?.id ?: 0, config.currentStaff?.barcode
-                ?: "", deposit, joinedIds).await()
+        api.createSale(
+            config.currentStore?.id ?: 0, config.currentStaff?.barcode
+                ?: "", deposit, joinedIds
+        ).await()
     }
 
     override fun onCleared() {

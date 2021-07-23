@@ -15,8 +15,9 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
 class ItemListViewModel(
-        private val config: GlobalConfig,
-        private val eventBus: EventBus) : ViewModel() {
+    private val config: GlobalConfig,
+    private val eventBus: EventBus
+) : ViewModel() {
 
     private val currentPrice = MutableLiveData<String>()
     fun getCurrentPriceText(): LiveData<String> = currentPrice
@@ -34,7 +35,7 @@ class ItemListViewModel(
 
     private val data: MutableList<Item> = mutableListOf()
 
-    private fun currentTotal(): Int = data.sumBy { it.price }
+    private fun currentTotal(): Int = data.sumOf { it.price }
 
     init {
         updateViews()
@@ -65,7 +66,8 @@ class ItemListViewModel(
     private fun updateViews() {
         currentPrice.postValue("${currentTotal()} リバー")
         accountButtonEnabled.postValue(data.isNotEmpty())
-        currentStaffVisibility.value = if (config.currentStaff == null) View.INVISIBLE else View.VISIBLE
+        currentStaffVisibility.value =
+            if (config.currentStaff == null) View.INVISIBLE else View.VISIBLE
         currentStaff.postValue("たんとう: ${config.currentStaff?.name ?: ""}")
     }
 

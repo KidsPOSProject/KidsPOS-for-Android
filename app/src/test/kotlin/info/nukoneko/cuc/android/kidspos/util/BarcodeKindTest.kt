@@ -7,10 +7,11 @@ class BarcodeKindTest {
     @Test
     fun values() {
         val values = arrayOf(
-                BarcodeKind.ITEM,
-                BarcodeKind.SALE,
-                BarcodeKind.STAFF,
-                BarcodeKind.UNKNOWN)
+            BarcodeKind.ITEM,
+            BarcodeKind.SALE,
+            BarcodeKind.STAFF,
+            BarcodeKind.UNKNOWN
+        )
 
         assertEquals(values.size, BarcodeKind.values().size)
     }

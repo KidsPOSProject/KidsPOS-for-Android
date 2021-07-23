@@ -5,7 +5,8 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import info.nukoneko.cuc.android.kidspos.entity.Store
 
-class ItemStoreListContentViewModel(private var store: Store, private val listener: Listener?) : BaseObservable() {
+class ItemStoreListContentViewModel(private var store: Store, private val listener: Listener?) :
+    BaseObservable() {
     @Bindable
     val storeName = store.name
 

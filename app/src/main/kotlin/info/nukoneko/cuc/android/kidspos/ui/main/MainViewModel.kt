@@ -20,9 +20,11 @@ import org.greenrobot.eventbus.ThreadMode
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 
-class MainViewModel(private val api: APIService,
-                    private val config: GlobalConfig,
-                    private val eventBus: EventBus) : ViewModel(), CoroutineScope {
+class MainViewModel(
+    private val api: APIService,
+    private val config: GlobalConfig,
+    private val eventBus: EventBus
+) : ViewModel(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
 

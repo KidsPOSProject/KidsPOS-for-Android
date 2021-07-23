@@ -28,24 +28,27 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
-                .setTitle(R.string.error)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    launch {
-                        channel.send(DialogResult.OK)
-                    }
+            .setTitle(R.string.error)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                launch {
+                    channel.send(DialogResult.OK)
                 }
-                .setCancelable(false)
-                .create().also {
-                    it.setCancelable(false)
-                    it.setCanceledOnTouchOutside(false)
-                }
+            }
+            .setCancelable(false)
+            .create().also {
+                it.setCancelable(false)
+                it.setCanceledOnTouchOutside(false)
+            }
     }
 
     companion object {
         private const val EXTRA_MESSAGE: String = "message"
 
-        suspend fun showWithSuspend(fragmentManager: FragmentManager, message: String): DialogResult {
+        suspend fun showWithSuspend(
+            fragmentManager: FragmentManager,
+            message: String
+        ): DialogResult {
             val fragment = ErrorDialogFragment().also {
                 it.arguments = Bundle().apply {
                     putString(EXTRA_MESSAGE, message)

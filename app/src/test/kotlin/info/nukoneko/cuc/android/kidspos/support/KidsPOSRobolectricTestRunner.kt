@@ -9,17 +9,17 @@ class KidsPOSRobolectricTestRunner(testClass: Class<*>?) : RobolectricTestRunner
     override fun getConfig(method: Method): Config {
         val defaultConfig = super.getConfig(method)
         return Config.Implementation(
-                intArrayOf(26), defaultConfig.minSdk,
-                defaultConfig.maxSdk,
-                defaultConfig.manifest,
-                defaultConfig.qualifiers,
-                defaultConfig.packageName,
-                defaultConfig.resourceDir,
-                defaultConfig.assetDir,
-                arrayOf(),
-                defaultConfig.instrumentedPackages,
-                TestApp::class.java,
-                defaultConfig.libraries
+            intArrayOf(26), defaultConfig.minSdk,
+            defaultConfig.maxSdk,
+            defaultConfig.manifest,
+            defaultConfig.qualifiers,
+            defaultConfig.packageName,
+            defaultConfig.resourceDir,
+            defaultConfig.assetDir,
+            arrayOf(),
+            defaultConfig.instrumentedPackages,
+            TestApp::class.java,
+            defaultConfig.libraries
         )
     }
 }

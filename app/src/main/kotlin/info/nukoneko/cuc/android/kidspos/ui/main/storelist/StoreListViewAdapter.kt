@@ -15,8 +15,8 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val binding = DataBindingUtil.inflate<ItemStoreListBinding>(
-                LayoutInflater.from(viewGroup.context),
-                R.layout.item_store_list, viewGroup, false
+            LayoutInflater.from(viewGroup.context),
+            R.layout.item_store_list, viewGroup, false
         )
         return ViewHolder(binding, object : ViewHolder.Listener {
             override fun onItemClick(store: Store) {
@@ -37,7 +37,8 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
         fun onStoreSelect(store: Store)
     }
 
-    class ViewHolder(private val binding: ItemStoreListBinding, listener: Listener?) : RecyclerView.ViewHolder(binding.item) {
+    class ViewHolder(private val binding: ItemStoreListBinding, listener: Listener?) :
+        RecyclerView.ViewHolder(binding.item) {
         private val listener: ItemStoreListContentViewModel.Listener
 
         init {

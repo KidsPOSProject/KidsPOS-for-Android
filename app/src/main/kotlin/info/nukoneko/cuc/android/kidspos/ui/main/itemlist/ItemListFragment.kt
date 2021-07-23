@@ -41,17 +41,21 @@ class ItemListFragment : Fragment() {
 
         override fun onStartAccount(data: List<Item>) {
             CalculatorDialogFragment
-                    .newInstance(ArrayList(data))
-                    .show(childFragmentManager, "Calculator")
+                .newInstance(ArrayList(data))
+                .show(childFragmentManager, "Calculator")
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_item_list, container, false)
         binding.viewModel = myViewModel.also {
             it.listener = listener
         }
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         setupList(binding.recyclerView)
         return binding.root
     }
