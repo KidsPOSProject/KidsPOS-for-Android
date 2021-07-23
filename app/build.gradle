@@ -104,7 +104,7 @@ dependencies {
     implementation Dep.AndroidX.constraintLayout
 
     implementation Dep.Zxing.core
-    implementation (Dep.Zxing.android) {
+    implementation(Dep.Zxing.android) {
         transitive = false
     }
 
