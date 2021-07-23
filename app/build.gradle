@@ -45,9 +45,11 @@ android {
     productFlavors {
         prod {
             dimension "default"
+            buildConfigField "Boolean", "DEMO_MODE", "false"
         }
         demo {
             dimension "default"
+            buildConfigField "Boolean", "DEMO_MODE", "true"
         }
     }
     compileOptions {
@@ -84,6 +86,9 @@ android {
 }
 
 dependencies {
+    implementation project(":domain")
+    implementation project(":data")
+
     implementation Dep.Kotlin.stdlibJvm
     implementation Dep.Kotlin.coroutines
     implementation Dep.Kotlin.coroutinesAndroid
@@ -99,6 +104,7 @@ dependencies {
     implementation Dep.AndroidX.fragmentKtx
     implementation Dep.AndroidX.design
     implementation Dep.AndroidX.constraintLayout
+    implementation Dep.AndroidX.lifecycleRuntimeKtx
 
     implementation Dep.Zxing.core
     implementation(Dep.Zxing.android) {

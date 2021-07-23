@@ -5,7 +5,6 @@ package info.nukoneko.cuc.android.kidspos.ui.common
 import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
@@ -15,7 +14,7 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class ErrorDialogFragment : DialogFragment(), CoroutineScope {
+class ErrorDialogFragment : SafetyDialogFragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
     private val message: String by lazyWithArgs(EXTRA_MESSAGE)
@@ -54,7 +53,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
                     putString(EXTRA_MESSAGE, message)
                 }
             }
-            fragment.show(fragmentManager, message)
+            fragment.safetyShow(fragmentManager, message)
             return fragment.channel.openSubscription().receive()
         }
 

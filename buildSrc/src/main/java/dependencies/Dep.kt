@@ -43,6 +43,7 @@ object Dep {
         const val card = "androidx.cardview:cardview:1.0.0"
         const val activityKtx = "androidx.activity:activity-ktx:1.2.4"
         const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
+        const val lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02"
     }
 
     object Kotlin {

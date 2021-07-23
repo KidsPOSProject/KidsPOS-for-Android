@@ -5,21 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentCalculatorDialogBinding
-import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.domain.entity.Item
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
-import kotlinx.coroutines.CoroutineScope
+import info.nukoneko.cuc.android.kidspos.ui.common.SafetyDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.coroutines.CoroutineContext
 
-class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
+class CalculatorDialogFragment : SafetyDialogFragment() {
     private val totalPrice: Int by lazyWithArgs(EXTRA_SUM_RIVER)
     private val items: List<Item> by lazyWithArgs(EXTRA_SALE_ITEMS)
 
@@ -27,11 +26,12 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
     private val myViewModel: CalculatorDialogViewModel by viewModel()
     private val listener = object : CalculatorDialogViewModel.Listener {
         override fun onShouldShowResultDialog(totalPrice: Int, deposit: Int) {
-            launch {
-                val result = AccountResultDialogFragment.newInstance(totalPrice, deposit).also {
-                    it.isCancelable = false
-                }.showAndSuspend(parentFragmentManager, "yesNoDialog")
-                when (result) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                when (AccountResultDialogFragment.show(
+                    parentFragmentManager,
+                    totalPrice,
+                    deposit
+                )) {
                     AccountResultDialogFragment.DialogResult.OK -> {
                         myViewModel.onOk()
                     }
@@ -87,12 +87,12 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         private const val EXTRA_SUM_RIVER = "sum_price"
         private const val EXTRA_SALE_ITEMS = "sales_model"
 
-        fun newInstance(saleItems: ArrayList<Item>) = CalculatorDialogFragment().apply {
-            val totalRiver = saleItems.sumOf { it.price }
-            arguments = Bundle().apply {
-                putInt(EXTRA_SUM_RIVER, totalRiver)
-                putParcelableArrayList(EXTRA_SALE_ITEMS, saleItems)
-            }
-        }
+        fun show(fragmentManager: FragmentManager, saleItems: ArrayList<Item>) =
+            CalculatorDialogFragment().apply {
+                arguments = bundleOf(
+                    EXTRA_SUM_RIVER to saleItems.sumOf { it.price.value },
+                    EXTRA_SALE_ITEMS to saleItems
+                )
+            }.safetyShow(fragmentManager)
     }
 }

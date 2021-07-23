@@ -1,9 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.api
 
-import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.entity.Sale
-import info.nukoneko.cuc.android.kidspos.entity.Staff
-import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.domain.entity.Sale
+import info.nukoneko.cuc.android.kidspos.domain.entity.Store
 import retrofit2.http.*
 
 interface APIService {
@@ -21,10 +19,10 @@ interface APIService {
     ): Sale
 
     @GET("item/{barcode}")
-    suspend fun getItem(@Path("barcode") itemBarcode: String): Item
+    suspend fun getItem(@Path("barcode") itemBarcode: String): info.nukoneko.cuc.android.kidspos.domain.entity.Item
 
     @GET("staff/{barcode}")
-    suspend fun getStaff(@Path("barcode") staffBarcode: String): Staff
+    suspend fun getStaff(@Path("barcode") staffBarcode: String): info.nukoneko.cuc.android.kidspos.domain.entity.Staff
 
     @GET("setting/status")
     suspend fun getStatus()

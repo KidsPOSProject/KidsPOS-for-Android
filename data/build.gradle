@@ -1,0 +1,53 @@
+import dependencies.Dep
+import dependencies.Packages
+import dependencies.Versions
+
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+}
+
+android {
+    compileSdkVersion Versions.compileSdk
+
+    defaultPublishConfig "default"
+
+    defaultConfig {
+        minSdkVersion Versions.minSdk
+        targetSdkVersion Versions.targetSdk
+        testApplicationId Packages.test
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+    libraryVariants.all {
+        it.generateBuildConfigProvider.configure {
+            it.enabled = false
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            multiDexEnabled true
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/atomicfu.kotlin_module'
+    }
+    sourceSets.all {
+        java.srcDirs += "src/${name}/kotlin"
+    }
+}
+
+dependencies {
+    implementation project(":domain")
+
+    implementation Dep.Koin.core
+    implementation Dep.Koin.android
+
+    implementation Dep.Retrofit.client
+}

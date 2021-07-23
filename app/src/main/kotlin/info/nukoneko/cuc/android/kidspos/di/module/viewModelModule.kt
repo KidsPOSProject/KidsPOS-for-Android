@@ -9,7 +9,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModel { MainViewModel(get(), get(), get()) }
+    viewModel { MainViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ItemListViewModel(get(), get()) }
     viewModel { StoreListViewModel(get(), get()) }
     viewModel { CalculatorDialogViewModel(get(), get(), get()) }

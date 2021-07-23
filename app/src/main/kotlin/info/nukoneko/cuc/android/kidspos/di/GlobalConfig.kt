@@ -2,9 +2,10 @@ package info.nukoneko.cuc.android.kidspos.di
 
 import android.content.Context
 import android.preference.PreferenceManager
+import androidx.core.content.edit
 import com.google.gson.GsonBuilder
-import info.nukoneko.cuc.android.kidspos.entity.Staff
-import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.domain.entity.Staff
+import info.nukoneko.cuc.android.kidspos.domain.entity.Store
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
@@ -39,7 +40,15 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStore: Store?
         get() {
             return preference.getString(KEY_STORE, null)?.let {
-                return gson.fromJson(it, Store::class.java)
+                try {
+                    return gson.fromJson(it, Store::class.java)
+                } catch (e: Throwable) {
+                    // Parse error
+                    preference.edit {
+                        remove(KEY_STORE)
+                    }
+                    null
+                }
             }
         }
         set(value) {
@@ -53,7 +62,15 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStaff: Staff?
         get() {
             return preference.getString(KEY_STAFF, null)?.let {
-                return gson.fromJson(it, Staff::class.java)
+                try {
+                    return gson.fromJson(it, Staff::class.java)
+                } catch (e: Throwable) {
+                    // Parse error
+                    preference.edit {
+                        remove(KEY_STAFF)
+                    }
+                    null
+                }
             }
         }
         set(value) {

@@ -4,8 +4,9 @@ import android.app.Application
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import info.nukoneko.cuc.android.kidspos.di.ServerSelectionInterceptor
-import info.nukoneko.cuc.android.kidspos.di.module.apiModule
 import info.nukoneko.cuc.android.kidspos.di.module.coreModule
+import info.nukoneko.cuc.android.kidspos.di.module.datasourceModule
+import info.nukoneko.cuc.android.kidspos.di.module.repositoryModule
 import info.nukoneko.cuc.android.kidspos.di.module.viewModelModule
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
@@ -26,7 +27,7 @@ open class App : Application() {
         Logger.addLogAdapter(AndroidLogAdapter())
         startKoin {
             androidContext(this@App)
-            modules(listOf(coreModule, apiModule, viewModelModule))
+            modules(listOf(coreModule, datasourceModule, repositoryModule, viewModelModule))
         }
 
         event.register(this)
