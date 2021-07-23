@@ -54,22 +54,32 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
     private val price: Int by lazyWithArgs(EXTRA_PRICE)
     private val receiveMoney: Int by lazyWithArgs(EXTRA_RECEIVE_MONEY)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account_result_dialog, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_account_result_dialog,
+            container,
+            false
+        )
         myViewModel.listener = listener
         myViewModel.setup(price, receiveMoney)
         binding.viewModel = myViewModel
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         dialog?.setCancelable(false)
-
         val dialogWindow = dialog?.window
         if (dialogWindow != null) {
-            dialogWindow.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            dialogWindow.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             dialogWindow.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
         }
     }

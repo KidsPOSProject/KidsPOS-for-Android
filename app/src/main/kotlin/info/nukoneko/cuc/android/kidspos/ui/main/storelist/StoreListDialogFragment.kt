@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.nukoneko.cuc.android.kidspos.R
@@ -40,17 +43,25 @@ class StoreListDialogFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_store_list_dialog, container, false)
-        binding.setLifecycleOwner(this)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_store_list_dialog, container, false)
+        binding.lifecycleOwner = this
         myViewModel.listener = listener
         binding.viewModel = myViewModel
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         setupRecyclerView()
         setupSubscriber()
     }
@@ -62,12 +73,17 @@ class StoreListDialogFragment : DialogFragment() {
 
     private fun setupRecyclerView() {
         binding.recyclerView.adapter = adapter
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(context!!, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                context!!,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
     }
 
     private fun setupSubscriber() {
-        myViewModel.getData().observe(this, Observer<List<Store>> { stores ->
+        myViewModel.getData().observe(this, { stores ->
             val newData = stores ?: emptyList()
             adapter.data = newData
         })

@@ -16,8 +16,8 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         supportFragmentManager.beginTransaction()
-                .replace(android.R.id.content, SettingFragment.newInstance())
-                .commit()
+            .replace(android.R.id.content, SettingFragment.newInstance())
+            .commit()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
