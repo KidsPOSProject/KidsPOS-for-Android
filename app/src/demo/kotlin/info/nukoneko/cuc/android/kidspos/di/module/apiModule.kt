@@ -17,8 +17,14 @@ val apiModule = module {
                 return CompletableDeferred(Any())
             }
 
-            override fun createSale(storeId: Int, staffBarcode: String, deposit: Int, itemIds: String): Deferred<Sale> {
-                val sale = Sale(1, "123456", Date(), itemIds.split(",").size, 0, itemIds, storeId, 0)
+            override fun createSale(
+                storeId: Int,
+                staffBarcode: String,
+                deposit: Int,
+                itemIds: String
+            ): Deferred<Sale> {
+                val sale =
+                    Sale(1, "123456", Date(), itemIds.split(",").size, 0, itemIds, storeId, 0)
                 return CompletableDeferred(sale)
             }
 

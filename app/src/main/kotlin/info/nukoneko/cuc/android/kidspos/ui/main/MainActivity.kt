@@ -63,8 +63,8 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.toolbar)
         val toggle = ActionBarDrawerToggle(
-                this, binding.drawerLayout, binding.toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            this, binding.drawerLayout, binding.toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
@@ -74,8 +74,8 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
         }
         binding.lifecycleOwner = this
         supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ItemListFragment.newInstance(), "itemList")
-                .commit()
+            .replace(R.id.fragment_container, ItemListFragment.newInstance(), "itemList")
+            .commit()
     }
 
     override fun onStart() {
@@ -100,8 +100,10 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
 
     private fun showNotReachableErrorDialog() {
         launch {
-            val result = ErrorDialogFragment.showWithSuspend(supportFragmentManager,
-                    "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください")
+            val result = ErrorDialogFragment.showWithSuspend(
+                supportFragmentManager,
+                "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください"
+            )
             when (result) {
                 ErrorDialogFragment.DialogResult.OK -> SettingActivity.createIntent(this@MainActivity)
             }

@@ -24,10 +24,10 @@ val coreModule = module {
     }
     single<Retrofit> {
         Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(CoroutineCallAdapterFactory())
-                .client(get())
-                .baseUrl((get<GlobalConfig>().currentServerAddress))
-                .build()
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .client(get())
+            .baseUrl((get<GlobalConfig>().currentServerAddress))
+            .build()
     }
 }

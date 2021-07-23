@@ -15,8 +15,9 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class StoreListViewModel(
-        private val api: APIService,
-        private val config: GlobalConfig) : ViewModel(), CoroutineScope {
+    private val api: APIService,
+    private val config: GlobalConfig
+) : ViewModel(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main
 

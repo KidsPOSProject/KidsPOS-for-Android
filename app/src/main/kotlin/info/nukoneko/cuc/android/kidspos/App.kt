@@ -34,6 +34,7 @@ open class App : Application() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onServerAddressChangedEvent(event: SystemEvent.ServerAddressChanged) {
-        (serverSelectionInterceptor as? ServerSelectionInterceptor)?.serverAddress = event.newServerAddress
+        (serverSelectionInterceptor as? ServerSelectionInterceptor)?.serverAddress =
+            event.newServerAddress
     }
 }

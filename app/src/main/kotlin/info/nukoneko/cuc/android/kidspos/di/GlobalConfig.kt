@@ -10,13 +10,14 @@ import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
 
 class GlobalConfig(context: Context, private val eventBus: EventBus) {
-    private val preference = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+    private val preference =
+        PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
     private val gson = GsonBuilder().create()
 
     var currentServerAddress: String
         get() = preference.getString(
-                KEY_SERVER_INFO,
-                DEFAULT_SERVER_INFO
+            KEY_SERVER_INFO,
+            DEFAULT_SERVER_INFO
         ) ?: DEFAULT_SERVER_INFO
         set(value) {
             preference.edit().putString(KEY_SERVER_INFO, value).apply()
@@ -24,10 +25,12 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
         }
 
     var currentRunningMode: Mode
-        get() = Mode.nameOf(preference.getString(
+        get() = Mode.nameOf(
+            preference.getString(
                 KEY_RUNNING_MODE,
                 Mode.PRACTICE.name
-        ))
+            )
+        )
         set(value) {
             preference.edit().putString(KEY_RUNNING_MODE, value.name).apply()
             eventBus.post(SystemEvent.RunningModeChanged(value))
@@ -41,8 +44,8 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
         }
         set(value) {
             preference.edit().putString(
-                    KEY_STORE,
-                    gson.toJson(value)
+                KEY_STORE,
+                gson.toJson(value)
             ).apply()
             eventBus.post(SystemEvent.SelectShop(value))
         }
@@ -55,8 +58,8 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
         }
         set(value) {
             preference.edit().putString(
-                    KEY_STAFF,
-                    gson.toJson(value)
+                KEY_STAFF,
+                gson.toJson(value)
             ).apply()
         }
 

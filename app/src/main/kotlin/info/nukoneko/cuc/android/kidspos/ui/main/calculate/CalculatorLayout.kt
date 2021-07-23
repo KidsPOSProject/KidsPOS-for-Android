@@ -11,7 +11,11 @@ import info.nukoneko.cuc.android.kidspos.R
 class CalculatorLayout : LinearLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attr: AttributeSet? = null) : super(context, attr)
-    constructor(context: Context, attr: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attr, defStyleAttr)
+    constructor(
+        context: Context,
+        attr: AttributeSet? = null,
+        defStyleAttr: Int = 0
+    ) : super(context, attr, defStyleAttr)
 
     var listener: Listener? = null
 
@@ -25,10 +29,11 @@ class CalculatorLayout : LinearLayout {
     }
 
     private val viewIds: Array<Int> = arrayOf(
-            R.id.btn_0, R.id.btn_1, R.id.btn_2,
-            R.id.btn_3, R.id.btn_4, R.id.btn_5,
-            R.id.btn_6, R.id.btn_7, R.id.btn_8,
-            R.id.btn_9, R.id.btn_delete_one)
+        R.id.btn_0, R.id.btn_1, R.id.btn_2,
+        R.id.btn_3, R.id.btn_4, R.id.btn_5,
+        R.id.btn_6, R.id.btn_7, R.id.btn_8,
+        R.id.btn_9, R.id.btn_delete_one
+    )
 
     init {
         val root = LayoutInflater.from(context).inflate(R.layout.view_calculator_layout, this)

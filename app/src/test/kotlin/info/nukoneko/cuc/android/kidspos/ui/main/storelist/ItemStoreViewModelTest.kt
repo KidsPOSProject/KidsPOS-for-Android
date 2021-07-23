@@ -27,10 +27,14 @@ class ItemStoreViewModelTest {
         val store = Gson().fromJson("{\"id\": 1, \"name\": \"ぬいぐるみ\"}", Store::class.java)
 
         val viewModel = ItemStoreListContentViewModel(store, null)
-        val mockCallback: Observable.OnPropertyChangedCallback = mock(Observable.OnPropertyChangedCallback::class.java)
+        val mockCallback: Observable.OnPropertyChangedCallback =
+            mock(Observable.OnPropertyChangedCallback::class.java)
         viewModel.addOnPropertyChangedCallback(mockCallback)
 
         viewModel.setStore(store)
-        verify<Observable.OnPropertyChangedCallback>(mockCallback).onPropertyChanged(any(Observable::class.java), anyInt())
+        verify<Observable.OnPropertyChangedCallback>(mockCallback).onPropertyChanged(
+            any(Observable::class.java),
+            anyInt()
+        )
     }
 }
