@@ -88,8 +88,6 @@ dependencies {
     implementation Dep.Kotlin.coroutines
     implementation Dep.Kotlin.coroutinesAndroid
 
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
-
     implementation Dep.Koin.core
     implementation Dep.Koin.android
 
