@@ -7,23 +7,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialogBinding
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import info.nukoneko.cuc.android.kidspos.ui.common.SafetyDialogFragment
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.coroutines.CoroutineContext
 
-class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
-
+class AccountResultDialogFragment : SafetyDialogFragment() {
     enum class DialogResult {
         OK,
         Cancel
@@ -33,14 +29,14 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
 
     private val listener = object : AccountResultDialogViewModel.Listener {
         override fun onOk() {
-            launch {
+            lifecycleScope.launch {
                 channel.send(DialogResult.OK)
                 dialog?.dismiss()
             }
         }
 
         override fun onCancel() {
-            launch {
+            lifecycleScope.launch {
                 channel.send(DialogResult.Cancel)
                 dialog?.dismiss()
             }
@@ -84,8 +80,8 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         }
     }
 
-    suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {
-        show(fm, tag)
+    private suspend fun showAndSuspend(fm: FragmentManager): DialogResult {
+        safetyShow(fm)
         return channel.openSubscription().receive()
     }
 
@@ -93,11 +89,13 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         private const val EXTRA_PRICE = "price"
         private const val EXTRA_RECEIVE_MONEY = "receive_money"
 
-        fun newInstance(price: Int, receive: Int) = AccountResultDialogFragment().apply {
-            arguments = Bundle().apply {
-                putInt(EXTRA_PRICE, price)
-                putInt(EXTRA_RECEIVE_MONEY, receive)
-            }
-        }
+        suspend fun show(fragmentManager: FragmentManager, price: Int, receive: Int) =
+            AccountResultDialogFragment().apply {
+                arguments = bundleOf(
+                    EXTRA_PRICE to price,
+                    EXTRA_RECEIVE_MONEY to receive
+                )
+                isCancelable = false
+            }.showAndSuspend(fragmentManager)
     }
 }

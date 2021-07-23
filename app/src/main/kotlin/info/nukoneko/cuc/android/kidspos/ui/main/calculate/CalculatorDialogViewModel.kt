@@ -4,27 +4,25 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import info.nukoneko.cuc.android.kidspos.api.APIService
+import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.entity.Sale
+import info.nukoneko.cuc.android.kidspos.domain.entity.Barcode
+import info.nukoneko.cuc.android.kidspos.domain.entity.Item
+import info.nukoneko.cuc.android.kidspos.domain.entity.StoreId
+import info.nukoneko.cuc.android.kidspos.domain.repository.SaleRepository
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
+import kotlin.math.floor
 
 class CalculatorDialogViewModel(
-    private val api: APIService,
+    private val saleRepository: SaleRepository,
     private val config: GlobalConfig,
     private val event: EventBus
-) : ViewModel(), CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
+) : ViewModel() {
 
     private val totalPriceText = MutableLiveData<String>()
     fun getTotalPriceText(): LiveData<String> = totalPriceText
@@ -70,14 +68,19 @@ class CalculatorDialogViewModel(
             return
         }
 
-        launch {
-            try {
-                val sale: Sale? = requestCreateSale()
-                event.post(SystemEvent.SentSaleSuccess(sale))
-                listener?.onDismiss()
-            } catch (e: Throwable) {
-                listener?.onShouldShowErrorMessage(e.localizedMessage)
-            }
+        val errorHandler = CoroutineExceptionHandler { _, error ->
+            listener?.onShouldShowErrorMessage(error.localizedMessage)
+        }
+
+        viewModelScope.launch(Dispatchers.IO + errorHandler) {
+            val sale = saleRepository.postSale(
+                storeId = config.currentStore?.id ?: StoreId(0),
+                staffBarcode = config.currentStaff?.barcode ?: Barcode(""),
+                deposit = deposit,
+                itemList = items.map { it.id }
+            )
+            event.post(SystemEvent.SentSaleSuccess(sale))
+            listener?.onDismiss()
         }
     }
 
@@ -87,15 +90,6 @@ class CalculatorDialogViewModel(
 
     fun onCancelClick(@Suppress("UNUSED_PARAMETER") view: View?) {
         listener?.onDismiss()
-    }
-
-    private suspend fun requestCreateSale() = withContext(Dispatchers.IO) {
-        val ids = items.map { it.id.toString() }
-        val joinedIds = ids.joinToString(",")
-        api.createSale(
-            config.currentStore?.id ?: 0, config.currentStaff?.barcode
-                ?: "", deposit, joinedIds
-        ).await()
     }
 
     override fun onCleared() {
@@ -117,7 +111,7 @@ class CalculatorDialogViewModel(
         deposit = if (10 > deposit) {
             0
         } else {
-            Math.floor((deposit / 10).toDouble()).toInt()
+            floor((deposit / 10).toDouble()).toInt()
         }
     }
 

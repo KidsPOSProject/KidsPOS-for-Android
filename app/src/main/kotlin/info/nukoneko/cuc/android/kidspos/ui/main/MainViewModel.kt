@@ -1,82 +1,110 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
 import androidx.lifecycle.ViewModel
-import info.nukoneko.cuc.android.kidspos.ProjectSettings
-import info.nukoneko.cuc.android.kidspos.api.APIService
+import androidx.lifecycle.viewModelScope
+import info.nukoneko.cuc.android.kidspos.BuildConfig
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.entity.Staff
+import info.nukoneko.cuc.android.kidspos.domain.entity.Barcode
+import info.nukoneko.cuc.android.kidspos.domain.repository.ItemRepository
+import info.nukoneko.cuc.android.kidspos.domain.repository.SaleRepository
+import info.nukoneko.cuc.android.kidspos.domain.repository.StaffRepository
+import info.nukoneko.cuc.android.kidspos.domain.repository.StatusRepository
 import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.io.IOException
-import kotlin.coroutines.CoroutineContext
+
+sealed class ConnectionStatus {
+    object NoConnection : ConnectionStatus()
+    object TryConnecting : ConnectionStatus()
+    object Connected : ConnectionStatus()
+    data class ConnectionFailed(val error: Throwable) : ConnectionStatus()
+}
 
 class MainViewModel(
-    private val api: APIService,
+    private val itemRepository: ItemRepository,
+    private val staffRepository: StaffRepository,
+    private val saleRepository: SaleRepository,
+    private val statusRepository: StatusRepository,
     private val config: GlobalConfig,
     private val eventBus: EventBus
-) : ViewModel(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
-
+) : ViewModel() {
     var listener: Listener? = null
 
-    enum class ConnectionStatus {
-        CONNECTING, CONNECTED, NOT_CONNECTED
-    }
-
-    private var status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
-
-    fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
-        @Suppress("ConstantConditionIf")
-        if (ProjectSettings.DEMO_MODE) {
-            when (prefix) {
-                BarcodeKind.ITEM -> {
-                    onReadItemSuccess(Item.create(barcode))
+    private var connectionStatus: ConnectionStatus = ConnectionStatus.NoConnection
+        set(value) {
+            field = value
+            when (value) {
+                is ConnectionStatus.NoConnection -> {
+                    // nothing
                 }
-                BarcodeKind.STAFF -> {
-                    onReadStaffSuccess(Staff.create(barcode))
+                is ConnectionStatus.TryConnecting -> {
+                    safetyShowMessage("接続中です...")
                 }
-                else -> {
-                    onReadItemSuccess(Item.create(barcode))
-                    onReadStaffSuccess(Staff.create(barcode))
+                is ConnectionStatus.Connected -> {
+                    safetyShowMessage("接続しました")
+                }
+                is ConnectionStatus.ConnectionFailed -> {
+                    safetyShowMessage("接続に失敗しました. ${value.error.localizedMessage}")
+                    listener?.onNotReachableServer()
                 }
             }
-        } else {
-            // サーバから取得する
-            when (prefix) {
-                BarcodeKind.ITEM -> {
-                    launch {
-                        try {
-                            val item = requestGetItem(barcode)
-                            onReadItemSuccess(item)
-                        } catch (e: Throwable) {
-                            onReadItemFailure(e)
-                        }
-                    }
+        }
+
+    fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
+        when (prefix) {
+            BarcodeKind.ITEM -> {
+                val errorHandler = CoroutineExceptionHandler { _, error ->
+                    eventBus.post(BarcodeEvent.ReadItemFailed(error))
                 }
-                BarcodeKind.STAFF -> {
-                    launch {
-                        try {
-                            val staff = requestGetStaff(barcode)
-                            onReadStaffSuccess(staff)
-                        } catch (e: Throwable) {
-                            onReadStaffFailure(e)
-                        }
-                    }
+                viewModelScope.launch(Dispatchers.IO + errorHandler) {
+                    eventBus.post(
+                        BarcodeEvent.ReadItemSuccess(
+                            itemRepository.fetchItem(
+                                Barcode(
+                                    barcode
+                                )
+                            )
+                        )
+                    )
                 }
-                BarcodeKind.SALE -> eventBus.post(BarcodeEvent.ReadReceiptFailed(IOException("まだ対応していない")))
-                BarcodeKind.UNKNOWN -> {
+            }
+            BarcodeKind.STAFF -> {
+                val errorHandler = CoroutineExceptionHandler { _, error ->
+                    eventBus.post(BarcodeEvent.ReadStaffFailed(error))
                 }
+                viewModelScope.launch(Dispatchers.IO + errorHandler) {
+                    eventBus.post(
+                        BarcodeEvent.ReadStaffSuccess(
+                            staffRepository.fetchStaff(
+                                Barcode(barcode)
+                            )
+                        )
+                    )
+                }
+            }
+            BarcodeKind.SALE -> {
+                val errorHandler = CoroutineExceptionHandler { _, error ->
+                    eventBus.post(BarcodeEvent.ReadReceiptFailed(error))
+                }
+                viewModelScope.launch(Dispatchers.IO + errorHandler) {
+                    eventBus.post(
+                        BarcodeEvent.ReadReceiptSuccess(
+                            saleRepository.fetchSale(
+                                Barcode(barcode)
+                            )
+                        )
+                    )
+                }
+            }
+            BarcodeKind.UNKNOWN -> {
+                // nothing
             }
         }
     }
@@ -93,67 +121,34 @@ class MainViewModel(
         updateTitle()
 
         if (config.currentRunningMode == Mode.PRODUCTION) {
-            if (status != ConnectionStatus.NOT_CONNECTED) {
+            if (connectionStatus is ConnectionStatus.TryConnecting) {
                 return
             }
-            safetyShowMessage("接続中です...")
-            status = ConnectionStatus.CONNECTING
-            launch(Dispatchers.IO) {
-                try {
-                    api.getStatus().await()
-                    status = ConnectionStatus.CONNECTED
-                    safetyShowMessage("接続しました")
-                } catch (e: Throwable) {
-                    launch(Dispatchers.Main) {
-                        listener?.onNotReachableServer()
-                        status = ConnectionStatus.NOT_CONNECTED
-                    }
-                    safetyShowMessage("接続に失敗しました")
-                }
+            connectionStatus = ConnectionStatus.TryConnecting
+            val errorHandler = CoroutineExceptionHandler { _, error ->
+                ConnectionStatus.ConnectionFailed(error)
+            }
+            viewModelScope.launch(Dispatchers.IO + errorHandler) {
+                statusRepository.check()
+                ConnectionStatus.Connected
             }
         }
     }
 
-    private fun onReadItemSuccess(item: Item) {
-        eventBus.post(BarcodeEvent.ReadItemSuccess(item))
-    }
-
-    private fun onReadItemFailure(e: Throwable) {
-        eventBus.post(BarcodeEvent.ReadItemFailed(e))
-    }
-
-    private fun onReadStaffSuccess(staff: Staff) {
-        eventBus.post(BarcodeEvent.ReadStaffSuccess(staff))
-    }
-
-    private fun onReadStaffFailure(e: Throwable) {
-        eventBus.post(BarcodeEvent.ReadStaffFailed(e))
-    }
-
     private fun safetyShowMessage(message: String) {
-        launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.Main) {
             listener?.onShouldShowMessage(message)
         }
     }
 
     private fun updateTitle() {
-        var titleSuffix = ""
-        config.currentStore?.name?.also { titleSuffix += " [$it]" }
-
-        titleSuffix += " [${config.currentRunningMode.modeName}モード]"
-
-        @Suppress("ConstantConditionIf")
-        if (ProjectSettings.DEMO_MODE) titleSuffix += " [テストモード]"
-
-        listener?.onShouldChangeTitleSuffix(titleSuffix)
-    }
-
-    private suspend fun requestGetItem(barcode: String) = withContext(Dispatchers.IO) {
-        api.getItem(barcode).await()
-    }
-
-    private suspend fun requestGetStaff(barcode: String) = withContext(Dispatchers.IO) {
-        api.getStaff(barcode).await()
+        val titleValues = mutableListOf<String>()
+        config.currentStore?.name?.apply { titleValues.add("[$this]") }
+        titleValues.add("[${config.currentRunningMode.modeName}モード]")
+        if (BuildConfig.DEMO_MODE) {
+            titleValues.add("[デモモード]")
+        }
+        listener?.onShouldChangeTitleSuffix(titleValues.joinToString(" "))
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -8,7 +8,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.navigation.NavigationView
-import info.nukoneko.cuc.android.kidspos.ProjectSettings
+import info.nukoneko.cuc.android.kidspos.BuildConfig
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ActivityMainBinding
 import info.nukoneko.cuc.android.kidspos.ui.common.BaseBarcodeReadableActivity
@@ -46,9 +46,10 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
         when (item.itemId) {
             R.id.setting -> SettingActivity.createIntent(this@MainActivity)
             R.id.change_store -> {
-                val fragment = StoreListDialogFragment.newInstance()
-                fragment.isCancelable = false
-                fragment.show(supportFragmentManager, "changeStore")
+                val instance = StoreListDialogFragment().apply {
+                    isCancelable = false
+                }
+                instance.safetyShow(supportFragmentManager)
             }
             R.id.input_dummy_item -> onBarcodeInput("1234567890", BarcodeKind.ITEM)
             R.id.input_dummy_store -> onBarcodeInput("1234567890", BarcodeKind.STAFF)
@@ -91,7 +92,7 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
     override fun onResume() {
         super.onResume()
         myViewModel.onResume()
-        binding.navView.menu.setGroupVisible(R.id.beta_test, ProjectSettings.DEMO_MODE)
+        binding.navView.menu.setGroupVisible(R.id.beta_test, BuildConfig.DEMO_MODE)
     }
 
     override fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {

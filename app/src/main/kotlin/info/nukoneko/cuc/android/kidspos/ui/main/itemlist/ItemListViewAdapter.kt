@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.domain.entity.Item
 import java.util.*
 
 class ItemListViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -51,8 +51,8 @@ class ItemListViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             private val itemBarcodeText: TextView = view.findViewById(R.id.item_barcode)
             fun bind(data: Item) {
                 itemNameText.text = data.name
-                itemPriceText.text = "${data.price}"
-                itemBarcodeText.text = data.barcode
+                itemPriceText.text = "${data.price.value}"
+                itemBarcodeText.text = data.barcode.value
             }
         }
     }

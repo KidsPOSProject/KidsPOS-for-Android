@@ -6,11 +6,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding
-import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.domain.entity.Store
 
 class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolder>() {
 
-    var data: List<Store> = emptyList()
+    var data: List<info.nukoneko.cuc.android.kidspos.domain.entity.Store> = emptyList()
     var listener: Listener? = null
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -19,7 +19,7 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
             R.layout.item_store_list, viewGroup, false
         )
         return ViewHolder(binding, object : ViewHolder.Listener {
-            override fun onItemClick(store: Store) {
+            override fun onItemClick(store: info.nukoneko.cuc.android.kidspos.domain.entity.Store) {
                 listener?.onStoreSelect(store)
             }
         })
@@ -34,7 +34,7 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
     }
 
     interface Listener {
-        fun onStoreSelect(store: Store)
+        fun onStoreSelect(store: info.nukoneko.cuc.android.kidspos.domain.entity.Store)
     }
 
     class ViewHolder(private val binding: ItemStoreListBinding, listener: Listener?) :
@@ -43,13 +43,13 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
 
         init {
             this.listener = object : ItemStoreListContentViewModel.Listener {
-                override fun onStoreSelected(store: Store) {
+                override fun onStoreSelected(store: info.nukoneko.cuc.android.kidspos.domain.entity.Store) {
                     listener?.onItemClick(store)
                 }
             }
         }
 
-        fun bind(store: Store) {
+        fun bind(store: info.nukoneko.cuc.android.kidspos.domain.entity.Store) {
             if (binding.viewModel == null) {
                 binding.viewModel = ItemStoreListContentViewModel(store, listener)
             } else {
@@ -58,7 +58,7 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
         }
 
         interface Listener {
-            fun onItemClick(store: Store)
+            fun onItemClick(store: info.nukoneko.cuc.android.kidspos.domain.entity.Store)
         }
     }
 }

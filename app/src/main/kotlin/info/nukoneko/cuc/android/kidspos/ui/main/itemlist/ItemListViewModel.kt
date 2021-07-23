@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.domain.entity.Item
 import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
@@ -35,7 +35,7 @@ class ItemListViewModel(
 
     private val data: MutableList<Item> = mutableListOf()
 
-    private fun currentTotal(): Int = data.sumOf { it.price }
+    private fun currentTotal(): Int = data.sumOf { it.price.value }
 
     init {
         updateViews()

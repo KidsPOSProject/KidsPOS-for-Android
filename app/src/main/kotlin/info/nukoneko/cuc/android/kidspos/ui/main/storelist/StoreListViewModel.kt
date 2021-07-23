@@ -4,25 +4,30 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import info.nukoneko.cuc.android.kidspos.api.APIService
+import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.api.RequestStatus
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
-import info.nukoneko.cuc.android.kidspos.entity.Store
-import kotlinx.coroutines.CoroutineScope
+import info.nukoneko.cuc.android.kidspos.domain.entity.Store
+import info.nukoneko.cuc.android.kidspos.domain.repository.StoreRepository
+import info.nukoneko.cuc.android.kidspos.extensions.mutableLiveDataOf
+import info.nukoneko.cuc.android.kidspos.extensions.postValue
+import info.nukoneko.cuc.android.kidspos.ui.common.VMEvent
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
 class StoreListViewModel(
-    private val api: APIService,
+    private val storeRepository: StoreRepository,
     private val config: GlobalConfig
-) : ViewModel(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
+) : ViewModel() {
+    private val _data = mutableLiveDataOf<VMEvent<List<Store>>>()
+    val data: LiveData<VMEvent<List<Store>>> get() = _data
 
-    private val data = MutableLiveData<List<Store>>()
-    fun getData(): LiveData<List<Store>> = data
+    private val _presentErrorDialog = mutableLiveDataOf<VMEvent<String>>()
+    val presentErrorDialog: LiveData<VMEvent<String>> get() = _presentErrorDialog
+
+    private val _shouldDismiss = mutableLiveDataOf<VMEvent<Unit>>()
+    val shouldDismiss: LiveData<VMEvent<Unit>> get() = _shouldDismiss
 
     private val progressVisibility = MutableLiveData<Int>()
     fun getProgressVisibility(): LiveData<Int> = progressVisibility
@@ -33,41 +38,36 @@ class StoreListViewModel(
     private val errorButtonVisibility = MutableLiveData<Int>()
     fun getErrorButtonVisibility(): LiveData<Int> = errorButtonVisibility
 
-    var listener: Listener? = null
-
-    private var requestStatus: RequestStatus = RequestStatus.IDLE
+    private var requestStatus: RequestStatus<List<Store>> = RequestStatus.IDLE()
         set(value) {
             field = value
             when (value) {
-                RequestStatus.IDLE -> {
+                is RequestStatus.IDLE -> {
                     progressVisibility.postValue(View.GONE)
                     recyclerViewVisibility.postValue(View.GONE)
                     errorButtonVisibility.postValue(View.GONE)
                 }
-                RequestStatus.REQUESTING -> {
+                is RequestStatus.REQUESTING -> {
                     progressVisibility.postValue(View.VISIBLE)
                     recyclerViewVisibility.postValue(View.GONE)
                     errorButtonVisibility.postValue(View.GONE)
                 }
-                RequestStatus.SUCCESS -> {
+                is RequestStatus.SUCCEEDED -> {
                     progressVisibility.postValue(View.GONE)
+                    if (value.body.isNotEmpty()) {
+                        recyclerViewVisibility.postValue(View.VISIBLE)
+                    } else {
+                        errorButtonVisibility.postValue(View.VISIBLE)
+                    }
+                    _data.postValue(value.body)
                 }
-                RequestStatus.FAILURE -> {
+                is RequestStatus.FAILED -> {
                     progressVisibility.postValue(View.GONE)
                     errorButtonVisibility.postValue(View.VISIBLE)
+                    _presentErrorDialog.postValue(value.error.localizedMessage)
                 }
             }
         }
-
-    init {
-        recyclerViewVisibility.value = View.GONE
-        errorButtonVisibility.value = View.GONE
-    }
-
-    override fun onCleared() {
-        listener = null
-        super.onCleared()
-    }
 
     fun onResume() {
         fetchStores()
@@ -75,7 +75,7 @@ class StoreListViewModel(
 
     fun onSelect(store: Store) {
         config.currentStore = store
-        listener?.onDismiss()
+        dismiss()
     }
 
     fun onReload(@Suppress("UNUSED_PARAMETER") view: View?) {
@@ -83,48 +83,24 @@ class StoreListViewModel(
     }
 
     fun onClose(@Suppress("UNUSED_PARAMETER") view: View?) {
-        listener?.onDismiss()
+        dismiss()
+    }
+
+    private fun dismiss() {
+        _shouldDismiss.postValue(Unit)
     }
 
     private fun fetchStores() {
-        if (requestStatus == RequestStatus.REQUESTING) {
+        if (requestStatus is RequestStatus.REQUESTING) {
             return
         }
-        requestStatus = RequestStatus.REQUESTING
-        launch {
-            try {
-                val stores: List<Store> = requestFetchStores()
-                onFetchStoresSuccess(stores)
-                requestStatus = RequestStatus.SUCCESS
-            } catch (e: Throwable) {
-                onFetchStoresFailure(e)
-                requestStatus = RequestStatus.FAILURE
-            }
+        requestStatus = RequestStatus.REQUESTING()
+
+        val errorHandler = CoroutineExceptionHandler { _, error ->
+            requestStatus = RequestStatus.FAILED(error)
         }
-    }
-
-    private suspend fun requestFetchStores() = withContext(Dispatchers.IO) {
-        api.fetchStores().await()
-    }
-
-    private fun onFetchStoresSuccess(stores: List<Store>) {
-        data.postValue(stores)
-        if (!stores.isEmpty()) {
-            recyclerViewVisibility.postValue(View.VISIBLE)
-        } else {
-            errorButtonVisibility.postValue(View.VISIBLE)
+        viewModelScope.launch(Dispatchers.IO + errorHandler) {
+            requestStatus = RequestStatus.SUCCEEDED(storeRepository.fetchStoreList())
         }
-        requestStatus = RequestStatus.SUCCESS
-    }
-
-    private fun onFetchStoresFailure(error: Throwable) {
-        listener?.onShouldShowErrorDialog(error.localizedMessage)
-        requestStatus = RequestStatus.FAILURE
-    }
-
-    interface Listener {
-        fun onShouldShowErrorDialog(message: String)
-
-        fun onDismiss()
     }
 }

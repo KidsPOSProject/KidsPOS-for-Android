@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentItemListBinding
-import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.domain.entity.Item
 import info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogFragment
 import org.koin.android.ext.android.inject
 
@@ -41,8 +41,7 @@ class ItemListFragment : Fragment() {
 
         override fun onStartAccount(data: List<Item>) {
             CalculatorDialogFragment
-                .newInstance(ArrayList(data))
-                .show(childFragmentManager, "Calculator")
+                .show(parentFragmentManager, ArrayList(data))
         }
     }
 
@@ -50,7 +49,7 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_item_list, container, false)
         binding.viewModel = myViewModel.also {
             it.listener = listener
