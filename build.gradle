@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath Dep.GradlePlugin.android
         classpath Dep.GradlePlugin.kotlin
+        classpath Dep.GradlePlugin.releaseHub
     }
 }
 
@@ -16,4 +17,21 @@ allprojects {
         google()
         mavenCentral()
     }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+apply plugin: "com.dipien.releaseshub.gradle.plugin"
+
+releasesHub {
+    dependenciesBasePath = "buildSrc/src/main/java/dependencies/"
+    dependenciesClassNames = ["Dep.kt"]
+    baseBranch = "develop"
+    pullRequestEnabled = true
+    pullRequestLabels = ["review ready"]
+    gitHubRepositoryOwner = "Atsumi3"
+    gitHubRepositoryName = "KidsPOS-for-Android"
+    gitHubUserName = "Atsumi3"
 }

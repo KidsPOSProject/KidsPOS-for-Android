@@ -92,7 +92,6 @@ dependencies {
 
     implementation Dep.Koin.core
     implementation Dep.Koin.android
-    implementation Dep.Koin.viewModel
 
     implementation Dep.AndroidX.appCompat
     implementation Dep.AndroidX.preference
@@ -127,6 +126,7 @@ dependencies {
     testImplementation Dep.Test.Mockito.kotlin
     testImplementation Dep.Test.Robolectric.client
     testImplementation Dep.OkHttp.mockWebServer
+
     androidTestImplementation Dep.Test.androidJunit4Ktx
     androidTestImplementation Dep.Test.testRunner
     androidTestImplementation(Dep.Test.Espresso.core) {
