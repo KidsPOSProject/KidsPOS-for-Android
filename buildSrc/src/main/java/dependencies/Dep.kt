@@ -10,13 +10,13 @@ object Dep {
 
     object Test {
         const val junit = "junit:junit:4.13.2"
-        const val testRunner = "androidx.test:runner:1.3.0"
-        const val testRules = "androidx.test:rules:1.3.0"
+        const val testRunner = "androidx.test:runner:1.4.0"
+        const val testRules = "androidx.test:rules:1.4.0"
         const val testCoreKtx = "androidx.test:core-ktx:1.4.0"
         const val androidJunit4Ktx = "androidx.test.ext:junit-ktx:1.1.3"
         const val archCore = "androidx.arch.core:core-testing:2.1.0"
         const val coroutinesTest =
-            "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9"
+            "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
 
         object Mockito {
             const val core = "org.mockito:mockito-core:3.11.2"
@@ -29,20 +29,20 @@ object Dep {
         }
 
         object Espresso {
-            const val core = "androidx.test.espresso:espresso-core:3.3.0"
-            const val contrib = "androidx.test.espresso:espresso-contrib:3.3.0"
+            const val core = "androidx.test.espresso:espresso-core:3.4.0"
+            const val contrib = "androidx.test.espresso:espresso-contrib:3.4.0"
         }
     }
 
     object AndroidX {
-        const val appCompat = "androidx.appcompat:appcompat:1.2.0"
-        const val design = "com.google.android.material:material:1.2.1"
+        const val appCompat = "androidx.appcompat:appcompat:1.3.1"
+        const val design = "com.google.android.material:material:1.4.0"
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
         const val coreKtx = "androidx.core:core-ktx:1.6.0"
         const val preference = "androidx.preference:preference:1.1.1"
         const val card = "androidx.cardview:cardview:1.0.0"
-        const val activityKtx = "androidx.activity:activity-ktx:1.1.0"
-        const val fragmentKtx = "androidx.fragment:fragment-ktx:1.2.5"
+        const val activityKtx = "androidx.activity:activity-ktx:1.2.4"
+        const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
     }
 
     object Kotlin {
