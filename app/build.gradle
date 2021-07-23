@@ -2,17 +2,16 @@ import dependencies.Dep
 import dependencies.Packages
 import dependencies.Versions
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+}
+
 apply from: 'codeQuality.gradle'
 
 def isCi = "true" == System.getenv("CI")
-
-androidExtensions {
-    experimental = true
-}
 
 android {
     compileSdkVersion Versions.compileSdk
@@ -26,8 +25,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs "ja"
     }
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
     buildTypes {
         debug {

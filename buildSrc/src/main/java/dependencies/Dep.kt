@@ -4,7 +4,7 @@ package dependencies
 object Dep {
     object GradlePlugin {
         const val android = "com.android.tools.build:gradle:4.2.2"
-        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
+        const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
         const val releaseHub = "com.dipien:releases-hub-gradle-plugin:2.0.2"
     }
 
@@ -46,9 +46,9 @@ object Dep {
     }
 
     object Kotlin {
-        const val stdlibJvm = "org.jetbrains.kotlin:kotlin-stdlib:1.4.10"
-        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9"
-        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9"
+        const val stdlibJvm = "org.jetbrains.kotlin:kotlin-stdlib:1.5.21"
+        const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
+        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
     }
 
     object Koin {
