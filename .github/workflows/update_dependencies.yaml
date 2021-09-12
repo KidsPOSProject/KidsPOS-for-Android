@@ -1,4 +1,4 @@
-name: Run auto update
+name: Run update_dependencies
 on:
   pull_request:
     branches:
