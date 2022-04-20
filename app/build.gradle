@@ -9,12 +9,9 @@ plugins {
     id 'kotlin-kapt'
 }
 
-apply from: 'codeQuality.gradle'
-
-def isCi = "true" == System.getenv("CI")
-
 android {
     compileSdkVersion Versions.compileSdk
+
     defaultConfig {
         applicationId Packages.production
         minSdkVersion Versions.minSdk
@@ -25,13 +22,14 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         resConfigs "ja"
     }
+
     buildFeatures {
         dataBinding true
         viewBinding true
     }
+
     buildTypes {
         debug {
-            testCoverageEnabled isCi
             minifyEnabled false
             applicationIdSuffix = '.debug'
         }
@@ -41,6 +39,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     flavorDimensions "default"
     productFlavors {
         prod {
@@ -50,13 +49,11 @@ android {
             dimension "default"
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+
     lintOptions {
         abortOnError false
     }
+
     testOptions {
         animationsDisabled = true
         resultsDir = "$project.buildDir/test-results"
@@ -73,19 +70,24 @@ android {
             returnDefaultValues = true
         }
     }
+
     sourceSets {
         all {
             java.srcDirs += "src/${name}/kotlin"
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 }
 
 dependencies {
-    implementation Dep.Kotlin.stdlibJvm
-    implementation Dep.Kotlin.coroutines
     implementation Dep.Kotlin.coroutinesAndroid
 
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
@@ -129,15 +131,6 @@ dependencies {
 
     androidTestImplementation Dep.Test.androidJunit4Ktx
     androidTestImplementation Dep.Test.testRunner
-    androidTestImplementation(Dep.Test.Espresso.core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation(Dep.Test.Espresso.contrib) {
-        exclude module: 'support-annotations'
-        exclude module: 'design'
-        exclude module: 'recyclerview-v7'
-        exclude module: 'support-v4'
-    }
     androidTestImplementation Dep.OkHttp.mockWebServer
     androidTestImplementation Dep.Test.Mockito.android
 }

@@ -1,11 +1,10 @@
 package dependencies
 
-@Suppress("MayBeConstant")
 object Versions {
-    val compileSdk = 28
-    val minSdk     = 23
-    val targetSdk  = 28
+    const val compileSdk = 28
+    const val minSdk     = 23
+    const val targetSdk  = 28
 
-    val versionCode = 7
-    val versionName = "1.0.6"
+    const val versionCode = 7
+    const val versionName = "1.0.6"
 }
