@@ -4,29 +4,28 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import kotlinx.coroutines.Deferred
 import retrofit2.http.*
 
 interface APIService {
 
     @GET("store/list")
-    fun fetchStores(): Deferred<List<Store>>
+    suspend fun fetchStores(): Store
 
     @FormUrlEncoded
     @POST("sale/create")
-    fun createSale(
+    suspend fun createSale(
         @Field("storeId") storeId: Int,
         @Field("staffBarcode") staffBarcode: String,
         @Field("deposit") deposit: Int,
         @Field("itemIds") itemIds: String
-    ): Deferred<Sale>
+    ): Sale
 
     @GET("item/{barcode}")
-    fun getItem(@Path("barcode") itemBarcode: String): Deferred<Item>
+    suspend fun getItem(@Path("barcode") itemBarcode: String): Item
 
     @GET("staff/{barcode}")
-    fun getStaff(@Path("barcode") staffBarcode: String): Deferred<Staff>
+    suspend fun getStaff(@Path("barcode") staffBarcode: String): Staff
 
     @GET("setting/status")
-    fun getStatus(): Deferred<Any>
+    suspend fun getStatus(): Any
 }

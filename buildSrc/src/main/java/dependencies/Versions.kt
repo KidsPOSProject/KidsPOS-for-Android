@@ -1,7 +1,7 @@
 package dependencies
 
 object Versions {
-    const val compileSdk = 28
+    const val compileSdk = 32
     const val minSdk     = 23
     const val targetSdk  = 28
 

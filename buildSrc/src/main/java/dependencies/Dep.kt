@@ -29,19 +29,17 @@ object Dep {
     }
 
     object AndroidX {
-        const val appCompat = "androidx.appcompat:appcompat:1.3.1"
-        const val design = "com.google.android.material:material:1.4.0"
-        const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
-        const val coreKtx = "androidx.core:core-ktx:1.6.0"
-        const val preference = "androidx.preference:preference:1.1.1"
-        const val card = "androidx.cardview:cardview:1.0.0"
-        const val activityKtx = "androidx.activity:activity-ktx:1.2.4"
-        const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
+        const val appCompat = "androidx.appcompat:appcompat:1.5.0"
+        const val design = "com.google.android.material:material:1.6.1"
+        const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.1.4"
+        const val activityKtx = "androidx.activity:activity-ktx:1.5.1"
+        const val fragmentKtx = "androidx.fragment:fragment-ktx:1.5.2"
+        const val preferenceKtx = "androidx.preference:preference-ktx:1.2.0"
     }
 
     object Kotlin {
-        const val version = "1.6.20"
-        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
+        const val version = "1.6.21"
+        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
     }
 
     object Koin {
