@@ -1,7 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.di
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import com.google.gson.GsonBuilder
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store

@@ -9,7 +9,7 @@ import retrofit2.http.*
 interface APIService {
 
     @GET("store/list")
-    suspend fun fetchStores(): Store
+    suspend fun fetchStores(): List<Store>
 
     @FormUrlEncoded
     @POST("sale/create")

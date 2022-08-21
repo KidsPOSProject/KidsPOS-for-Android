@@ -104,7 +104,7 @@ class StoreListViewModel(
     }
 
     private suspend fun requestFetchStores() = withContext(Dispatchers.IO) {
-        api.fetchStores().await()
+        api.fetchStores()
     }
 
     private fun onFetchStoresSuccess(stores: List<Store>) {
