@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.di
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.gson.GsonBuilder
 import info.nukoneko.cuc.android.kidspos.entity.Staff
@@ -20,7 +21,9 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
             DEFAULT_SERVER_INFO
         ) ?: DEFAULT_SERVER_INFO
         set(value) {
-            preference.edit().putString(KEY_SERVER_INFO, value).apply()
+            preference.edit {
+                putString(KEY_SERVER_INFO, value)
+            }
             eventBus.post(SystemEvent.ServerAddressChanged(value))
         }
 
@@ -32,7 +35,9 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
             )
         )
         set(value) {
-            preference.edit().putString(KEY_RUNNING_MODE, value.name).apply()
+            preference.edit {
+                putString(KEY_RUNNING_MODE, value.name)
+            }
             eventBus.post(SystemEvent.RunningModeChanged(value))
         }
 
@@ -43,10 +48,9 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
             }
         }
         set(value) {
-            preference.edit().putString(
-                KEY_STORE,
-                gson.toJson(value)
-            ).apply()
+            preference.edit {
+                putString(KEY_STORE, gson.toJson(value))
+            }
             eventBus.post(SystemEvent.SelectShop(value))
         }
 
@@ -57,10 +61,9 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
             }
         }
         set(value) {
-            preference.edit().putString(
-                KEY_STAFF,
-                gson.toJson(value)
-            ).apply()
+            preference.edit {
+                putString(KEY_STAFF, gson.toJson(value))
+            }
         }
 
     companion object {
