@@ -18,7 +18,16 @@ val apiModule = module {
                 staffBarcode: String,
                 deposit: Int,
                 itemIds: String
-            ): Sale = Sale(1, "123456", Date(), itemIds.split(",").size, 0, itemIds, storeId, 0)
+            ): Sale = Sale(
+                1,
+                "123456",
+                Date().toString(),
+                itemIds.split(",").size,
+                0,
+                itemIds,
+                storeId,
+                0
+            )
 
             override suspend fun fetchStores(): List<Store> =
                 listOf(Store(1, "お店1"), Store(2, "お店2"))

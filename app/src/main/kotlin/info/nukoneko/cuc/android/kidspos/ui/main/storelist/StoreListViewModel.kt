@@ -118,7 +118,7 @@ class StoreListViewModel(
     }
 
     private fun onFetchStoresFailure(error: Throwable) {
-        listener?.onShouldShowErrorDialog(error.localizedMessage)
+        error.localizedMessage?.let { listener?.onShouldShowErrorDialog(it) }
         requestStatus = RequestStatus.FAILURE
     }
 

@@ -7,6 +7,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
 }
 
 android {
@@ -89,8 +90,9 @@ android {
 
 dependencies {
     implementation Dep.Kotlin.coroutinesAndroid
+    implementation Dep.Kotlin.serialization
+    implementation Dep.Kotlin.serializationConverter
 
-    implementation Dep.Koin.core
     implementation Dep.Koin.android
 
     implementation Dep.AndroidX.appCompat
@@ -100,14 +102,12 @@ dependencies {
     implementation Dep.AndroidX.design
     implementation Dep.AndroidX.constraintLayout
 
-    implementation Dep.Zxing.core
     implementation(Dep.Zxing.android) {
         transitive = false
     }
 
     implementation Dep.OkHttp.client
     implementation Dep.Retrofit.client
-    implementation Dep.Retrofit.converterGson
 
     implementation Dep.logger
     implementation Dep.eventBus

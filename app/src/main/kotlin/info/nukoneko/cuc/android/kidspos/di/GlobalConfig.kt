@@ -3,17 +3,18 @@ package info.nukoneko.cuc.android.kidspos.di
 import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.google.gson.GsonBuilder
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class GlobalConfig(context: Context, private val eventBus: EventBus) {
     private val preference =
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
-    private val gson = GsonBuilder().create()
 
     var currentServerAddress: String
         get() = preference.getString(
@@ -44,12 +45,12 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStore: Store?
         get() {
             return preference.getString(KEY_STORE, null)?.let {
-                return gson.fromJson(it, Store::class.java)
+                return Json.decodeFromString<Store>(it)
             }
         }
         set(value) {
             preference.edit {
-                putString(KEY_STORE, gson.toJson(value))
+                putString(KEY_STORE, Json.encodeToString(value))
             }
             eventBus.post(SystemEvent.SelectShop(value))
         }
@@ -57,12 +58,12 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStaff: Staff?
         get() {
             return preference.getString(KEY_STAFF, null)?.let {
-                return gson.fromJson(it, Staff::class.java)
+                return Json.decodeFromString<Staff>(it)
             }
         }
         set(value) {
             preference.edit {
-                putString(KEY_STAFF, gson.toJson(value))
+                putString(KEY_STAFF, Json.encodeToString(value))
             }
         }
 
