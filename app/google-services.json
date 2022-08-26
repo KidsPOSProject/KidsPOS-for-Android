@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "175822979203",
+    "firebase_url": "https://kidspos-3875b.firebaseio.com",
+    "project_id": "kidspos-3875b",
+    "storage_bucket": "kidspos-3875b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175822979203:android:0120da27739cfc98",
+        "android_client_info": {
+          "package_name": "info.nukoneko.cuc.android.kidspos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175822979203-kvbmvoqvg6e9milt92k84ns7n7mvd4d5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm9XQgbLfeG_nohLJVSGv5cCu3k17rhug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175822979203-kvbmvoqvg6e9milt92k84ns7n7mvd4d5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175822979203:android:102b023a0290b8ba",
+        "android_client_info": {
+          "package_name": "info.nukoneko.cuc.android.kidspos.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175822979203-kvbmvoqvg6e9milt92k84ns7n7mvd4d5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm9XQgbLfeG_nohLJVSGv5cCu3k17rhug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175822979203-kvbmvoqvg6e9milt92k84ns7n7mvd4d5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

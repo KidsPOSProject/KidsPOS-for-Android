@@ -29,15 +29,27 @@ android {
         viewBinding true
     }
 
+    // ストアに出さないのでそのまま開発用
+    signingConfigs {
+        release {
+            storeFile file("./kidspos")
+            storePassword "kidspos"
+            keyAlias "kidspos"
+            keyPassword "kidspos"
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false
             applicationIdSuffix = '.debug'
+            signingConfig signingConfigs.release
         }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -53,23 +65,6 @@ android {
 
     lintOptions {
         abortOnError false
-    }
-
-    testOptions {
-        animationsDisabled = true
-        resultsDir = "$project.buildDir/test-results"
-        unitTests.all {
-            jvmArgs '-XX:MaxMetaspaceSize=256m'
-            systemProperty 'debug', 'true'
-
-            jacoco {
-                includeNoLocationClasses true
-            }
-        }
-        unitTests {
-            includeAndroidResources true
-            returnDefaultValues = true
-        }
     }
 
     sourceSets {
