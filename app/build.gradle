@@ -8,10 +8,15 @@ plugins {
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
     id 'kotlinx-serialization'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
-    compileSdkVersion Versions.compileSdk
+    namespace 'info.nukoneko.cuc.android.kidspos'
+
+    compileSdk Versions.compileSdk
 
     defaultConfig {
         applicationId Packages.production
@@ -21,7 +26,7 @@ android {
         versionName Versions.versionName
         testApplicationId Packages.test
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resConfigs "ja"
+        resourceConfigurations += ['ja']
     }
 
     buildFeatures {
@@ -46,14 +51,29 @@ android {
             signingConfig signingConfigs.release
         }
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
+            multiDexEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
     }
 
-    flavorDimensions "default"
+    packagingOptions {
+        resources {
+            excludes += [
+                    'META-INF/atomicfu.kotlin_module',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/NOTICE',
+                    'META-INF/LICENSE',
+                    'LICENSE.txt'
+            ]
+        }
+    }
+
+    flavorDimensions += ["default"]
     productFlavors {
         prod {
             dimension "default"
@@ -63,47 +83,55 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
-    sourceSets {
-        all {
-            java.srcDirs += "src/${name}/kotlin"
-        }
-    }
-
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
+    }
+
+    kapt {
+        correctErrorTypes true
     }
 }
 
 dependencies {
-    implementation Dep.Kotlin.coroutinesAndroid
-    implementation Dep.Kotlin.serialization
-    implementation Dep.Kotlin.serializationConverter
+    implementation libs.kotlin.std.lib
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.dagger.hilt.android
+    implementation libs.kotlinx.serialization
+    implementation libs.kotlinx.serialization.json
+    kapt libs.dagger.hilt.android.compiler
 
+    // Android
     implementation Dep.Koin.android
 
-    implementation Dep.AndroidX.appCompat
-    implementation Dep.AndroidX.activityKtx
-    implementation Dep.AndroidX.fragmentKtx
-    implementation Dep.AndroidX.preferenceKtx
-    implementation Dep.AndroidX.design
-    implementation Dep.AndroidX.constraintLayout
+    implementation libs.android.material
+    implementation libs.androidx.activity.ktx
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.viewmodel.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.constraintlayout
 
     implementation(Dep.Zxing.android) {
         transitive = false
     }
 
-    implementation Dep.OkHttp.client
-    implementation Dep.Retrofit.client
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    implementation "androidx.multidex:multidex:2.0.1"
 
-    implementation Dep.logger
-    implementation Dep.eventBus
+    implementation platform(libs.okhttp.bom)
+    implementation libs.okhttp.client
+    implementation libs.okhttp.logging.interceptor
+
+    implementation libs.retrofit.client
+    implementation libs.retrofit.converter.serialization
+
+    implementation libs.logger
+    implementation libs.eventbus
 }

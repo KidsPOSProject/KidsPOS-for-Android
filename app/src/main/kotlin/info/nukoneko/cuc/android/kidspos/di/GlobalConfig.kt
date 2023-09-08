@@ -8,7 +8,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -70,7 +69,7 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     companion object {
         const val KEY_SERVER_INFO = "setting_server_info"
         const val KEY_RUNNING_MODE = "setting_running_mode"
-        const val DEFAULT_SERVER_INFO = "http://192.168.0.220:8080"
+        const val DEFAULT_SERVER_INFO = "http://10.0.2.2:8080"
         const val KEY_STORE = "store"
         const val KEY_STAFF = "staff"
     }

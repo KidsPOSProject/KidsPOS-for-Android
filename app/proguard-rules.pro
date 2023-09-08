@@ -30,6 +30,9 @@
 #------ Gson -------
 -keep class info.nukoneko.cuc.android.kidspos.entity.** { *; }
 
+#------ Zxing -------
+-keep class com.google.zxing.** { *; }
+
 #------ Serialization -------
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.

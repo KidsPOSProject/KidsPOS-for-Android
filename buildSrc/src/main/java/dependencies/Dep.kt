@@ -3,7 +3,7 @@ package dependencies
 @Suppress("SpellCheckingInspection")
 object Dep {
     object GradlePlugin {
-        const val android = "com.android.tools.build:gradle:7.1.3"
+        const val android = "com.android.tools.build:gradle:8.1.0"
         const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
         const val kotlinSerialization =
             "org.jetbrains.kotlin:kotlin-serialization:1.6.21"

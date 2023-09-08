@@ -4,159 +4,123 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:ignore="UnusedAttribute">
+    tools:ignore="UnusedAttribute,HardcodedText">
 
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_7"
-        style="?attr/buttonStyle"
+    <androidx.constraintlayout.helper.widget.Flow
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toStartOf="@+id/btn_8"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:number="7" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_8"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_7"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toStartOf="@+id/btn_9"
-        app:layout_constraintStart_toEndOf="@+id/btn_7"
-        app:layout_constraintTop_toTopOf="@+id/btn_7"
-        app:number="8" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_9"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_8"
-        app:layout_constraintDimensionRatio="w,1:1"
+        android:orientation="horizontal"
+        app:constraint_referenced_ids="number_7,number_8,number_9,number_4,number_5,number_6,number_1,number_2,number_3,number_0,space,delete"
+        app:flow_horizontalGap="4dp"
+        app:flow_maxElementsWrap="3"
+        app:flow_verticalGap="4dp"
+        app:flow_wrapMode="aligned"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/btn_8"
-        app:layout_constraintTop_toTopOf="@+id/btn_8"
-        app:number="9" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_4"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_7"
-        app:layout_constraintStart_toStartOf="@+id/btn_7"
-        app:layout_constraintTop_toBottomOf="@+id/btn_7"
-        app:number="4" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_5"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_4"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_8"
-        app:layout_constraintStart_toStartOf="@+id/btn_8"
-        app:layout_constraintTop_toTopOf="@+id/btn_4"
-        app:number="5" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_6"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_5"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_9"
-        app:layout_constraintStart_toStartOf="@+id/btn_9"
-        app:layout_constraintTop_toTopOf="@+id/btn_5"
-        app:number="6" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_1"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_4"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/btn_4"
-        app:layout_constraintTop_toBottomOf="@+id/btn_4"
-        app:number="1" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_2"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_1"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_5"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/btn_5"
-        app:layout_constraintTop_toTopOf="@+id/btn_1"
-        app:number="2" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_3"
-        style="?attr/buttonStyle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_2"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_6"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/btn_6"
-        app:layout_constraintTop_toTopOf="@+id/btn_2"
-        app:number="3" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_delete_one"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
-        android:gravity="center"
-        android:text="@string/clear_one_num"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintDimensionRatio="w,1:1"
-        app:layout_constraintEnd_toEndOf="@+id/btn_3"
-        app:layout_constraintStart_toStartOf="@+id/btn_3"
-        app:layout_constraintTop_toBottomOf="@+id/btn_3" />
-
-    <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorView
-        android:id="@+id/btn_0"
+        android:id="@+id/number_0"
         style="?attr/buttonStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:autoSizeTextType="uniform"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_delete_one"
-        app:layout_constraintEnd_toEndOf="@+id/btn_2"
-        app:layout_constraintStart_toStartOf="@+id/btn_1"
-        app:layout_constraintTop_toTopOf="@+id/btn_delete_one"
-        app:number="0" />
+        android:text="0"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_1"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="1"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_2"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="2"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_3"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="3"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_4"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="4"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_5"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="5"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_6"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="6"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_7"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="7"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_8"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="8"
+        app:autoSizeTextType="uniform" />
+
+    <Button
+        android:id="@+id/number_9"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="9"
+        app:autoSizeTextType="uniform" />
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <Button
+        android:id="@+id/delete"
+        style="?attr/buttonStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeTextType="uniform"
+        android:text="けす"
+        app:autoSizeTextType="uniform" />
 </androidx.constraintlayout.widget.ConstraintLayout>
