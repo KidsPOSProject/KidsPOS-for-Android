@@ -17,8 +17,9 @@ import retrofit2.Retrofit
 
 @ExperimentalSerializationApi
 val coreModule = module {
+    single { Json { ignoreUnknownKeys = true } }
     single<EventBus> { EventBusImpl() }
-    single { GlobalConfig(androidApplication(), get()) }
+    single { GlobalConfig(androidApplication(), get(), get()) }
     single<Interceptor>(named("serverSelection")) {
         ServerSelectionInterceptor((get<GlobalConfig>().currentServerAddress))
     }
@@ -28,7 +29,7 @@ val coreModule = module {
     single {
         val contentType = "application/json".toMediaType()
         Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory(contentType))
+            .addConverterFactory(get<Json>().asConverterFactory(contentType))
             .client(get())
             .baseUrl((get<GlobalConfig>().currentServerAddress))
             .build()

@@ -11,7 +11,7 @@ import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class GlobalConfig(context: Context, private val eventBus: EventBus) {
+class GlobalConfig(context: Context, private val eventBus: EventBus, private val json: Json) {
     private val preference =
         PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
 
@@ -44,12 +44,12 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStore: Store?
         get() {
             return preference.getString(KEY_STORE, null)?.let {
-                return Json.decodeFromString<Store>(it)
+                return json.decodeFromString<Store>(it)
             }
         }
         set(value) {
             preference.edit {
-                putString(KEY_STORE, Json.encodeToString(value))
+                putString(KEY_STORE, json.encodeToString(value))
             }
             eventBus.post(SystemEvent.SelectShop(value))
         }
@@ -57,19 +57,19 @@ class GlobalConfig(context: Context, private val eventBus: EventBus) {
     var currentStaff: Staff?
         get() {
             return preference.getString(KEY_STAFF, null)?.let {
-                return Json.decodeFromString<Staff>(it)
+                return json.decodeFromString<Staff>(it)
             }
         }
         set(value) {
             preference.edit {
-                putString(KEY_STAFF, Json.encodeToString(value))
+                putString(KEY_STAFF, json.encodeToString(value))
             }
         }
 
     companion object {
         const val KEY_SERVER_INFO = "setting_server_info"
         const val KEY_RUNNING_MODE = "setting_running_mode"
-        const val DEFAULT_SERVER_INFO = "http://10.0.2.2:8080"
+        const val DEFAULT_SERVER_INFO = "http://192.168.0.220:8080"
         const val KEY_STORE = "store"
         const val KEY_STAFF = "staff"
     }
