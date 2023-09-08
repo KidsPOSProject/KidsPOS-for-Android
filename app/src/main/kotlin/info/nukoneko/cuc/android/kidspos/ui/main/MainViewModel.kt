@@ -100,7 +100,7 @@ class MainViewModel(
             status = ConnectionStatus.CONNECTING
             launch(Dispatchers.IO) {
                 try {
-                    api.getStatus().await()
+                    api.getStatus()
                     status = ConnectionStatus.CONNECTED
                     safetyShowMessage("接続しました")
                 } catch (e: Throwable) {
@@ -149,11 +149,11 @@ class MainViewModel(
     }
 
     private suspend fun requestGetItem(barcode: String) = withContext(Dispatchers.IO) {
-        api.getItem(barcode).await()
+        api.getItem(barcode)
     }
 
     private suspend fun requestGetStaff(barcode: String) = withContext(Dispatchers.IO) {
-        api.getStaff(barcode).await()
+        api.getStaff(barcode)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

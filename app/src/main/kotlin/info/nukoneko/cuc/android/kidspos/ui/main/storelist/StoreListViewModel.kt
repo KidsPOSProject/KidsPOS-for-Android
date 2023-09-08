@@ -92,24 +92,24 @@ class StoreListViewModel(
         }
         requestStatus = RequestStatus.REQUESTING
         launch {
-            try {
+            requestStatus = try {
                 val stores: List<Store> = requestFetchStores()
                 onFetchStoresSuccess(stores)
-                requestStatus = RequestStatus.SUCCESS
+                RequestStatus.SUCCESS
             } catch (e: Throwable) {
                 onFetchStoresFailure(e)
-                requestStatus = RequestStatus.FAILURE
+                RequestStatus.FAILURE
             }
         }
     }
 
     private suspend fun requestFetchStores() = withContext(Dispatchers.IO) {
-        api.fetchStores().await()
+        api.fetchStores()
     }
 
     private fun onFetchStoresSuccess(stores: List<Store>) {
         data.postValue(stores)
-        if (!stores.isEmpty()) {
+        if (stores.isNotEmpty()) {
             recyclerViewVisibility.postValue(View.VISIBLE)
         } else {
             errorButtonVisibility.postValue(View.VISIBLE)
@@ -118,7 +118,7 @@ class StoreListViewModel(
     }
 
     private fun onFetchStoresFailure(error: Throwable) {
-        listener?.onShouldShowErrorDialog(error.localizedMessage)
+        error.localizedMessage?.let { listener?.onShouldShowErrorDialog(it) }
         requestStatus = RequestStatus.FAILURE
     }
 
