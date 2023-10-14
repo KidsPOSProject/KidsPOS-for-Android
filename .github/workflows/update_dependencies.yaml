@@ -1,0 +1,17 @@
+name: Run update_dependencies
+on:
+  pull_request:
+    branches:
+      - develop
+  schedule:
+    - cron:  '0 12 * * 0'
+
+jobs:
+  update_dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: update dependencies
+        run: ./gradlew upgradeDependencies
+        env:
+          gitHubWriteToken: ${{ secrets.GITHUB_TOKEN }}
