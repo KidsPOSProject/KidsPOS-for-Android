@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy-stg:
-    runs-on: [self-hosted, barbarian, ubuntu-latest]
+    runs-on: self-hosted
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
