@@ -20,21 +20,12 @@
         android:orientation="horizontal"
         android:weightSum="1">
 
-        <LinearLayout
+        <include
+            android:id="@+id/calculator_layout"
+            layout="@layout/view_calculator_layout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="0.5"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingLeft="64dp"
-            android:paddingRight="64dp">
-
-            <info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorLayout
-                android:id="@+id/calculator_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+            android:layout_weight="0.5" />
 
         <LinearLayout
             android:layout_width="0dp"

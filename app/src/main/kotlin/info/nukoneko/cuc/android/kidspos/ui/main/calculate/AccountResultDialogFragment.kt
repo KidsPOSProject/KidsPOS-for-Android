@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import info.nukoneko.cuc.android.kidspos.R
@@ -17,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.coroutines.CoroutineContext
 
 class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
@@ -31,25 +30,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
 
     private val channel = BroadcastChannel<DialogResult>(1)
 
-    private val listener = object : AccountResultDialogViewModel.Listener {
-        override fun onOk() {
-            launch {
-                channel.send(DialogResult.OK)
-                dialog?.dismiss()
-            }
-        }
-
-        override fun onCancel() {
-            launch {
-                channel.send(DialogResult.Cancel)
-                dialog?.dismiss()
-            }
-        }
-    }
-
     private lateinit var binding: FragmentAccountResultDialogBinding
-
-    private val myViewModel: AccountResultDialogViewModel by viewModel()
 
     private val price: Int by lazyWithArgs(EXTRA_PRICE)
     private val receiveMoney: Int by lazyWithArgs(EXTRA_RECEIVE_MONEY)
@@ -59,15 +40,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_account_result_dialog,
-            container,
-            false
-        )
-        myViewModel.listener = listener
-        myViewModel.setup(price, receiveMoney)
-        binding.viewModel = myViewModel
+        binding = FragmentAccountResultDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -82,6 +55,22 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
             )
             dialogWindow.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
         }
+        binding.result4.findViewById<View>(R.id.ok).setOnClickListener {
+            launch {
+                channel.send(DialogResult.OK)
+                dialog?.dismiss()
+            }
+        }
+        binding.result4.findViewById<View>(R.id.go_back).setOnClickListener {
+            launch {
+                channel.send(DialogResult.Cancel)
+                dialog?.dismiss()
+            }
+        }
+        binding.resultSum.findViewById<TextView>(R.id.sum_river).text = "$price リバー"
+        binding.result2.findViewById<TextView>(R.id.receive_river).text = "$receiveMoney リバー"
+        binding.result3.findViewById<TextView>(R.id.change_river).text =
+            "${receiveMoney - price} リバー"
     }
 
     suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {

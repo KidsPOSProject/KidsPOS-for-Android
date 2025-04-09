@@ -14,8 +14,8 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
         if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
             if (readingValue.isNotEmpty() && readingValue.length >= 5) {
                 // 10桁なら返す
-                when {
-                    readingValue.length == 10 -> {
+                when (readingValue.length) {
+                    10 -> {
                         val prefix = readingValue.substring(2, 4)
                         listener?.onReadSuccess(readingValue, BarcodeKind.prefixOf(prefix))
                     }

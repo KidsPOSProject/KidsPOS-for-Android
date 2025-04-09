@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
@@ -35,6 +36,7 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
                     AccountResultDialogFragment.DialogResult.OK -> {
                         myViewModel.onOk()
                     }
+
                     else -> {
                     }
                 }
@@ -50,16 +52,6 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         }
     }
 
-    private val calculatorListener = object : CalculatorLayout.Listener {
-        override fun onNumberClick(number: Int) {
-            myViewModel.onNumberClick(number)
-        }
-
-        override fun onClearClick() {
-            myViewModel.onClearClick()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,7 +60,7 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_calculator_dialog, container, false)
         binding.lifecycleOwner = this
-        binding.calculatorLayout.listener = calculatorListener
+        setupNumberPanel()
         myViewModel.listener = listener
         myViewModel.setup(items, totalPrice)
         binding.viewModel = myViewModel
@@ -81,6 +73,27 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+    }
+
+    private fun setupNumberPanel() {
+        val numberIds = listOf(
+            R.id.number_0,
+            R.id.number_1,
+            R.id.number_2,
+            R.id.number_3,
+            R.id.number_4,
+            R.id.number_5,
+            R.id.number_6,
+            R.id.number_7,
+            R.id.number_8,
+            R.id.number_9
+        )
+        numberIds.forEach {
+            binding.calculatorLayout.root.findViewById<View>(it).setOnClickListener { v ->
+                myViewModel.onNumberClick("${(v as TextView).text}".toInt())
+            }
+        }
+        binding.calculatorLayout.delete.setOnClickListener { myViewModel.onClearClick() }
     }
 
     companion object {

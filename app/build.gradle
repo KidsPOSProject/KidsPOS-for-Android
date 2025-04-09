@@ -7,14 +7,17 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'com.google.dagger.hilt.android'
 }
 
-apply from: 'codeQuality.gradle'
-
-def isCi = "true" == System.getenv("CI")
-
 android {
-    compileSdkVersion Versions.compileSdk
+    namespace 'info.nukoneko.cuc.android.kidspos'
+
+    compileSdk Versions.compileSdk
+
     defaultConfig {
         applicationId Packages.production
         minSdkVersion Versions.minSdk
@@ -23,25 +26,53 @@ android {
         versionName Versions.versionName
         testApplicationId Packages.test
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        resConfigs "ja"
+        resourceConfigurations += ['ja']
     }
+
     buildFeatures {
         dataBinding true
         viewBinding true
     }
-    buildTypes {
-        debug {
-            testCoverageEnabled isCi
-            minifyEnabled false
-            applicationIdSuffix = '.debug'
-        }
+
+    // ストアに出さないのでそのまま開発用
+    signingConfigs {
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            storeFile file("./kidspos")
+            storePassword "kidspos"
+            keyAlias "kidspos"
+            keyPassword "kidspos"
         }
     }
-    flavorDimensions "default"
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            applicationIdSuffix = '.debug'
+            signingConfig signingConfigs.release
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += [
+                    'META-INF/atomicfu.kotlin_module',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/NOTICE',
+                    'META-INF/LICENSE',
+                    'LICENSE.txt'
+            ]
+        }
+    }
+
+    flavorDimensions += ["default"]
     productFlavors {
         prod {
             dimension "default"
@@ -50,94 +81,55 @@ android {
             dimension "default"
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    lintOptions {
-        abortOnError false
-    }
-    testOptions {
-        animationsDisabled = true
-        resultsDir = "$project.buildDir/test-results"
-        unitTests.all {
-            jvmArgs '-XX:MaxMetaspaceSize=256m'
-            systemProperty 'debug', 'true'
 
-            jacoco {
-                includeNoLocationClasses true
-            }
-        }
-        unitTests {
-            includeAndroidResources true
-            returnDefaultValues = true
-        }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    sourceSets {
-        all {
-            java.srcDirs += "src/${name}/kotlin"
-        }
-    }
+
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
+    }
+
+    kapt {
+        correctErrorTypes true
     }
 }
 
 dependencies {
-    implementation Dep.Kotlin.stdlibJvm
-    implementation Dep.Kotlin.coroutines
-    implementation Dep.Kotlin.coroutinesAndroid
+    implementation libs.kotlin.std.lib
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.dagger.hilt.android
+    implementation libs.kotlinx.serialization
+    implementation libs.kotlinx.serialization.json
+    kapt libs.dagger.hilt.android.compiler
 
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
-
-    implementation Dep.Koin.core
+    // Android
     implementation Dep.Koin.android
 
-    implementation Dep.AndroidX.appCompat
-    implementation Dep.AndroidX.preference
-    implementation Dep.AndroidX.card
-    implementation Dep.AndroidX.coreKtx
-    implementation Dep.AndroidX.activityKtx
-    implementation Dep.AndroidX.fragmentKtx
-    implementation Dep.AndroidX.design
-    implementation Dep.AndroidX.constraintLayout
+    implementation libs.android.material
+    implementation libs.androidx.activity.ktx
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.viewmodel.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.constraintlayout
 
-    implementation Dep.Zxing.core
     implementation(Dep.Zxing.android) {
         transitive = false
     }
 
-    implementation Dep.OkHttp.client
-    implementation Dep.Retrofit.client
-    implementation Dep.Retrofit.converterGson
+    coreLibraryDesugaring libs.desugar.jdk.libs
 
-    implementation Dep.logger
-    implementation Dep.eventBus
+    implementation platform(libs.okhttp.bom)
+    implementation libs.okhttp.client
+    implementation libs.okhttp.logging.interceptor
 
-    testImplementation Dep.Test.junit
-    testImplementation Dep.Koin.test
-    testImplementation Dep.Test.archCore
-    testImplementation Dep.Test.testCoreKtx
-    testImplementation Dep.Test.androidJunit4Ktx
-    testImplementation Dep.Test.testRunner
-    testImplementation Dep.Test.testRules
-    testImplementation Dep.Test.coroutinesTest
-    testImplementation Dep.Test.Mockito.core
-    testImplementation Dep.Test.Mockito.kotlin
-    testImplementation Dep.Test.Robolectric.client
-    testImplementation Dep.OkHttp.mockWebServer
+    implementation libs.retrofit.client
+    implementation libs.retrofit.converter.serialization
 
-    androidTestImplementation Dep.Test.androidJunit4Ktx
-    androidTestImplementation Dep.Test.testRunner
-    androidTestImplementation(Dep.Test.Espresso.core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation(Dep.Test.Espresso.contrib) {
-        exclude module: 'support-annotations'
-        exclude module: 'design'
-        exclude module: 'recyclerview-v7'
-        exclude module: 'support-v4'
-    }
-    androidTestImplementation Dep.OkHttp.mockWebServer
-    androidTestImplementation Dep.Test.Mockito.android
+    implementation libs.logger
+    implementation libs.eventbus
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.floor
 
 class CalculatorDialogViewModel(
     private val api: APIService,
@@ -72,11 +73,11 @@ class CalculatorDialogViewModel(
 
         launch {
             try {
-                val sale: Sale? = requestCreateSale()
+                val sale: Sale = requestCreateSale()
                 event.post(SystemEvent.SentSaleSuccess(sale))
                 listener?.onDismiss()
             } catch (e: Throwable) {
-                listener?.onShouldShowErrorMessage(e.localizedMessage)
+                e.localizedMessage?.let { listener?.onShouldShowErrorMessage(it) }
             }
         }
     }
@@ -95,7 +96,7 @@ class CalculatorDialogViewModel(
         api.createSale(
             config.currentStore?.id ?: 0, config.currentStaff?.barcode
                 ?: "", deposit, joinedIds
-        ).await()
+        )
     }
 
     override fun onCleared() {
@@ -117,7 +118,7 @@ class CalculatorDialogViewModel(
         deposit = if (10 > deposit) {
             0
         } else {
-            Math.floor((deposit / 10).toDouble()).toInt()
+            floor((deposit / 10).toDouble()).toInt()
         }
     }
 
