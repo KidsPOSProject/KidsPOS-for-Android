@@ -1,4 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
 
 package info.nukoneko.cuc.android.kidspos.ui.common
 
@@ -11,7 +10,8 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -24,7 +24,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
         OK
     }
 
-    private val channel = BroadcastChannel<DialogResult>(1)
+    private val resultFlow = MutableSharedFlow<DialogResult>(replay = 1)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
@@ -32,7 +32,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
             .setMessage(message)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 launch {
-                    channel.send(DialogResult.OK)
+                    resultFlow.emit(DialogResult.OK)
                 }
             }
             .setCancelable(false)
@@ -55,7 +55,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
                 }
             }
             fragment.show(fragmentManager, message)
-            return fragment.channel.openSubscription().receive()
+            return fragment.resultFlow.first()
         }
 
     }

@@ -1,4 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
 
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
@@ -15,7 +14,8 @@ import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialog
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -28,7 +28,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         Cancel
     }
 
-    private val channel = BroadcastChannel<DialogResult>(1)
+    private val resultFlow = MutableSharedFlow<DialogResult>(replay = 1)
 
     private lateinit var binding: FragmentAccountResultDialogBinding
 
@@ -57,13 +57,13 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         }
         binding.result4.findViewById<View>(R.id.ok).setOnClickListener {
             launch {
-                channel.send(DialogResult.OK)
+                resultFlow.emit(DialogResult.OK)
                 dialog?.dismiss()
             }
         }
         binding.result4.findViewById<View>(R.id.go_back).setOnClickListener {
             launch {
-                channel.send(DialogResult.Cancel)
+                resultFlow.emit(DialogResult.Cancel)
                 dialog?.dismiss()
             }
         }
@@ -75,7 +75,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
 
     suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {
         show(fm, tag)
-        return channel.openSubscription().receive()
+        return resultFlow.first()
     }
 
     companion object {
