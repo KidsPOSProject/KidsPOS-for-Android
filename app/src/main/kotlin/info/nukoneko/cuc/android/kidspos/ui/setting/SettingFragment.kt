@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.zxing.integration.android.IntentIntegrator
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentSettingBinding
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.util.Mode
@@ -51,7 +50,7 @@ class SettingFragment : Fragment() {
 
     private fun launchQrReader() {
         if (activity is SettingActivity) {
-            IntentIntegrator(activity).initiateScan()
+            (activity as SettingActivity).launchBarcodeScanner()
         }
     }
 

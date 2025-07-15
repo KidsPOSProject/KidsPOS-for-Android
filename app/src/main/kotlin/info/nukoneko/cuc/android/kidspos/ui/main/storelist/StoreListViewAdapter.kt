@@ -2,10 +2,9 @@ package info.nukoneko.cuc.android.kidspos.ui.main.storelist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.databinding.ItemStoreListBinding
+import android.widget.TextView
 import info.nukoneko.cuc.android.kidspos.entity.Store
 
 class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolder>() {
@@ -14,15 +13,9 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
     var listener: Listener? = null
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val binding = DataBindingUtil.inflate<ItemStoreListBinding>(
-            LayoutInflater.from(viewGroup.context),
-            R.layout.item_store_list, viewGroup, false
-        )
-        return ViewHolder(binding, object : ViewHolder.Listener {
-            override fun onItemClick(store: Store) {
-                listener?.onStoreSelect(store)
-            }
-        })
+        val view = LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.item_store_list, viewGroup, false) as TextView
+        return ViewHolder(view, listener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -37,28 +30,22 @@ class StoreListViewAdapter : RecyclerView.Adapter<StoreListViewAdapter.ViewHolde
         fun onStoreSelect(store: Store)
     }
 
-    class ViewHolder(private val binding: ItemStoreListBinding, listener: Listener?) :
-        RecyclerView.ViewHolder(binding.item) {
-        private val listener: ItemStoreListContentViewModel.Listener
+    class ViewHolder(private val textView: TextView, private val listener: Listener?) :
+        RecyclerView.ViewHolder(textView) {
+        
+        private var currentStore: Store? = null
 
         init {
-            this.listener = object : ItemStoreListContentViewModel.Listener {
-                override fun onStoreSelected(store: Store) {
-                    listener?.onItemClick(store)
+            textView.setOnClickListener {
+                currentStore?.let { store ->
+                    listener?.onStoreSelect(store)
                 }
             }
         }
 
         fun bind(store: Store) {
-            if (binding.viewModel == null) {
-                binding.viewModel = ItemStoreListContentViewModel(store, listener)
-            } else {
-                binding.viewModel!!.setStore(store)
-            }
-        }
-
-        interface Listener {
-            fun onItemClick(store: Store)
+            currentStore = store
+            textView.text = store.name
         }
     }
 }

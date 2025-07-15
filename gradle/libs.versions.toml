@@ -3,7 +3,7 @@ desugar_jdk_libs = "2.1.3"
 kotlin = "1.9.25"
 kotlinx-coroutines = "1.9.0"
 kotlinx-serialization = "1.6.3"
-dagger = "2.53.1"
+dagger = "2.51.1"
 
 android-gradle-plugin = "8.7.3"
 cookpad-lisence-plugin = "1.2.8"
@@ -64,7 +64,6 @@ retrofit-client = { module = "com.squareup.retrofit2:retrofit", version.ref = "r
 retrofit-converter-serialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit-kotlin-serialization-converter" }
 
 logger = { module = "com.orhanobut:logger", version = "2.2.0" }
-stetho = { module = "com.facebook.stetho:stetho-okhttp3", version = "1.6.0" }
 eventbus = { module = "org.greenrobot:eventbus", version = "3.2.0" }
 
 #Test

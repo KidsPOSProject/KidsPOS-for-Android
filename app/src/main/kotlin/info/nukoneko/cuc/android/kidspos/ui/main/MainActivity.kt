@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
-import androidx.databinding.DataBindingUtil
 import com.google.android.material.navigation.NavigationView
 import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.R
@@ -60,7 +59,8 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         val toggle = ActionBarDrawerToggle(
             this, binding.drawerLayout, binding.toolbar,
@@ -69,10 +69,7 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         binding.navView.setNavigationItemSelectedListener(navigationListener)
-        binding.viewModel = myViewModel.also {
-            it.listener = listener
-        }
-        binding.lifecycleOwner = this
+        myViewModel.listener = listener
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, ItemListFragment.newInstance(), "itemList")
             .commit()

@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <data>
-
-        <variable
-            name="viewModel"
-            type="info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListViewModel" />
-    </data>
-
-    <RelativeLayout
+    xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
@@ -25,7 +17,7 @@
             android:background="#E0E0E0"
             android:gravity="end"
             android:padding="8dp"
-            android:text="@{viewModel.currentPriceText}"
+            tools:text="0 リバー"
             android:textSize="24sp" />
 
         <LinearLayout
@@ -42,7 +34,7 @@
                 android:layout_margin="4dp"
                 android:background="@drawable/layout_button_rect_red"
                 android:maxLines="1"
-                android:onClick="@{viewModel::onClickClear}"
+                android:id="@+id/clear_button"
                 android:text="@string/delete"
                 android:textColor="@android:color/white"
                 android:textSize="22sp" />
@@ -53,7 +45,8 @@
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:visibility="@{viewModel.currentStaffVisibility}">
+                android:id="@+id/staff_layout"
+                android:visibility="invisible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -61,7 +54,8 @@
                     android:layout_weight="0.6"
                     android:gravity="center_vertical"
                     android:maxLines="1"
-                    android:text='@{viewModel.currentStaffText}' />
+                    android:id="@+id/staff_text"
+                    tools:text="たんとう:" />
             </LinearLayout>
 
             <Button
@@ -70,9 +64,9 @@
                 android:layout_height="match_parent"
                 android:layout_margin="4dp"
                 android:background="@drawable/layout_button_rect_white"
-                android:enabled="@{viewModel.accountButtonEnabled}"
+                android:id="@+id/account_button"
+                android:enabled="false"
                 android:maxLines="1"
-                android:onClick="@{viewModel::onClickAccount}"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:text="@string/account"
@@ -86,5 +80,4 @@
             android:layout_above="@id/bottom_layout"
             android:layout_below="@id/price_view"
             android:background="#303030" />
-    </RelativeLayout>
-</layout>
+</RelativeLayout>

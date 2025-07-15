@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -44,11 +43,8 @@ class StoreListDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_store_list_dialog, container, false)
-        binding.lifecycleOwner = this
+        binding = FragmentStoreListDialogBinding.inflate(inflater, container, false)
         myViewModel.listener = listener
-        binding.viewModel = myViewModel
         return binding.root
     }
 
@@ -60,6 +56,8 @@ class StoreListDialogFragment : DialogFragment() {
         )
         setupRecyclerView()
         setupSubscriber()
+        setupViewModelObservers()
+        setupClickListeners()
     }
 
     override fun onResume() {
@@ -83,6 +81,27 @@ class StoreListDialogFragment : DialogFragment() {
             val newData = stores ?: emptyList()
             adapter.data = newData
         })
+    }
+
+    private fun setupViewModelObservers() {
+        myViewModel.getProgressVisibility().observe(viewLifecycleOwner) { visibility ->
+            binding.progressBar.visibility = visibility
+        }
+        myViewModel.getRecyclerViewVisibility().observe(viewLifecycleOwner) { visibility ->
+            binding.recyclerView.visibility = visibility
+        }
+        myViewModel.getErrorButtonVisibility().observe(viewLifecycleOwner) { visibility ->
+            binding.bottomView.visibility = visibility
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.reloadButton.setOnClickListener {
+            myViewModel.onReload(it)
+        }
+        binding.closeButton.setOnClickListener {
+            myViewModel.onClose(it)
+        }
     }
 
     companion object {

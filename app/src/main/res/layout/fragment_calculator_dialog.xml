@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="UnusedAttribute">
-
-    <data>
-
-        <variable
-            name="viewModel"
-            type="info.nukoneko.cuc.android.kidspos.ui.main.calculate.CalculatorDialogViewModel" />
-    </data>
-
-    <LinearLayout
+    tools:ignore="UnusedAttribute"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -68,7 +60,7 @@
                         android:gravity="center_vertical|end"
                         android:inputType="none"
                         android:maxLines="1"
-                        android:text="@{viewModel.totalPriceText}"
+                        tools:text="0"
                         android:textStyle="bold"
                         app:autoSizeTextType="uniform" />
                 </LinearLayout>
@@ -99,7 +91,7 @@
                         android:clickable="false"
                         android:gravity="center_vertical|end"
                         android:maxLines="1"
-                        android:text="@{viewModel.depositText}"
+                        tools:text="0"
                         android:textStyle="bold"
                         app:autoSizeTextType="uniform" />
                 </LinearLayout>
@@ -119,7 +111,6 @@
                     android:layout_weight="0.5"
                     android:autoSizeTextType="uniform"
                     android:maxLines="1"
-                    android:onClick="@{viewModel::onCancelClick}"
                     android:paddingTop="16dp"
                     android:paddingBottom="22dp"
                     android:text="@string/go_back"
@@ -133,15 +124,13 @@
                     android:layout_gravity="end|bottom"
                     android:layout_weight="0.5"
                     android:autoSizeTextType="uniform"
-                    android:clickable="@{viewModel.accountButtonEnabled}"
-                    android:enabled="@{viewModel.accountButtonEnabled}"
+                    android:clickable="false"
+                    android:enabled="false"
                     android:maxLines="1"
-                    android:onClick="@{viewModel::onDoneClick}"
                     android:paddingTop="16dp"
                     android:paddingBottom="22dp"
                     android:text="@string/account"
                     app:autoSizeTextType="uniform" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</layout>
+</LinearLayout>

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.databinding.FragmentCalculatorDialogBinding
@@ -57,13 +56,12 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_calculator_dialog, container, false)
-        binding.lifecycleOwner = this
+        binding = FragmentCalculatorDialogBinding.inflate(inflater, container, false)
         setupNumberPanel()
         myViewModel.listener = listener
         myViewModel.setup(items, totalPrice)
-        binding.viewModel = myViewModel
+        setupViewModelObservers()
+        setupClickListeners()
         return binding.root
     }
 
@@ -94,6 +92,28 @@ class CalculatorDialogFragment : DialogFragment(), CoroutineScope {
             }
         }
         binding.calculatorLayout.delete.setOnClickListener { myViewModel.onClearClick() }
+    }
+
+    private fun setupViewModelObservers() {
+        myViewModel.getTotalPriceText().observe(viewLifecycleOwner) { price ->
+            binding.sumRiver.text = price
+        }
+        myViewModel.getDepositText().observe(viewLifecycleOwner) { deposit ->
+            binding.receiveRiver.text = deposit
+        }
+        myViewModel.getAccountButtonEnabled().observe(viewLifecycleOwner) { enabled ->
+            binding.done.isEnabled = enabled
+            binding.done.isClickable = enabled
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.back.setOnClickListener {
+            myViewModel.onCancelClick(it)
+        }
+        binding.done.setOnClickListener {
+            myViewModel.onDoneClick(it)
+        }
     }
 
     companion object {

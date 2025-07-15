@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,13 +49,12 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_item_list, container, false)
-        binding.viewModel = myViewModel.also {
-            it.listener = listener
-        }
-        binding.lifecycleOwner = this
+    ): View {
+        binding = FragmentItemListBinding.inflate(inflater, container, false)
+        myViewModel.listener = listener
         setupList(binding.recyclerView)
+        setupViewModelObservers()
+        setupClickListeners()
         return binding.root
     }
 
@@ -78,6 +76,30 @@ class ItemListFragment : Fragment() {
     private fun setupList(list: RecyclerView) {
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(list.context, 3)
+    }
+
+    private fun setupViewModelObservers() {
+        myViewModel.getCurrentPriceText().observe(viewLifecycleOwner) { price ->
+            binding.priceView.text = price
+        }
+        myViewModel.getCurrentStaffText().observe(viewLifecycleOwner) { staff ->
+            binding.staffText.text = staff
+        }
+        myViewModel.getCurrentStaffVisibility().observe(viewLifecycleOwner) { visibility ->
+            binding.staffLayout.visibility = visibility
+        }
+        myViewModel.getAccountButtonEnabled().observe(viewLifecycleOwner) { enabled ->
+            binding.accountButton.isEnabled = enabled
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.clearButton.setOnClickListener {
+            myViewModel.onClickClear(it)
+        }
+        binding.accountButton.setOnClickListener {
+            myViewModel.onClickAccount(it)
+        }
     }
 
     companion object {

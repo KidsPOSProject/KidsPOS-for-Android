@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <data>
-
-        <variable
-            name="viewModel"
-            type="info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListViewModel" />
-    </data>
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="8dp"
@@ -19,7 +12,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="16dp"
-            app:visibility="@{viewModel.progressVisibility}" />
+            android:id="@+id/progress_bar"
+            android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                app:visibility="@{viewModel.recyclerViewVisibility}" />
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/bottom_view"
@@ -39,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:orientation="horizontal"
-                app:visibility="@{viewModel.errorButtonVisibility}">
+                android:visibility="gone">
 
                 <Button
                     style="?android:actionButtonStyle"
@@ -47,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    android:onClick="@{viewModel::onReload}"
+                    android:id="@+id/reload_button"
                     android:text="@string/reload" />
 
                 <Button
@@ -56,10 +50,9 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    android:onClick="@{viewModel::onClose}"
+                    android:id="@+id/close_button"
                     android:text="@string/close" />
             </LinearLayout>
         </LinearLayout>
 
-    </FrameLayout>
-</layout>
+</FrameLayout>
