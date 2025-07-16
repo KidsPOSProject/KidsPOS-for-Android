@@ -1,0 +1,176 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main, develop, feat-* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Run Lint
+        run: ./gradlew lintProdDebug lintDemoDebug
+
+      - name: Upload Lint Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-results
+          path: app/build/reports/lint-results-*.html
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Run Unit Tests
+        run: ./gradlew testProdDebugUnitTest testDemoDebugUnitTest
+        
+      - name: Generate Test Report
+        if: always()
+        run: ./gradlew jacocoTestReport
+        
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-results
+          path: app/build/reports/tests/testProdDebugUnitTest/
+          
+      - name: Upload Code Coverage
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage
+          path: app/build/reports/jacoco/jacocoTestReport/
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          file: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          flags: unit-tests
+          name: unit-tests-coverage
+
+  instrumented-tests:
+    name: Instrumented Tests
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        api-level: [26, 29, 33]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+          
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+          
+      - name: Run Instrumented Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew connectedProdDebugAndroidTest
+          
+      - name: Upload Instrumented Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: instrumented-test-results-${{ matrix.api-level }}
+          path: app/build/reports/androidTests/connected/
+
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Build Debug APK
+        run: ./gradlew assembleProdDebug assembleDemoDebug
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-apk
+          path: |
+            app/build/outputs/apk/prod/debug/*.apk
+            app/build/outputs/apk/demo/debug/*.apk
+            
+      - name: Build Release APK
+        run: ./gradlew assembleProdRelease assembleDemoRelease
+        
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: |
+            app/build/outputs/apk/prod/release/*.apk
+            app/build/outputs/apk/demo/release/*.apk

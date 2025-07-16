@@ -13,6 +13,8 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
+apply from: 'jacoco.gradle'
+
 android {
     namespace 'info.nukoneko.cuc.android.kidspos'
 
@@ -136,4 +138,26 @@ dependencies {
 
     implementation libs.logger
     implementation libs.eventbus
+    
+    // Unit Testing
+    testImplementation libs.test.junit
+    testImplementation libs.test.androidx.test.core.ktx
+    testImplementation libs.test.androidx.core.testing
+    testImplementation libs.test.hamcrest
+    testImplementation libs.test.kotlinx.coroutines.test
+    testImplementation libs.test.mockito.inline
+    testImplementation libs.test.mockito.kotlin
+    testImplementation libs.test.okhttp.mockwebserver
+    testImplementation libs.test.robolectric.client
+    
+    // Instrumented Testing
+    androidTestImplementation libs.test.androidx.test.core.ktx
+    androidTestImplementation libs.test.androidx.test.runner
+    androidTestImplementation libs.test.androidx.test.rules
+    androidTestImplementation libs.test.androidx.test.junit.ktx
+    androidTestImplementation libs.test.espresso.core
+    androidTestImplementation libs.test.espresso.contrib
+    androidTestImplementation libs.test.espresso.intents
+    androidTestImplementation libs.test.mockito.android
+    debugImplementation libs.test.androidx.core.testing
 }

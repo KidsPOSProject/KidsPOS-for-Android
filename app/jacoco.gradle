@@ -1,0 +1,91 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
+    }
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    def fileFilter = [
+            '**/R.class',
+            '**/R$*.class',
+            '**/BuildConfig.*',
+            '**/Manifest*.*',
+            '**/*Test*.*',
+            'android/**/*.*',
+            // Exclude Dagger/Hilt generated files
+            '**/*_Factory.class',
+            '**/*_MembersInjector.class',
+            '**/*_HiltModules.class',
+            '**/*Hilt*.class',
+            '**/*_Impl*.class',
+            // Exclude View Binding
+            '**/*Binding*.class',
+            // Exclude generated serializers
+            '**/*$serializer.class',
+            '**/*$Companion.class'
+    ]
+
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/javac/prodDebug/classes", excludes: fileFilter)
+    def kotlinDebugTree = fileTree(dir: "${buildDir}/tmp/kotlin-classes/prodDebug", excludes: fileFilter)
+    def mainSrc = "${project.projectDir}/src/main/kotlin"
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([debugTree, kotlinDebugTree]))
+    executionData.setFrom(fileTree(dir: "$buildDir", includes: [
+            "outputs/unit_test_code_coverage/prodDebugUnitTest/testProdDebugUnitTest.exec",
+            "outputs/code_coverage/prodDebugAndroidTest/connected/coverage.ec"
+    ]))
+}
+
+task jacocoTestCoverageVerification(type: JacocoCoverageVerification, dependsOn: ['jacocoTestReport']) {
+    sourceDirectories.setFrom(files([android.sourceSets.main.java.srcDirs]))
+    classDirectories.setFrom(files([
+            fileTree(dir: "${buildDir}/intermediates/javac/prodDebug/classes"),
+            fileTree(dir: "${buildDir}/tmp/kotlin-classes/prodDebug")
+    ]))
+    executionData.setFrom(files("${buildDir}/jacoco/testProdDebugUnitTest.exec"))
+
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70 // 70% code coverage
+            }
+        }
+
+        rule {
+            element = 'CLASS'
+            excludes = [
+                    'info.nukoneko.cuc.android.kidspos.di.*',
+                    'info.nukoneko.cuc.android.kidspos.entity.*',
+                    'info.nukoneko.cuc.android.kidspos.event.*',
+                    '*.R',
+                    '*.R$*',
+                    '*.BuildConfig',
+                    '*.Manifest*',
+                    '*_ViewBinding*'
+            ]
+            limit {
+                counter = 'LINE'
+                minimum = 0.60
+            }
+        }
+    }
+}

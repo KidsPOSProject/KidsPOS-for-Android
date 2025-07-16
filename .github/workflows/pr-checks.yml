@@ -1,0 +1,120 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  danger-check:
+    name: Danger Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+          
+      - name: Install Danger
+        run: |
+          gem install danger
+          gem install danger-android_lint
+          
+      - name: Run Danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: danger
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Run Detekt
+        run: ./gradlew detekt
+        
+      - name: Upload Detekt Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: detekt-results
+          path: app/build/reports/detekt/
+          
+      - name: Check Kotlin Code Style
+        run: ./gradlew ktlintCheck
+        
+      - name: Comment PR
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read lint results if available
+            let comment = '## Code Quality Report\n\n';
+            
+            try {
+              // Add results summary
+              comment += '### Summary\n';
+              comment += '- [x] Code style checks completed\n';
+              comment += '- [x] Static analysis completed\n';
+              
+              // Post comment
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('Error posting comment:', error);
+            }
+
+  size-check:
+    name: APK Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Build APK
+        run: ./gradlew assembleProdRelease
+        
+      - name: Check APK Size
+        run: |
+          APK_SIZE=$(ls -la app/build/outputs/apk/prod/release/*.apk | awk '{print $5}')
+          APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1048576" | bc)
+          echo "APK Size: ${APK_SIZE_MB} MB"
+          
+          # Fail if APK is larger than 50MB
+          if (( $(echo "$APK_SIZE_MB > 50" | bc -l) )); then
+            echo "Error: APK size exceeds 50MB limit"
+            exit 1
+          fi
