@@ -59,7 +59,7 @@ class DemoAPIService : APIService(
 
 val apiModule = module {
     // Demo用のAPIServiceを登録
-    single {
+    single<APIService> {
         DemoAPIService()
     }
 }

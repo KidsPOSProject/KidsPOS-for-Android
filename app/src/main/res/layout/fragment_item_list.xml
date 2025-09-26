@@ -43,9 +43,26 @@
                 android:background="@drawable/layout_button_rect_red"
                 android:maxLines="1"
                 android:onClick="@{viewModel::onClickClear}"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="@string/delete"
                 android:textColor="@android:color/white"
                 android:textSize="22sp" />
+
+            <Button
+                android:id="@+id/add_item_button"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:background="@drawable/layout_button_rect_white"
+                android:maxLines="1"
+                android:onClick="@{viewModel::onClickAddItem}"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/add_item"
+                android:textSize="22sp"
+                android:visibility="@{viewModel.addItemButtonVisibility}" />
 
             <LinearLayout
                 android:layout_width="0dp"

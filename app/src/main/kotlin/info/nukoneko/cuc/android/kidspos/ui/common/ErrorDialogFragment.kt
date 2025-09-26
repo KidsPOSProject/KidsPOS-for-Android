@@ -49,13 +49,25 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
             fragmentManager: FragmentManager,
             message: String
         ): DialogResult {
+            // Fragment表示前に状態をチェック
+            if (fragmentManager.isStateSaved) {
+                // 状態が保存済みの場合は表示をスキップ
+                return DialogResult.OK
+            }
+
             val fragment = ErrorDialogFragment().also {
                 it.arguments = Bundle().apply {
                     putString(EXTRA_MESSAGE, message)
                 }
             }
-            fragment.show(fragmentManager, message)
-            return fragment.channel.openSubscription().receive()
+
+            try {
+                fragment.show(fragmentManager, message)
+                return fragment.channel.openSubscription().receive()
+            } catch (e: IllegalStateException) {
+                // 万が一エラーが発生した場合は無視
+                return DialogResult.OK
+            }
         }
 
     }

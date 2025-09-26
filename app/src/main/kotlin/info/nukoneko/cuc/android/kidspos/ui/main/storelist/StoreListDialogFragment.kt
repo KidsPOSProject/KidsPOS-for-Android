@@ -71,11 +71,11 @@ class StoreListDialogFragment : DialogFragment() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(
             DividerItemDecoration(
-                context!!,
+                requireContext(),
                 DividerItemDecoration.VERTICAL
             )
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
     private fun setupSubscriber() {

@@ -1,6 +1,7 @@
 import dependencies.Dep
 import dependencies.Packages
 import dependencies.Versions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id 'com.android.application'
@@ -118,9 +119,7 @@ dependencies {
     implementation libs.androidx.preference.ktx
     implementation libs.androidx.constraintlayout
 
-    implementation(Dep.Zxing.android) {
-        transitive = false
-    }
+    implementation(Dep.Zxing.android)
 
     coreLibraryDesugaring libs.desugar.jdk.libs
 
@@ -134,7 +133,7 @@ dependencies {
 
     implementation libs.retrofit.client
     implementation libs.retrofit.converter.serialization
-    implementation "com.squareup.retrofit2:converter-scalars:2.9.0"
+    implementation libs.converter.scalars
 
     implementation libs.logger
     implementation libs.eventbus
@@ -149,16 +148,16 @@ openApiGenerate {
     modelPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.model")
     invokerPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.invoker")
     configOptions.set([
-        "library": "jvm-retrofit2",
-        "useCoroutines": "true",
-        "serializationLibrary": "kotlinx_serialization",
-        "dateLibrary": "java8",
-        "enumPropertyNaming": "UPPERCASE",
-        "collectionType": "list"
+            "library"             : "jvm-retrofit2",
+            "useCoroutines"       : "true",
+            "serializationLibrary": "kotlinx_serialization",
+            "dateLibrary"         : "java8",
+            "enumPropertyNaming"  : "UPPERCASE",
+            "collectionType"      : "list"
     ])
     additionalProperties.set([
-        "generateApiDocumentation": "false",
-        "generateModelDocumentation": "false"
+            "generateApiDocumentation"  : "false",
+            "generateModelDocumentation": "false"
     ])
 }
 
@@ -168,6 +167,7 @@ android.sourceSets {
 }
 
 // Make sure code is generated before compilation
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+tasks.withType(KotlinCompile).configureEach {
     dependsOn tasks.openApiGenerate
 }
+

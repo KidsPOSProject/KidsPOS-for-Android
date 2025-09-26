@@ -27,7 +27,13 @@ val apiModule = module {
     }
 
     // APIServiceの実装
-    single {
-        APIService(get(), get(), get(), get(), get())
+    single<APIService> {
+        APIService(
+            itemsApi = get(),
+            salesApi = get(),
+            staffApi = get(),
+            storesApi = get(),
+            settingsApi = get()
+        )
     }
 }
