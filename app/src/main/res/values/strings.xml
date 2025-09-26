@@ -6,6 +6,7 @@
 
     <string name="delete">けす</string>
     <string name="account">かいけい</string>
+    <string name="add_item">商品追加</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -20,6 +21,7 @@
 
     <!-- Settings -->
     <string name="back">もどる</string>
+    <string name="back_to_main">メイン画面に戻る</string>
     <string name="change">おつり</string>
     <string name="deposit">おあずかり</string>
     <string name="total">ごうけい</string>

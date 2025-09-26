@@ -1,0 +1,48 @@
+{
+    "mcpServers": {
+        "serena": {
+            "type": "stdio",
+            "command": "uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/oraios/serena",
+                "serena-mcp-server",
+                "--context",
+                "ide-assistant",
+                "--project",
+                "."
+            ],
+            "env": {}
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "@playwright/mcp@latest"
+            ]
+        },
+        "sequential-thinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ]
+        }
+    },
+    "scopes": {
+        "ide-assistant": {
+            "mcpServers": [
+                "serena",
+                "playwright",
+                "sequential-thinking",
+                "context7"
+            ]
+        }
+    }
+}

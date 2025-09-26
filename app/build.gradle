@@ -1,6 +1,7 @@
 import dependencies.Dep
 import dependencies.Packages
 import dependencies.Versions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id 'com.android.application'
@@ -11,6 +12,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'com.google.dagger.hilt.android'
+    id 'org.openapi.generator'
 }
 
 android {
@@ -117,9 +119,7 @@ dependencies {
     implementation libs.androidx.preference.ktx
     implementation libs.androidx.constraintlayout
 
-    implementation(Dep.Zxing.android) {
-        transitive = false
-    }
+    implementation(Dep.Zxing.android)
 
     coreLibraryDesugaring libs.desugar.jdk.libs
 
@@ -133,7 +133,41 @@ dependencies {
 
     implementation libs.retrofit.client
     implementation libs.retrofit.converter.serialization
+    implementation libs.converter.scalars
 
     implementation libs.logger
     implementation libs.eventbus
 }
+
+// OpenAPI Generator Configuration
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set("$projectDir/openapi/api.yaml")
+    outputDir.set("$buildDir/generated/openapi")
+    apiPackage.set("info.nukoneko.cuc.android.kidspos.api.generated")
+    modelPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.model")
+    invokerPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.invoker")
+    configOptions.set([
+            "library"             : "jvm-retrofit2",
+            "useCoroutines"       : "true",
+            "serializationLibrary": "kotlinx_serialization",
+            "dateLibrary"         : "java8",
+            "enumPropertyNaming"  : "UPPERCASE",
+            "collectionType"      : "list"
+    ])
+    additionalProperties.set([
+            "generateApiDocumentation"  : "false",
+            "generateModelDocumentation": "false"
+    ])
+}
+
+// Add generated sources to source sets
+android.sourceSets {
+    main.kotlin.srcDirs += "$buildDir/generated/openapi/src/main/kotlin"
+}
+
+// Make sure code is generated before compilation
+tasks.withType(KotlinCompile).configureEach {
+    dependsOn tasks.openApiGenerate
+}
+

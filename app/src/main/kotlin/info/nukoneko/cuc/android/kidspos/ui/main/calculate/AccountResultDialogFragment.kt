@@ -74,8 +74,19 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
     }
 
     suspend fun showAndSuspend(fm: FragmentManager, tag: String? = null): DialogResult {
-        show(fm, tag)
-        return channel.openSubscription().receive()
+        // Fragment表示前に状態をチェック
+        if (fm.isStateSaved) {
+            // 状態が保存済みの場合は表示をスキップ
+            return DialogResult.OK
+        }
+
+        try {
+            show(fm, tag)
+            return channel.openSubscription().receive()
+        } catch (e: IllegalStateException) {
+            // 万が一エラーが発生した場合は無視
+            return DialogResult.OK
+        }
     }
 
     companion object {

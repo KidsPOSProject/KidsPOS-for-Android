@@ -8,10 +8,12 @@ import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.api.RequestStatus
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.CoroutineContext
 
 class StoreListViewModel(
@@ -90,10 +92,24 @@ class StoreListViewModel(
         if (requestStatus == RequestStatus.REQUESTING) {
             return
         }
+
+        // 練習モードの場合はダミー店舗を即座に表示
+        if (config.currentRunningMode == Mode.PRACTICE) {
+            val dummyStores = listOf(
+                Store(1, "100リバー", null),
+                Store(2, "デパート", null)
+            )
+            onFetchStoresSuccess(dummyStores)
+            return
+        }
+
         requestStatus = RequestStatus.REQUESTING
         launch {
             requestStatus = try {
-                val stores: List<Store> = requestFetchStores()
+                // 3秒のタイムアウトを設定
+                val stores: List<Store> = withTimeout(3000L) {
+                    requestFetchStores()
+                }
                 onFetchStoresSuccess(stores)
                 RequestStatus.SUCCESS
             } catch (e: Throwable) {
@@ -118,7 +134,15 @@ class StoreListViewModel(
     }
 
     private fun onFetchStoresFailure(error: Throwable) {
-        error.localizedMessage?.let { listener?.onShouldShowErrorDialog(it) }
+        val message = when {
+            error is kotlinx.coroutines.TimeoutCancellationException ->
+                "サーバーとの通信がタイムアウトしました。\n接続を確認してください。"
+            error.localizedMessage != null ->
+                error.localizedMessage!!
+            else ->
+                "通信エラーが発生しました。"
+        }
+        listener?.onShouldShowErrorDialog(message)
         requestStatus = RequestStatus.FAILURE
     }
 
