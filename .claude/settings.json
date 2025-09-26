@@ -1,0 +1,66 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "includeCoAuthoredBy": false,
+    "enableAllProjectMcpServers": true,
+    "permissions": {
+        "allow": [
+            "Bash(gemini:*)",
+            "Bash(git:*)"
+        ],
+        "deny": [
+            "Bash(sudo:*)",
+            "Read(.env.*)",
+            "Read(id_rsa)",
+            "Read(id_ed25519)",
+            "Read(**/*token*)",
+            "Read(**/*key*)",
+            "Write(.env*)",
+            "Write(**/secrets/**)",
+            "Bash(wget:*)",
+            "Bash(nc:*)",
+            "Bash(rm:*)",
+            "Bash(npm uninstall:*)",
+            "Bash(npm remove:*)",
+            "Bash(psql:*)",
+            "Bash(mysql:*)",
+            "Bash(mongod:*)",
+            "mcp__supabase__execute_sql"
+        ]
+    },
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "if jq -r '.tool_input.command' | grep -q '^git commit' && jq -r '.tool_input.command' | grep -q '🤖 Generated with'; then echo 'Error: コミットメッセージに AI 署名が含まれている' 1>&2; exit 2; fi"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [],
+        "Notification": [
+            {
+                "matcher": "*",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "osascript -e 'display notification \"確認待ち\" with title \"Claude Code\"'"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "matcher": "*",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "osascript -e 'display notification \"タスク完了\" with title \"Claude Code\"'"
+                    }
+                ]
+            }
+        ]
+    }
+}
