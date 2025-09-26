@@ -1,0 +1,1026 @@
+openapi: 3.0.3
+info:
+  title: KidsPOS API
+  description: 子供向けPOSシステムのREST API
+  version: 1.0.0
+  contact:
+    name: KidsPOS Team
+    url: https://github.com/KidsPOSProject/KidsPOS-Server
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.kidspos.example.com
+    description: Production server
+
+tags:
+  - name: Items
+    description: 商品管理
+  - name: Sales
+    description: 売上管理
+  - name: Staff
+    description: スタッフ管理
+  - name: Stores
+    description: 店舗管理
+  - name: Settings
+    description: 設定管理
+  - name: Users
+    description: ユーザー管理
+
+paths:
+  # Items
+  /api/item:
+    get:
+      tags:
+        - Items
+      summary: 商品一覧取得
+      description: 登録されている全商品を取得します
+      operationId: getAllItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemResponse'
+
+    post:
+      tags:
+        - Items
+      summary: 商品登録
+      description: 新しい商品を登録します
+      operationId: createItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '400':
+          description: Invalid request
+        '409':
+          description: Barcode already exists
+
+  /api/item/{id}:
+    get:
+      tags:
+        - Items
+      summary: 商品取得
+      description: 指定したIDの商品を取得します
+      operationId: getItemById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '404':
+          description: Item not found
+
+    put:
+      tags:
+        - Items
+      summary: 商品更新
+      description: 指定したIDの商品を更新します
+      operationId: updateItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '404':
+          description: Item not found
+
+    patch:
+      tags:
+        - Items
+      summary: 商品部分更新
+      description: 指定したIDの商品を部分的に更新します
+      operationId: partialUpdateItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                barcode:
+                  type: string
+                name:
+                  type: string
+                price:
+                  type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '404':
+          description: Item not found
+
+    delete:
+      tags:
+        - Items
+      summary: 商品削除
+      description: 指定したIDの商品を削除します
+      operationId: deleteItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Item not found
+
+  /api/item/barcode/{barcode}:
+    get:
+      tags:
+        - Items
+      summary: バーコードで商品取得
+      description: バーコードから商品を検索します
+      operationId: getItemByBarcode
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9]{4,}$'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+        '400':
+          description: Invalid barcode format
+        '404':
+          description: Item not found
+
+  /api/item/barcode-pdf:
+    get:
+      tags:
+        - Items
+      summary: バーコードPDF生成
+      description: 全商品のバーコードをPDF形式で生成します
+      operationId: generateBarcodePdf
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # Sales
+  /api/sales:
+    get:
+      tags:
+        - Sales
+      summary: 売上一覧取得
+      description: 全売上データを取得します
+      operationId: getAllSales
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SaleResponse'
+
+    post:
+      tags:
+        - Sales
+      summary: 売上登録
+      description: 新しい売上を登録します
+      operationId: createSale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSaleRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  saleId:
+                    type: integer
+                  totalAmount:
+                    type: integer
+                  change:
+                    type: integer
+                  receiptPrinted:
+                    type: boolean
+        '400':
+          description: Validation error
+        '500':
+          description: Processing error
+
+  /api/sales/{id}:
+    get:
+      tags:
+        - Sales
+      summary: 売上詳細取得
+      description: 指定したIDの売上詳細を取得します
+      operationId: getSaleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '404':
+          description: Sale not found
+
+  /api/sales/validate-printer/{storeId}:
+    get:
+      tags:
+        - Sales
+      summary: プリンター設定確認
+      description: 指定した店舗のプリンター設定を確認します
+      operationId: validatePrinter
+      parameters:
+        - name: storeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+
+  # Staff
+  /api/staff:
+    get:
+      tags:
+        - Staff
+      summary: スタッフ一覧取得
+      description: 全スタッフを取得します
+      operationId: getAllStaff
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StaffEntity'
+
+    post:
+      tags:
+        - Staff
+      summary: スタッフ登録
+      description: 新しいスタッフを登録します
+      operationId: createStaff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffEntity'
+
+  /api/staff/{barcode}:
+    get:
+      tags:
+        - Staff
+      summary: スタッフ取得
+      description: バーコードからスタッフを取得します
+      operationId: getStaffByBarcode
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffEntity'
+        '404':
+          description: Staff not found
+
+    put:
+      tags:
+        - Staff
+      summary: スタッフ更新
+      description: スタッフ情報を更新します
+      operationId: updateStaff
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStaffRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffEntity'
+        '404':
+          description: Staff not found
+
+    delete:
+      tags:
+        - Staff
+      summary: スタッフ削除
+      description: スタッフを削除します
+      operationId: deleteStaff
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Staff not found
+
+  # Stores
+  /api/stores:
+    get:
+      tags:
+        - Stores
+      summary: 店舗一覧取得
+      description: 全店舗を取得します
+      operationId: getAllStores
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StoreEntity'
+
+    post:
+      tags:
+        - Stores
+      summary: 店舗登録
+      description: 新しい店舗を登録します
+      operationId: createStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreEntity'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreEntity'
+
+  /api/stores/{id}:
+    get:
+      tags:
+        - Stores
+      summary: 店舗取得
+      description: 指定したIDの店舗を取得します
+      operationId: getStoreById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreEntity'
+        '404':
+          description: Store not found
+
+    put:
+      tags:
+        - Stores
+      summary: 店舗更新
+      description: 店舗情報を更新します
+      operationId: updateStore
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreEntity'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreEntity'
+        '404':
+          description: Store not found
+
+    delete:
+      tags:
+        - Stores
+      summary: 店舗削除
+      description: 店舗を削除します
+      operationId: deleteStore
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Store not found
+
+  # Settings
+  /api/setting:
+    get:
+      tags:
+        - Settings
+      summary: 設定一覧取得
+      description: 全設定を取得します
+      operationId: getAllSettings
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SettingEntity'
+
+    post:
+      tags:
+        - Settings
+      summary: 設定作成
+      description: 新しい設定を作成します
+      operationId: createSetting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingEntity'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingEntity'
+
+  /api/setting/status:
+    get:
+      tags:
+        - Settings
+      summary: ステータス取得
+      description: APIのステータスを取得します
+      operationId: getStatus
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+
+  /api/setting/{key}:
+    get:
+      tags:
+        - Settings
+      summary: 設定取得
+      description: 指定したキーの設定を取得します
+      operationId: getSettingByKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingEntity'
+        '404':
+          description: Setting not found
+
+    put:
+      tags:
+        - Settings
+      summary: 設定更新
+      description: 設定を更新します
+      operationId: updateSetting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+              required:
+                - value
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingEntity'
+        '404':
+          description: Setting not found
+
+    delete:
+      tags:
+        - Settings
+      summary: 設定削除
+      description: 設定を削除します
+      operationId: deleteSetting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Setting not found
+
+  /api/setting/printer/{storeId}:
+    get:
+      tags:
+        - Settings
+      summary: プリンター設定取得
+      description: 店舗のプリンター設定を取得します
+      operationId: getPrinterSettings
+      parameters:
+        - name: storeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  storeId:
+                    type: integer
+                  host:
+                    type: string
+                  port:
+                    type: integer
+        '404':
+          description: Printer settings not found
+
+    post:
+      tags:
+        - Settings
+      summary: プリンター設定保存
+      description: 店舗のプリンター設定を保存します
+      operationId: savePrinterSettings
+      parameters:
+        - name: storeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host:
+                  type: string
+                port:
+                  type: integer
+              required:
+                - host
+                - port
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  storeId:
+                    type: integer
+                  host:
+                    type: string
+                  port:
+                    type: integer
+                  message:
+                    type: string
+
+  /api/setting/application:
+    get:
+      tags:
+        - Settings
+      summary: アプリケーション設定取得
+      description: アプリケーション全体の設定を取得します
+      operationId: getApplicationSettings
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationSetting'
+        '404':
+          description: Application settings not found
+
+    post:
+      tags:
+        - Settings
+      summary: アプリケーション設定保存
+      description: アプリケーション全体の設定を保存します
+      operationId: saveApplicationSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationSetting'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverHost:
+                    type: string
+                  serverPort:
+                    type: integer
+                  message:
+                    type: string
+
+  # Users
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: ユーザー一覧取得
+      description: 全ユーザーを取得します
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StaffEntity'
+
+  /api/users/{barcode}:
+    get:
+      tags:
+        - Users
+      summary: ユーザー取得
+      description: バーコードからユーザーを取得します
+      operationId: getUserByBarcode
+      parameters:
+        - name: barcode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffEntity'
+        '404':
+          description: User not found
+
+components:
+  schemas:
+    ItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        barcode:
+          type: string
+          example: "1234567890"
+        name:
+          type: string
+          example: "ポテトチップス"
+        price:
+          type: integer
+          example: 150
+          description: 価格（リバー）
+      required:
+        - id
+        - barcode
+        - name
+        - price
+
+    CreateItemRequest:
+      type: object
+      properties:
+        barcode:
+          type: string
+          minLength: 4
+          example: "1234567890"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "ポテトチップス"
+        price:
+          type: integer
+          minimum: 0
+          maximum: 99999
+          example: 150
+      required:
+        - barcode
+        - name
+        - price
+
+    SaleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        storeId:
+          type: integer
+        staffBarcode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        totalAmount:
+          type: integer
+          description: 合計金額（リバー）
+        deposit:
+          type: integer
+          description: 預り金（リバー）
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              barcode:
+                type: string
+              name:
+                type: string
+              price:
+                type: integer
+              quantity:
+                type: integer
+
+    CreateSaleRequest:
+      type: object
+      properties:
+        storeId:
+          type: integer
+        staffBarcode:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              barcode:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+            required:
+              - barcode
+              - quantity
+        deposit:
+          type: integer
+          minimum: 0
+        printReceipt:
+          type: boolean
+          default: true
+      required:
+        - storeId
+        - staffBarcode
+        - items
+        - deposit
+
+    StaffEntity:
+      type: object
+      properties:
+        barcode:
+          type: string
+          example: "STAFF001"
+        name:
+          type: string
+          example: "田中太郎"
+      required:
+        - barcode
+        - name
+
+    CreateStaffRequest:
+      type: object
+      properties:
+        barcode:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+        - barcode
+        - name
+
+    UpdateStaffRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+        - name
+
+    StoreEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        printerUri:
+          type: string
+          nullable: true
+      required:
+        - name
+
+    SettingEntity:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+        - key
+        - value
+
+    ApplicationSetting:
+      type: object
+      properties:
+        serverHost:
+          type: string
+        serverPort:
+          type: integer
+      required:
+        - serverHost
+        - serverPort
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# セキュリティは現在未実装のため、コメントアウト
+# security:
+#   - bearerAuth: []

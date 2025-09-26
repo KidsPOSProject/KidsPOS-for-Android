@@ -11,6 +11,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'com.google.dagger.hilt.android'
+    id 'org.openapi.generator'
 }
 
 android {
@@ -133,7 +134,40 @@ dependencies {
 
     implementation libs.retrofit.client
     implementation libs.retrofit.converter.serialization
+    implementation "com.squareup.retrofit2:converter-scalars:2.9.0"
 
     implementation libs.logger
     implementation libs.eventbus
+}
+
+// OpenAPI Generator Configuration
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set("$projectDir/openapi/api.yaml")
+    outputDir.set("$buildDir/generated/openapi")
+    apiPackage.set("info.nukoneko.cuc.android.kidspos.api.generated")
+    modelPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.model")
+    invokerPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.invoker")
+    configOptions.set([
+        "library": "jvm-retrofit2",
+        "useCoroutines": "true",
+        "serializationLibrary": "kotlinx_serialization",
+        "dateLibrary": "java8",
+        "enumPropertyNaming": "UPPERCASE",
+        "collectionType": "list"
+    ])
+    additionalProperties.set([
+        "generateApiDocumentation": "false",
+        "generateModelDocumentation": "false"
+    ])
+}
+
+// Add generated sources to source sets
+android.sourceSets {
+    main.kotlin.srcDirs += "$buildDir/generated/openapi/src/main/kotlin"
+}
+
+// Make sure code is generated before compilation
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    dependsOn tasks.openApiGenerate
 }
