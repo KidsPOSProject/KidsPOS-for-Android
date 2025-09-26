@@ -11,11 +11,9 @@
 - レシート発行
 
 ## 開発環境
-- Android Studio Hedgehog | 2023.1.1以降
-- Kotlin 1.8.20以降
-- Gradle 8.13
-- minSdk 23
-- targetSdk 33
+- Android Studio
+- Kotlin
+- Gradle
 
 ## ビルド方法
 
