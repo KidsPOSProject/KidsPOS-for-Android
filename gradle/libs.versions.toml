@@ -56,7 +56,6 @@ retrofit-client = { module = "com.squareup.retrofit2:retrofit", version.ref = "r
 retrofit-converter-serialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit-kotlin-serialization-converter" }
 
 logger = { module = "com.orhanobut:logger", version = "2.2.0" }
-eventbus = { module = "org.greenrobot:eventbus", version = "3.2.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }

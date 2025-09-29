@@ -136,7 +136,6 @@ dependencies {
     implementation libs.converter.scalars
 
     implementation libs.logger
-    implementation libs.eventbus
 }
 
 // OpenAPI Generator Configuration
