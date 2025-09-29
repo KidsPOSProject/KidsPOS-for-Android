@@ -12,8 +12,8 @@ import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import info.nukoneko.cuc.android.kidspos.di.Subscribe
+import info.nukoneko.cuc.android.kidspos.di.ThreadMode
 
 class ItemListViewModel(
     private val config: GlobalConfig,

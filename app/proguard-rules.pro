@@ -20,12 +20,12 @@
 -if interface * { @retrofit2.http.* <methods>; }
 -keep,allowobfuscation interface <1>
 
-## EventBus
+## EventBus (Flow-based)
 -keepattributes *Annotation*
 -keepclassmembers class * {
-    @org.greenrobot.eventbus.Subscribe <methods>;
+    @info.nukoneko.cuc.android.kidspos.di.Subscribe <methods>;
 }
--keep enum org.greenrobot.eventbus.ThreadMode { *; }
+-keep enum info.nukoneko.cuc.android.kidspos.di.ThreadMode { *; }
 
 #------ Gson -------
 -keep class info.nukoneko.cuc.android.kidspos.entity.** { *; }

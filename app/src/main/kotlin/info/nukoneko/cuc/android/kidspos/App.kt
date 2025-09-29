@@ -10,8 +10,8 @@ import info.nukoneko.cuc.android.kidspos.di.module.viewModelModule
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
 import okhttp3.Interceptor
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import info.nukoneko.cuc.android.kidspos.di.Subscribe
+import info.nukoneko.cuc.android.kidspos.di.ThreadMode
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin

@@ -15,8 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import info.nukoneko.cuc.android.kidspos.di.Subscribe
+import info.nukoneko.cuc.android.kidspos.di.ThreadMode
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 
