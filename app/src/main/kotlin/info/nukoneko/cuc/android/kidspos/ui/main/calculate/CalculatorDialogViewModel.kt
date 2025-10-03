@@ -94,8 +94,9 @@ class CalculatorDialogViewModel(
         val ids = items.map { it.id.toString() }
         val joinedIds = ids.joinToString(",")
         api.createSale(
-            config.currentStore?.id ?: 0, config.currentStaff?.barcode
-                ?: "", deposit, joinedIds
+            config.currentStore?.id ?: 0,
+            deposit,
+            joinedIds
         )
     }
 

@@ -23,8 +23,16 @@ val coreModule = module {
     single<Interceptor>(named("serverSelection")) {
         ServerSelectionInterceptor((get<GlobalConfig>().currentServerAddress))
     }
+    single<Interceptor>(named("logging")) {
+        okhttp3.logging.HttpLoggingInterceptor().apply {
+            level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+        }
+    }
     single {
-        OkHttpClient.Builder().addInterceptor(get<Interceptor>(named("serverSelection"))).build()
+        OkHttpClient.Builder()
+            .addInterceptor(get<Interceptor>(named("serverSelection")))
+            .addInterceptor(get<Interceptor>(named("logging")))
+            .build()
     }
     single {
         val contentType = "application/json".toMediaType()

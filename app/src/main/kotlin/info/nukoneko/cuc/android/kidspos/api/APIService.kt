@@ -4,7 +4,6 @@ import info.nukoneko.cuc.android.kidspos.api.generated.*
 import info.nukoneko.cuc.android.kidspos.api.generated.model.*
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
-import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import retrofit2.Response
 
@@ -14,7 +13,6 @@ import retrofit2.Response
 open class APIService(
     private val itemsApi: ItemsApi,
     private val salesApi: SalesApi,
-    private val staffApi: StaffApi,
     private val storesApi: StoresApi,
     private val settingsApi: SettingsApi
 ) {
@@ -36,38 +34,27 @@ open class APIService(
 
     open suspend fun createSale(
         storeId: Int,
-        staffBarcode: String,
         deposit: Int,
         itemIds: String
     ): Sale {
-        // itemIdsをカンマ区切りからリストに変換
-        // 注意: 新しいAPIではitemIdではなくバーコードを使用
-        val itemBarcodes = itemIds.split(",")
-
         val request = CreateSaleRequest(
             storeId = storeId,
-            staffBarcode = staffBarcode,
-            deposit = deposit,
-            items = itemBarcodes.map { barcode ->
-                CreateSaleRequestItemsInner(
-                    barcode = barcode,
-                    quantity = 1 // デフォルトで1個とする
-                )
-            }
+            itemIds = itemIds,
+            deposit = deposit
         )
 
         val response = salesApi.createSale(request)
         return if (response.isSuccessful) {
             val saleResponse = response.body()!!
             Sale(
-                id = saleResponse.saleId ?: 0,
-                barcode = saleResponse.saleId?.toString() ?: "", // バーコードはIDから生成
-                createdAt = java.util.Date().toString(), // 現在時刻を設定
-                points = 0, // ポイントは新APIにない
-                price = saleResponse.totalAmount ?: 0,
-                items = itemIds, // 元のitemIdsをそのまま使用
-                storeId = storeId,
-                staffId = 0 // スタッフIDは取得できないため仮値
+                id = saleResponse.id ?: 0,
+                barcode = saleResponse.id?.toString() ?: "",
+                createdAt = java.util.Date().toString(),
+                points = 0,
+                price = saleResponse.amount ?: 0,
+                items = itemIds,
+                storeId = saleResponse.storeId ?: storeId,
+                staffId = 0
             )
         } else {
             throw Exception("Failed to create sale: ${response.code()}")
@@ -88,19 +75,6 @@ open class APIService(
             )
         } else {
             throw Exception("Failed to get item: ${response.code()}")
-        }
-    }
-
-    open suspend fun getStaff(staffBarcode: String): Staff {
-        val response = staffApi.getStaffByBarcode(staffBarcode)
-        return if (response.isSuccessful) {
-            val staffResponse = response.body()!!
-            Staff(
-                barcode = staffResponse.barcode ?: staffBarcode,
-                name = staffResponse.name ?: ""
-            )
-        } else {
-            throw Exception("Failed to get staff: ${response.code()}")
         }
     }
 

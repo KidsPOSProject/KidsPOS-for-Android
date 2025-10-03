@@ -873,9 +873,10 @@ components:
           nullable: true
           description: リクエストパス
         details:
-          type: string
+          type: object
           nullable: true
-          description: 追加の詳細情報（JSON文字列）
+          description: 追加の詳細情報
+          additionalProperties: true
       required:
         - code
         - message

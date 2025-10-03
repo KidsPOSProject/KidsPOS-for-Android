@@ -16,7 +16,6 @@ import info.nukoneko.cuc.android.kidspos.ui.common.ErrorDialogFragment
 import info.nukoneko.cuc.android.kidspos.ui.main.itemlist.ItemListFragment
 import info.nukoneko.cuc.android.kidspos.ui.main.storelist.StoreListDialogFragment
 import info.nukoneko.cuc.android.kidspos.ui.setting.SettingActivity
-import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,8 +32,8 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
             Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
         }
 
-        override fun onNotReachableServer() {
-            showNotReachableErrorDialog()
+        override fun onNotReachableServer(errorMessage: String) {
+            showNotReachableErrorDialog(errorMessage)
         }
 
         override fun onShouldChangeTitleSuffix(titleSuffix: String) {
@@ -50,8 +49,8 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
                 fragment.isCancelable = false
                 fragment.show(supportFragmentManager, "changeStore")
             }
-            R.id.input_dummy_item -> onBarcodeInput("1234567890", BarcodeKind.ITEM)
-            R.id.input_dummy_store -> onBarcodeInput("1234567890", BarcodeKind.STAFF)
+
+            R.id.input_dummy_item -> onBarcodeInput("1234567890")
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         true
@@ -91,18 +90,19 @@ class MainActivity : BaseBarcodeReadableActivity(), CoroutineScope {
     override fun onResume() {
         super.onResume()
         myViewModel.onResume()
+        @Suppress("KotlinConstantConditions")
         binding.navView.menu.setGroupVisible(R.id.beta_test, ProjectSettings.DEMO_MODE)
     }
 
-    override fun onBarcodeInput(barcode: String, prefix: BarcodeKind) {
-        myViewModel.onBarcodeInput(barcode, prefix)
+    override fun onBarcodeInput(barcode: String) {
+        myViewModel.onBarcodeInput(barcode)
     }
 
-    private fun showNotReachableErrorDialog() {
+    private fun showNotReachableErrorDialog(errorMessage: String) {
         launch {
             val result = ErrorDialogFragment.showWithSuspend(
                 supportFragmentManager,
-                "サーバーとの接続に失敗しました\n・ネットワーク接続を確認してください\n・設定画面で設定を確認をしてください"
+                errorMessage
             )
             when (result) {
                 ErrorDialogFragment.DialogResult.OK -> SettingActivity.createIntent(this@MainActivity)
