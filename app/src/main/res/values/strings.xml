@@ -13,10 +13,8 @@
     <string name="DrawerTitleSettings">設定</string>
     <string name="DrawerTitleChangeStore">おみせの切り替え</string>
     <string name="BetaDrawerTitleInputDummyItem">ダミー商品読み込み</string>
-    <string name="BetaDrawerTitleInputDummyStaff">ダミースタッフ読み込み</string>
 
     <string name="request_item_failed">商品の読み取りに失敗しました。連続で発生する場合、担当にお知らせください</string>
-    <string name="request_staff_failed">スタッフの読み込みに失敗しました。\n当日に登録した場合、読み込めません</string>
     <string name="read_receipt_failed">レシートの読み取りはできません。</string>
 
     <!-- Settings -->

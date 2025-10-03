@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.util
 
 import android.view.KeyEvent
+import com.orhanobut.logger.Logger
 import info.nukoneko.cuc.android.kidspos.error.IllegalBarcodeException
 
 class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
@@ -13,13 +14,26 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
         }
         if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
             if (readingValue.isNotEmpty() && readingValue.length >= 5) {
+                Logger.d("Barcode read: raw=$readingValue")
+
+                // 両脇が 5222 だったらそれぞれ A に変換する
+                var processedValue = readingValue
+                if (processedValue.startsWith("5222") && processedValue.endsWith("5222")) {
+                    processedValue =
+                        "A" + processedValue.substring(4, processedValue.length - 4) + "A"
+                    Logger.d("Barcode converted: $readingValue -> $processedValue")
+                }
+
                 // 10桁なら返す
-                when (readingValue.length) {
+                when (processedValue.length) {
                     10 -> {
-                        val prefix = readingValue.substring(2, 4)
-                        listener?.onReadSuccess(readingValue, BarcodeKind.prefixOf(prefix))
+                        listener?.onReadSuccess(processedValue)
                     }
-                    else -> listener?.onReadFailed(IllegalBarcodeException(readingValue))
+
+                    else -> {
+                        Logger.e("Barcode failed: invalid length (${processedValue.length}): $processedValue")
+                        listener?.onReadFailed(IllegalBarcodeException(processedValue))
+                    }
                 }
             }
             readingValue = ""
@@ -33,7 +47,7 @@ class BarcodeReadDelegate(var listener: OnBarcodeReadListener?) {
     }
 
     interface OnBarcodeReadListener {
-        fun onReadSuccess(barcode: String, kind: BarcodeKind)
+        fun onReadSuccess(barcode: String)
 
         fun onReadFailed(e: IllegalBarcodeException)
     }
