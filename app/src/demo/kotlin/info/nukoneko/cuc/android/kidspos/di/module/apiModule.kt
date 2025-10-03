@@ -3,7 +3,6 @@ package info.nukoneko.cuc.android.kidspos.di.module
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
-import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import org.koin.dsl.module
 import java.util.*
@@ -15,7 +14,6 @@ import java.util.*
 class DemoAPIService : APIService(
     itemsApi = throw NotImplementedError("Demo mode - itemsApi not used"),
     salesApi = throw NotImplementedError("Demo mode - salesApi not used"),
-    staffApi = throw NotImplementedError("Demo mode - staffApi not used"),
     storesApi = throw NotImplementedError("Demo mode - storesApi not used"),
     settingsApi = throw NotImplementedError("Demo mode - settingsApi not used")
 ) {
@@ -23,7 +21,6 @@ class DemoAPIService : APIService(
 
     override suspend fun createSale(
         storeId: Int,
-        staffBarcode: String,
         deposit: Int,
         itemIds: String
     ): Sale = Sale(
@@ -52,9 +49,6 @@ class DemoAPIService : APIService(
             storeId = 1,
             genreId = 1
         )
-
-    override suspend fun getStaff(staffBarcode: String): Staff =
-        Staff(staffBarcode, "DemoStaff")
 }
 
 val apiModule = module {

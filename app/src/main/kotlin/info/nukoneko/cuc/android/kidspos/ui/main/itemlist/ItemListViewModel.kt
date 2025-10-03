@@ -23,12 +23,6 @@ class ItemListViewModel(
     private val currentPrice = MutableLiveData<String>()
     fun getCurrentPriceText(): LiveData<String> = currentPrice
 
-    private val currentStaff = MutableLiveData<String>()
-    fun getCurrentStaffText(): LiveData<String> = currentStaff
-
-    private val currentStaffVisibility = MutableLiveData<Int>()
-    fun getCurrentStaffVisibility(): LiveData<Int> = currentStaffVisibility
-
     private val accountButtonEnabled = MutableLiveData<Boolean>()
     fun getAccountButtonEnabled(): LiveData<Boolean> = accountButtonEnabled
 
@@ -85,9 +79,6 @@ class ItemListViewModel(
     private fun updateViews() {
         currentPrice.postValue("${currentTotal()} リバー")
         accountButtonEnabled.postValue(data.isNotEmpty())
-        currentStaffVisibility.value =
-            if (config.currentStaff == null) View.INVISIBLE else View.VISIBLE
-        currentStaff.postValue("たんとう: ${config.currentStaff?.name ?: ""}")
         // 練習モードのときのみ商品追加ボタンを表示
         addItemButtonVisibility.postValue(
             if (config.currentRunningMode == Mode.PRACTICE) View.VISIBLE else View.GONE
@@ -103,20 +94,8 @@ class ItemListViewModel(
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReadStaffSuccessEvent(event: BarcodeEvent.ReadStaffSuccess) {
-        val staff = event.staff
-        config.currentStaff = staff
-        updateViews()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReadItemFailedEvent(@Suppress("UNUSED_PARAMETER") event: BarcodeEvent.ReadItemFailed) {
         listener?.onShouldShowMessage(R.string.request_item_failed)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReadStaffFailedEvent(@Suppress("UNUSED_PARAMETER") event: BarcodeEvent.ReadStaffFailed) {
-        listener?.onShouldShowMessage(R.string.request_staff_failed)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

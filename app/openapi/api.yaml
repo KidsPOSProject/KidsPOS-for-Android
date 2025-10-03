@@ -18,14 +18,10 @@ tags:
     description: 商品管理
   - name: Sales
     description: 売上管理
-  - name: Staff
-    description: スタッフ管理
   - name: Stores
     description: 店舗管理
   - name: Settings
     description: 設定管理
-  - name: Users
-    description: ユーザー管理
 
 paths:
   # Items
@@ -247,27 +243,43 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateSaleRequest'
       responses:
-        '200':
-          description: Success
+        '201':
+          description: Created
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                  saleId:
+                  id:
                     type: integer
-                  totalAmount:
+                    description: 売上ID
+                  amount:
                     type: integer
+                    description: 合計金額
+                  quantity:
+                    type: integer
+                    description: 商品数
+                  deposit:
+                    type: integer
+                    description: 預かり金額
                   change:
                     type: integer
-                  receiptPrinted:
-                    type: boolean
+                    description: おつり
+                  storeId:
+                    type: integer
+                    description: 店舗ID
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/sales/{id}:
     get:
@@ -315,113 +327,6 @@ paths:
                 properties:
                   isValid:
                     type: boolean
-
-  # Staff
-  /api/staff:
-    get:
-      tags:
-        - Staff
-      summary: スタッフ一覧取得
-      description: 全スタッフを取得します
-      operationId: getAllStaff
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StaffEntity'
-
-    post:
-      tags:
-        - Staff
-      summary: スタッフ登録
-      description: 新しいスタッフを登録します
-      operationId: createStaff
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateStaffRequest'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StaffEntity'
-
-  /api/staff/{barcode}:
-    get:
-      tags:
-        - Staff
-      summary: スタッフ取得
-      description: バーコードからスタッフを取得します
-      operationId: getStaffByBarcode
-      parameters:
-        - name: barcode
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StaffEntity'
-        '404':
-          description: Staff not found
-
-    put:
-      tags:
-        - Staff
-      summary: スタッフ更新
-      description: スタッフ情報を更新します
-      operationId: updateStaff
-      parameters:
-        - name: barcode
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateStaffRequest'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StaffEntity'
-        '404':
-          description: Staff not found
-
-    delete:
-      tags:
-        - Staff
-      summary: スタッフ削除
-      description: スタッフを削除します
-      operationId: deleteStaff
-      parameters:
-        - name: barcode
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: No Content
-        '404':
-          description: Staff not found
 
   # Stores
   /api/stores:
@@ -778,46 +683,6 @@ paths:
                   message:
                     type: string
 
-  # Users
-  /api/users:
-    get:
-      tags:
-        - Users
-      summary: ユーザー一覧取得
-      description: 全ユーザーを取得します
-      operationId: getAllUsers
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StaffEntity'
-
-  /api/users/{barcode}:
-    get:
-      tags:
-        - Users
-      summary: ユーザー取得
-      description: バーコードからユーザーを取得します
-      operationId: getUserByBarcode
-      parameters:
-        - name: barcode
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StaffEntity'
-        '404':
-          description: User not found
 
 components:
   schemas:
@@ -870,102 +735,88 @@ components:
       properties:
         id:
           type: integer
+          description: 売上ID
         storeId:
           type: integer
-        staffBarcode:
+          description: 店舗ID
+        storeName:
           type: string
-        createdAt:
-          type: string
-          format: date-time
+          description: 店舗名
         totalAmount:
           type: integer
           description: 合計金額（リバー）
         deposit:
           type: integer
           description: 預り金（リバー）
+        change:
+          type: integer
+          description: お釣り（リバー）
+        saleTime:
+          type: string
+          format: date-time
+          description: 売上時刻
         items:
           type: array
+          description: 売上商品リスト
           items:
-            type: object
-            properties:
-              barcode:
-                type: string
-              name:
-                type: string
-              price:
-                type: integer
-              quantity:
-                type: integer
+            $ref: '#/components/schemas/SaleItemResponse'
+      required:
+        - id
+        - storeId
+        - storeName
+        - totalAmount
+        - deposit
+        - change
+        - saleTime
+
+    SaleItemResponse:
+      type: object
+      properties:
+        itemId:
+          type: integer
+          description: 商品ID
+        itemName:
+          type: string
+          description: 商品名
+        barcode:
+          type: string
+          description: バーコード
+        quantity:
+          type: integer
+          description: 数量
+        unitPrice:
+          type: integer
+          description: 単価（リバー）
+        subtotal:
+          type: integer
+          description: 小計（リバー）
+      required:
+        - itemId
+        - itemName
+        - barcode
+        - quantity
+        - unitPrice
+        - subtotal
 
     CreateSaleRequest:
       type: object
       properties:
         storeId:
           type: integer
-        staffBarcode:
+          description: 店舗ID
+        itemIds:
           type: string
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              barcode:
-                type: string
-              quantity:
-                type: integer
-                minimum: 1
-            required:
-              - barcode
-              - quantity
+          description: 商品IDのカンマ区切り文字列（例："1,2,3"）
+          example: "1,2,3"
         deposit:
           type: integer
           minimum: 0
-        printReceipt:
-          type: boolean
-          default: true
+          description: 預かり金額
       required:
         - storeId
-        - staffBarcode
-        - items
+        - itemIds
         - deposit
 
-    StaffEntity:
-      type: object
-      properties:
-        barcode:
-          type: string
-          example: "STAFF001"
-        name:
-          type: string
-          example: "田中太郎"
-      required:
-        - barcode
-        - name
-
-    CreateStaffRequest:
-      type: object
-      properties:
-        barcode:
-          type: string
-          minLength: 1
-          maxLength: 50
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-      required:
-        - barcode
-        - name
-
-    UpdateStaffRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-      required:
-        - name
 
     StoreEntity:
       type: object
@@ -1005,15 +856,30 @@ components:
     ErrorResponse:
       type: object
       properties:
-        error:
+        code:
           type: string
+          description: エラーコード
+          example: "VALIDATION_ERROR"
         message:
           type: string
+          description: エラーメッセージ
+          example: "商品IDが空です。売上作成には少なくとも1つの商品が必要です"
         timestamp:
           type: string
           format: date-time
+          description: エラー発生時刻
         path:
           type: string
+          nullable: true
+          description: リクエストパス
+        details:
+          type: string
+          nullable: true
+          description: 追加の詳細情報（JSON文字列）
+      required:
+        - code
+        - message
+        - timestamp
 
   securitySchemes:
     bearerAuth:

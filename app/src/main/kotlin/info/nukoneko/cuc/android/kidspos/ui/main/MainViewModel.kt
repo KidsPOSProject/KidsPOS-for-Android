@@ -5,7 +5,6 @@ import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.di.GlobalConfig
 import info.nukoneko.cuc.android.kidspos.entity.Item
-import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.event.BarcodeEvent
 import info.nukoneko.cuc.android.kidspos.event.EventBus
 import info.nukoneko.cuc.android.kidspos.event.SystemEvent
@@ -44,11 +43,10 @@ class MainViewModel(
                     onReadItemSuccess(Item.create(barcode))
                 }
                 BarcodeKind.STAFF -> {
-                    onReadStaffSuccess(Staff.create(barcode))
+                    // Staff機能は廃止
                 }
                 else -> {
                     onReadItemSuccess(Item.create(barcode))
-                    onReadStaffSuccess(Staff.create(barcode))
                 }
             }
         } else {
@@ -65,14 +63,7 @@ class MainViewModel(
                     }
                 }
                 BarcodeKind.STAFF -> {
-                    launch {
-                        try {
-                            val staff = requestGetStaff(barcode)
-                            onReadStaffSuccess(staff)
-                        } catch (e: Throwable) {
-                            onReadStaffFailure(e)
-                        }
-                    }
+                    // Staff機能は廃止
                 }
                 BarcodeKind.SALE -> eventBus.post(BarcodeEvent.ReadReceiptFailed(IOException("まだ対応していない")))
                 BarcodeKind.UNKNOWN -> {
@@ -122,14 +113,6 @@ class MainViewModel(
         eventBus.post(BarcodeEvent.ReadItemFailed(e))
     }
 
-    private fun onReadStaffSuccess(staff: Staff) {
-        eventBus.post(BarcodeEvent.ReadStaffSuccess(staff))
-    }
-
-    private fun onReadStaffFailure(e: Throwable) {
-        eventBus.post(BarcodeEvent.ReadStaffFailed(e))
-    }
-
     private fun safetyShowMessage(message: String) {
         launch(Dispatchers.Main) {
             listener?.onShouldShowMessage(message)
@@ -150,10 +133,6 @@ class MainViewModel(
 
     private suspend fun requestGetItem(barcode: String) = withContext(Dispatchers.IO) {
         api.getItem(barcode)
-    }
-
-    private suspend fun requestGetStaff(barcode: String) = withContext(Dispatchers.IO) {
-        api.getStaff(barcode)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
