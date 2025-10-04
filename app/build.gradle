@@ -121,6 +121,12 @@ dependencies {
 
     implementation(Dep.Zxing.android)
 
+    // CameraX
+    implementation libs.camerax.core
+    implementation libs.camerax.camera2
+    implementation libs.camerax.lifecycle
+    implementation libs.camerax.view
+
     coreLibraryDesugaring libs.desugar.jdk.libs
 
     implementation platform(libs.okhttp.bom)

@@ -1,0 +1,8 @@
+- Follow MVVM separation; put DI updates under `di/module`, view logic in `ui/*`, domain data in `entity`.
+- Prefer DataBinding/ViewBinding; keep UI state in ViewModels.
+- Logging must use `Logger` (no `print`/`println`).
+- Use coroutines (`Dispatchers.IO`, `withContext`, `viewModelScope`-style) for async network calls.
+- Network base URL and runtime mode go through `GlobalConfig`; changes broadcast with EventBus.
+- Practice/dummy behaviors guarded by `ProjectSettings.DEMO_MODE` and `Mode` enum; keep parity between flavors.
+- Keep barcode handling via `BarcodeReadDelegate` and `BarcodeKind`; propagate results through `BarcodeEvent`/`SystemEvent` on EventBus.
+- Resource strings live in `strings.xml` (Japanese text); landscapes orientation enforced.

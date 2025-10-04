@@ -1,0 +1,8 @@
+- Android POS app for キッズビジネスタウンいちかわ, package `info.nukoneko.cuc.android.kidspos`.
+- Kotlin/Gradle project targeting Android SDK 23-33 with Kotlin JVM target 17.
+- Uses MVVM with Activities/Fragments (DataBinding/ViewBinding) and Koin DI (modules: coreModule, apiModule, viewModelModule).
+- Network stack: Retrofit + OkHttp + kotlinx-serialization, OpenAPI-generated clients, custom `ServerSelectionInterceptor` to prepend `/api` and switch base URLs via settings.
+- Event system via org.greenrobot EventBus; settings stored in `GlobalConfig` (SharedPreferences) controlling server address, run mode, selected store/staff.
+- Flavors: `prod` (real API) and `demo` (mock `DemoAPIService`), plus practice/production runtime modes toggled in settings.
+- Entry flow: `LaunchActivity` -> `MainActivity` (barcode-driven sales UI) with fragments for items, store selection, calculator dialog posting sales.
+- Firebase Analytics/Crashlytics and ZXing scanning support included.

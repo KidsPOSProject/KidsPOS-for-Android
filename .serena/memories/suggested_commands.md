@@ -1,0 +1,8 @@
+- Build prod debug APK: `./gradlew assembleProdDebug`
+- Build prod release APK: `./gradlew assembleProdRelease`
+- Build demo variants: `./gradlew assembleDemoDebug`, `./gradlew assembleDemoRelease`
+- Clean build: `./gradlew clean assembleProdDebug`
+- Install/uninstall on device: `./gradlew installProdDebug`, `./gradlew uninstallProdDebug`
+- Run unit tests: `./gradlew test`, `./gradlew testProdDebugUnitTest`
+- Run lint: `./gradlew lint`, `./gradlew lintProdDebug`
+- Auto-fix lint: `./gradlew lintFix`

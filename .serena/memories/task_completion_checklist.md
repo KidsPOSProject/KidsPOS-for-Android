@@ -1,0 +1,7 @@
+- Ensure `./gradlew assembleProdDebug` succeeds.
+- Run `./gradlew lint` (and relevant flavor lint) and confirm no errors.
+- Execute unit tests via `./gradlew test` (and flavor-specific tests if touched).
+- Verify no stray `print` logging; use `Logger` only.
+- Confirm new DI bindings registered in appropriate `di/module` file and flavors stay in sync.
+- For network changes, validate `ServerSelectionInterceptor` and `GlobalConfig` interactions (practice vs production modes).
+- Update OpenAPI spec/generation if API contract changes.

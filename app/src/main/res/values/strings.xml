@@ -32,4 +32,7 @@
     <string name="load_setting">設定を読み込む</string>
     <string name="change_mode">練習モードに切り替える</string>
     <string name="current_mode">現在のモード</string>
+    <string name="camera_permission_required">カメラ権限が必要です</string>
+    <string name="camera_mode_enabled">カメラモードを有効にしました</string>
+    <string name="camera_mode_disabled">カメラモードを無効にしました</string>
 </resources>
