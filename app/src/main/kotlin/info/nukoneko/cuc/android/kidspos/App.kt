@@ -3,6 +3,7 @@ package info.nukoneko.cuc.android.kidspos
 import android.app.Application
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
+import dagger.hilt.android.HiltAndroidApp
 import info.nukoneko.cuc.android.kidspos.di.ServerSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.di.module.apiModule
 import info.nukoneko.cuc.android.kidspos.di.module.coreModule
@@ -17,6 +18,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 
+@HiltAndroidApp
 open class App : Application() {
     private val event: EventBus by inject()
     private val serverSelectionInterceptor: Interceptor by inject(named("serverSelection"))
