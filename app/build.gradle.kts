@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
@@ -43,8 +42,6 @@ android {
 
     buildFeatures {
         compose = true
-        dataBinding = true
-        viewBinding = true
     }
 
     signingConfigs {
@@ -113,10 +110,6 @@ kotlin {
     }
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
 dependencies {
     implementation(libs.kotlin.std.lib)
     implementation(libs.kotlinx.coroutines.android)
@@ -125,8 +118,6 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-
-    implementation(libs.koin.android)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
@@ -143,13 +134,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.android.material)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.preference.ktx)
-    implementation(libs.androidx.constraintlayout)
 
     implementation(libs.zxing.android.embedded)
 
@@ -168,7 +154,6 @@ dependencies {
     implementation(libs.retrofit.converter.scalars)
 
     implementation(libs.logger)
-    implementation(libs.eventbus)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

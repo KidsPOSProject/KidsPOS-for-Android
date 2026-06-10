@@ -5,7 +5,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import org.koin.dsl.module
 import java.util.Date
 
 class DemoAPIService : APIService {
@@ -45,10 +44,4 @@ class DemoAPIService : APIService {
         Staff(staffBarcode, "DemoStaff")
 
     override suspend fun getStatus(): Any = mapOf("status" to "OK", "mode" to "demo")
-}
-
-val apiModule = module {
-    single<APIService> {
-        DemoAPIService()
-    }
 }

@@ -34,4 +34,14 @@
     <string name="load_setting">設定を読み込む</string>
     <string name="change_mode">練習モードに切り替える</string>
     <string name="current_mode">現在のモード</string>
+    <string name="store_fetch_failed">サーバーとの通信に失敗しました。\n接続を確認してください。</string>
+
+    <string name="river_format">%d リバー</string>
+    <string name="staff_name_format">たんとう: %s</string>
+    <string name="title_mode_format">[%sモード]</string>
+    <string name="title_test_mode">[テストモード]</string>
+    <string name="practice_mode_no_receipt">練習モードのためレシートは出ません</string>
+    <string name="network_error">通信エラーが発生しました。</string>
+    <string name="current_mode_format">現在は %s モードです</string>
+    <string name="switch_mode_format">%s に切り替える</string>
 </resources>

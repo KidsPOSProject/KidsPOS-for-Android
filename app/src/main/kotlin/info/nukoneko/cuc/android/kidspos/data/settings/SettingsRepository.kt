@@ -15,8 +15,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-// GlobalConfig と同時稼働させると SharedPreferencesMigration が移行済みキーを
-// SharedPreferences から削除して設定が分裂するため、旧設定機構を撤去するまで DI には接続しない。
 class SettingsRepository(
     private val context: Context,
     private val json: Json
