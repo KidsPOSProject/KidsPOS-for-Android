@@ -28,7 +28,7 @@ google-services = "4.3.10"
 firebase-crashlytics-plugin = "2.8.1"
 
 desugar-jdk-libs = "2.0.3"
-logger = "2.2.0"
+timber = "5.0.1"
 
 junit = "4.13.2"
 turbine = "1.2.1"
@@ -78,7 +78,7 @@ firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-
 
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-android-embedded" }
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
-logger = { module = "com.orhanobut:logger", version.ref = "logger" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }

@@ -17,7 +17,6 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.floor
 
@@ -114,7 +114,7 @@ class MainViewModel @Inject constructor(
                 try {
                     addItem(itemRepository.getItemByBarcode(input.barcode))
                 } catch (e: Throwable) {
-                    Logger.e(e, "getItemByBarcode failed")
+                    Timber.e(e, "getItemByBarcode failed")
                     _uiState.update { it.copy(errorMessageRes = R.string.request_item_failed) }
                 }
             }
@@ -122,7 +122,7 @@ class MainViewModel @Inject constructor(
                 try {
                     setStaff(staffRepository.getStaffByBarcode(input.barcode))
                 } catch (e: Throwable) {
-                    Logger.e(e, "getStaffByBarcode failed")
+                    Timber.e(e, "getStaffByBarcode failed")
                     _uiState.update { it.copy(errorMessageRes = R.string.request_staff_failed) }
                 }
             }
@@ -216,7 +216,7 @@ class MainViewModel @Inject constructor(
                     it.copy(accountResult = null, items = emptyList(), total = 0)
                 }
             } catch (e: Throwable) {
-                Logger.e(e, "createSale failed")
+                Timber.e(e, "createSale failed")
                 val message = e.localizedMessage
                 _uiState.update {
                     if (message != null) {
@@ -242,7 +242,7 @@ class MainViewModel @Inject constructor(
                 val stores = withTimeout(3000L) { storeRepository.fetchStores() }
                 _uiState.update { it.copy(storeSelection = StoreSelectionState(stores = stores)) }
             } catch (e: Throwable) {
-                Logger.e(e, "fetchStores failed")
+                Timber.e(e, "fetchStores failed")
                 _uiState.update { it.copy(storeSelection = StoreSelectionState(failed = true)) }
             }
         }

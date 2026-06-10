@@ -1,14 +1,13 @@
 package info.nukoneko.cuc.android.kidspos
 
 import android.app.Application
-import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.HiltAndroidApp
 import info.nukoneko.cuc.android.kidspos.api.ServerSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -24,7 +23,9 @@ open class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Logger.addLogAdapter(AndroidLogAdapter())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         settingsRepository.serverAddress
             .onEach { serverSelectionInterceptor.serverAddress = it }
