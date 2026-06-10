@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.KeyEvent
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val input = decoder.onKey(event.action, event.keyCode)
         if (input != null) {

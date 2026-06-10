@@ -26,6 +26,9 @@ jobs:
         run: ./gradlew testProdDebugUnitTest
       - name: Lint
         run: ./gradlew lintProdDebug
+      - name: Show lint results
+        if: failure()
+        run: cat app/build/intermediates/lint_intermediate_text_report/prodDebug/lintReportProdDebug/lint-results-prodDebug.txt || true
       - name: Build release
         run: ./gradlew assembleProdRelease
       - name: Upload reports
