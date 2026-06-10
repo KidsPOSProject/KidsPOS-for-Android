@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,11 +58,13 @@ fun MainScreen(
         }
     }
 
-    val appName = context.getString(R.string.app_name)
+    val appName = stringResource(R.string.app_name)
+    val modeLabel = stringResource(R.string.title_mode_format, state.mode.modeName)
+    val testModeLabel = stringResource(R.string.title_test_mode)
     val titleSuffix = buildString {
         state.store?.name?.let { append(" [$it]") }
-        append(" ${context.getString(R.string.title_mode_format, state.mode.modeName)}")
-        if (state.demoMode) append(" ${context.getString(R.string.title_test_mode)}")
+        append(" $modeLabel")
+        if (state.demoMode) append(" $testModeLabel")
     }
 
     ModalNavigationDrawer(
@@ -69,7 +72,7 @@ fun MainScreen(
         drawerContent = {
             ModalDrawerSheet {
                 NavigationDrawerItem(
-                    label = { Text(context.getString(R.string.DrawerTitleSettings)) },
+                    label = { Text(stringResource(R.string.DrawerTitleSettings)) },
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
@@ -77,7 +80,7 @@ fun MainScreen(
                     }
                 )
                 NavigationDrawerItem(
-                    label = { Text(context.getString(R.string.DrawerTitleChangeStore)) },
+                    label = { Text(stringResource(R.string.DrawerTitleChangeStore)) },
                     selected = false,
                     onClick = {
                         scope.launch { drawerState.close() }
@@ -87,7 +90,7 @@ fun MainScreen(
                 if (state.demoMode) {
                     HorizontalDivider()
                     NavigationDrawerItem(
-                        label = { Text(context.getString(R.string.BetaDrawerTitleInputDummyItem)) },
+                        label = { Text(stringResource(R.string.BetaDrawerTitleInputDummyItem)) },
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
@@ -95,7 +98,7 @@ fun MainScreen(
                         }
                     )
                     NavigationDrawerItem(
-                        label = { Text(context.getString(R.string.BetaDrawerTitleInputDummyStaff)) },
+                        label = { Text(stringResource(R.string.BetaDrawerTitleInputDummyStaff)) },
                         selected = false,
                         onClick = {
                             scope.launch { drawerState.close() }
@@ -114,7 +117,7 @@ fun MainScreen(
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 painterResource(R.drawable.ic_menu),
-                                contentDescription = context.getString(R.string.navigation_drawer_open)
+                                contentDescription = stringResource(R.string.navigation_drawer_open)
                             )
                         }
                     }
@@ -129,7 +132,7 @@ fun MainScreen(
             ) {
                 state.staff?.let { staff ->
                     Text(
-                        context.getString(R.string.staff_name_format, staff.name),
+                        stringResource(R.string.staff_name_format, staff.name),
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.padding(4.dp))
@@ -146,14 +149,14 @@ fun MainScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = context.getString(R.string.river_format, state.total),
+                        text = stringResource(R.string.river_format, state.total),
                         fontWeight = FontWeight.Bold
                     )
                     Button(
                         onClick = viewModel::onAccountClick,
                         enabled = state.items.isNotEmpty()
                     ) {
-                        Text(context.getString(R.string.account))
+                        Text(stringResource(R.string.account))
                     }
                 }
             }
@@ -187,7 +190,7 @@ fun MainScreen(
         )
     }
 
-    val errorMessage = state.errorMessage ?: state.errorMessageRes?.let(context::getString)
+    val errorMessage = state.errorMessage ?: state.errorMessageRes?.let { stringResource(it) }
     errorMessage?.let { message ->
         ErrorDialog(message = message, onDismiss = viewModel::onErrorDismiss)
     }
@@ -195,7 +198,6 @@ fun MainScreen(
 
 @Composable
 private fun ItemRow(item: Item) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,20 +205,19 @@ private fun ItemRow(item: Item) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(item.name)
-        Text(context.getString(R.string.river_format, item.price))
+        Text(stringResource(R.string.river_format, item.price))
     }
 }
 
 @Composable
 private fun ErrorDialog(message: String, onDismiss: () -> Unit) {
-    val context = LocalContext.current
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.error)) },
+        title = { Text(stringResource(R.string.error)) },
         text = { Text(message) },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text(context.getString(android.R.string.ok))
+                Text(stringResource(android.R.string.ok))
             }
         }
     )
@@ -230,14 +231,13 @@ private fun CalculatorDialog(
     onOk: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         androidx.compose.material3.Surface(
             shape = androidx.compose.material3.MaterialTheme.shapes.medium
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("${context.getString(R.string.total)}: ${context.getString(R.string.river_format, state.totalPrice)}")
-                Text("${context.getString(R.string.deposit)}: ${context.getString(R.string.river_format, state.deposit)}")
+                Text("${stringResource(R.string.total)}: ${stringResource(R.string.river_format, state.totalPrice)}")
+                Text("${stringResource(R.string.deposit)}: ${stringResource(R.string.river_format, state.deposit)}")
                 Spacer(modifier = Modifier.padding(8.dp))
                 NumberPad(onNumber = onNumber, onClear = onClear)
                 Spacer(modifier = Modifier.padding(8.dp))
@@ -246,10 +246,10 @@ private fun CalculatorDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     androidx.compose.material3.TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.back))
+                        Text(stringResource(R.string.back))
                     }
                     Button(onClick = onOk, enabled = state.accountEnabled) {
-                        Text(context.getString(R.string.account))
+                        Text(stringResource(R.string.account))
                     }
                 }
             }
@@ -294,7 +294,7 @@ private fun NumberPad(onNumber: (Int) -> Unit, onClear: () -> Unit) {
                     .weight(1f)
                     .padding(4.dp)
             ) {
-                Text(LocalContext.current.getString(R.string.delete))
+                Text(stringResource(R.string.delete))
             }
         }
     }
@@ -306,23 +306,22 @@ private fun AccountResultDialog(
     onOk: () -> Unit,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onBack,
-        title = { Text(context.getString(R.string.account)) },
+        title = { Text(stringResource(R.string.account)) },
         text = {
             Column {
-                Text("${context.getString(R.string.total)}: ${context.getString(R.string.river_format, state.totalPrice)}")
-                Text("${context.getString(R.string.deposit)}: ${context.getString(R.string.river_format, state.deposit)}")
-                Text("${context.getString(R.string.change)}: ${context.getString(R.string.river_format, state.change)}")
+                Text("${stringResource(R.string.total)}: ${stringResource(R.string.river_format, state.totalPrice)}")
+                Text("${stringResource(R.string.deposit)}: ${stringResource(R.string.river_format, state.deposit)}")
+                Text("${stringResource(R.string.change)}: ${stringResource(R.string.river_format, state.change)}")
             }
         },
         confirmButton = {
-            Button(onClick = onOk) { Text(context.getString(R.string.account)) }
+            Button(onClick = onOk) { Text(stringResource(R.string.account)) }
         },
         dismissButton = {
             androidx.compose.material3.TextButton(onClick = onBack) {
-                Text(context.getString(R.string.go_back))
+                Text(stringResource(R.string.go_back))
             }
         }
     )
@@ -335,10 +334,9 @@ private fun StoreSelectionDialog(
     onReload: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.DrawerTitleChangeStore)) },
+        title = { Text(stringResource(R.string.DrawerTitleChangeStore)) },
         text = {
             when {
                 state.loading -> Box(
@@ -347,7 +345,7 @@ private fun StoreSelectionDialog(
                 ) {
                     androidx.compose.material3.CircularProgressIndicator()
                 }
-                state.failed -> Text(context.getString(R.string.store_fetch_failed))
+                state.failed -> Text(stringResource(R.string.store_fetch_failed))
                 else -> Column {
                     state.stores.forEach { store ->
                         androidx.compose.material3.TextButton(
@@ -362,17 +360,17 @@ private fun StoreSelectionDialog(
         },
         confirmButton = {
             if (state.failed) {
-                Button(onClick = onReload) { Text(context.getString(R.string.reload)) }
+                Button(onClick = onReload) { Text(stringResource(R.string.reload)) }
             } else {
                 androidx.compose.material3.TextButton(onClick = onDismiss) {
-                    Text(context.getString(R.string.close))
+                    Text(stringResource(R.string.close))
                 }
             }
         },
         dismissButton = {
             if (state.failed) {
                 androidx.compose.material3.TextButton(onClick = onDismiss) {
-                    Text(context.getString(R.string.close))
+                    Text(stringResource(R.string.close))
                 }
             }
         }

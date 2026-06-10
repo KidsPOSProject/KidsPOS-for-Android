@@ -18,8 +18,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,7 +35,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
 
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
@@ -47,12 +46,12 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.drawer_setting)) },
+                title = { Text(stringResource(R.string.drawer_setting)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = context.getString(R.string.back)
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -65,7 +64,7 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text(context.getString(R.string.current_connetion_target))
+            Text(stringResource(R.string.current_connetion_target))
             OutlinedTextField(
                 value = state.serverAddress,
                 onValueChange = viewModel::onServerAddressChange,
@@ -76,10 +75,10 @@ fun SettingsScreen(
                 onClick = { scanLauncher.launch(ScanOptions()) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(context.getString(R.string.load_setting))
+                Text(stringResource(R.string.load_setting))
             }
             Spacer(modifier = Modifier.padding(16.dp))
-            Text(context.getString(R.string.current_mode_format, state.mode.modeName))
+            Text(stringResource(R.string.current_mode_format, state.mode.modeName))
             Spacer(modifier = Modifier.padding(8.dp))
             val nextMode = when (state.mode) {
                 Mode.PRODUCTION -> Mode.PRACTICE
@@ -89,7 +88,7 @@ fun SettingsScreen(
                 onClick = viewModel::onToggleMode,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(context.getString(R.string.switch_mode_format, nextMode.modeName))
+                Text(stringResource(R.string.switch_mode_format, nextMode.modeName))
             }
         }
     }
