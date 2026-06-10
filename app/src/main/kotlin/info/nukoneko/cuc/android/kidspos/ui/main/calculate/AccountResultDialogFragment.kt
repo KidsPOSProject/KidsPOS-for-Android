@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package info.nukoneko.cuc.android.kidspos.ui.main.calculate
 
 import android.graphics.drawable.ColorDrawable
@@ -15,7 +13,7 @@ import info.nukoneko.cuc.android.kidspos.databinding.FragmentAccountResultDialog
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -28,7 +26,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
         Cancel
     }
 
-    private val channel = BroadcastChannel<DialogResult>(1)
+    private val channel = Channel<DialogResult>(1)
 
     private lateinit var binding: FragmentAccountResultDialogBinding
 
@@ -82,7 +80,7 @@ class AccountResultDialogFragment : DialogFragment(), CoroutineScope {
 
         try {
             show(fm, tag)
-            return channel.openSubscription().receive()
+            return channel.receive()
         } catch (e: IllegalStateException) {
             // 万が一エラーが発生した場合は無視
             return DialogResult.OK

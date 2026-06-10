@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package info.nukoneko.cuc.android.kidspos.ui.common
 
 import android.app.Dialog
@@ -11,7 +9,7 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.extensions.lazyWithArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -24,7 +22,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
         OK
     }
 
-    private val channel = BroadcastChannel<DialogResult>(1)
+    private val channel = Channel<DialogResult>(1)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(requireContext())
@@ -63,7 +61,7 @@ class ErrorDialogFragment : DialogFragment(), CoroutineScope {
 
             try {
                 fragment.show(fragmentManager, message)
-                return fragment.channel.openSubscription().receive()
+                return fragment.channel.receive()
             } catch (e: IllegalStateException) {
                 // 万が一エラーが発生した場合は無視
                 return DialogResult.OK
