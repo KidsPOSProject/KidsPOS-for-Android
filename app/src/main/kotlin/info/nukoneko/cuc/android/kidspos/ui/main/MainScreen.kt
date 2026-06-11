@@ -11,20 +11,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -34,10 +40,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.entity.Store
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +59,7 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    androidx.compose.runtime.LaunchedEffect(state.toastMessageRes) {
+    LaunchedEffect(state.toastMessageRes) {
         state.toastMessageRes?.let { messageRes ->
             Toast.makeText(context, messageRes, Toast.LENGTH_SHORT).show()
             viewModel.onToastShown()
@@ -211,7 +219,7 @@ private fun ItemRow(item: Item) {
 
 @Composable
 private fun ErrorDialog(message: String, onDismiss: () -> Unit) {
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.error)) },
         text = { Text(message) },
@@ -231,9 +239,9 @@ private fun CalculatorDialog(
     onOk: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        androidx.compose.material3.Surface(
-            shape = androidx.compose.material3.MaterialTheme.shapes.medium
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("${stringResource(R.string.total)}: ${stringResource(R.string.river_format, state.totalPrice)}")
@@ -245,7 +253,7 @@ private fun CalculatorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    androidx.compose.material3.TextButton(onClick = onDismiss) {
+                    TextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.back))
                     }
                     Button(onClick = onOk, enabled = state.accountEnabled) {
@@ -306,7 +314,7 @@ private fun AccountResultDialog(
     onOk: () -> Unit,
     onBack: () -> Unit
 ) {
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = onBack,
         title = { Text(stringResource(R.string.account)) },
         text = {
@@ -320,7 +328,7 @@ private fun AccountResultDialog(
             Button(onClick = onOk) { Text(stringResource(R.string.account)) }
         },
         dismissButton = {
-            androidx.compose.material3.TextButton(onClick = onBack) {
+            TextButton(onClick = onBack) {
                 Text(stringResource(R.string.go_back))
             }
         }
@@ -330,11 +338,11 @@ private fun AccountResultDialog(
 @Composable
 private fun StoreSelectionDialog(
     state: StoreSelectionState,
-    onSelect: (info.nukoneko.cuc.android.kidspos.entity.Store) -> Unit,
+    onSelect: (Store) -> Unit,
     onReload: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.DrawerTitleChangeStore)) },
         text = {
@@ -343,12 +351,12 @@ private fun StoreSelectionDialog(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    androidx.compose.material3.CircularProgressIndicator()
+                    CircularProgressIndicator()
                 }
                 state.failed -> Text(stringResource(R.string.store_fetch_failed))
                 else -> Column {
                     state.stores.forEach { store ->
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = { onSelect(store) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -362,14 +370,14 @@ private fun StoreSelectionDialog(
             if (state.failed) {
                 Button(onClick = onReload) { Text(stringResource(R.string.reload)) }
             } else {
-                androidx.compose.material3.TextButton(onClick = onDismiss) {
+                TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.close))
                 }
             }
         },
         dismissButton = {
             if (state.failed) {
-                androidx.compose.material3.TextButton(onClick = onDismiss) {
+                TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.close))
                 }
             }

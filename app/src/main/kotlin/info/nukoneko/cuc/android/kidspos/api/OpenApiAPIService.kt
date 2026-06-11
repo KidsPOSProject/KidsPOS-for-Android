@@ -2,7 +2,6 @@ package info.nukoneko.cuc.android.kidspos.api
 
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
-import info.nukoneko.cuc.android.kidspos.api.generated.SettingsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StaffApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
 import info.nukoneko.cuc.android.kidspos.api.generated.model.CreateSaleRequest
@@ -16,8 +15,7 @@ class OpenApiAPIService(
     private val itemsApi: ItemsApi,
     private val salesApi: SalesApi,
     private val staffApi: StaffApi,
-    private val storesApi: StoresApi,
-    private val settingsApi: SettingsApi
+    private val storesApi: StoresApi
 ) : APIService {
 
     override suspend fun fetchStores(): List<Store> {
@@ -95,15 +93,6 @@ class OpenApiAPIService(
             )
         } else {
             throw Exception("Failed to get staff: ${response.code()}")
-        }
-    }
-
-    override suspend fun getStatus(): Any {
-        val response = settingsApi.getStatus()
-        return if (response.isSuccessful) {
-            response.body() ?: mapOf<String, Any>()
-        } else {
-            throw Exception("Failed to get status: ${response.code()}")
         }
     }
 }

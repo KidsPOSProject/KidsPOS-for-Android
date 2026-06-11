@@ -11,11 +11,9 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
-import info.nukoneko.cuc.android.kidspos.testutil.FakePreferencesDataStore
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.util.Mode
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -34,7 +32,7 @@ class SettingsScreenTest {
     @get:Rule
     val rules: RuleChain = RuleChain.outerRule(mainDispatcherRule).around(composeRule)
 
-    private val settingsRepository = SettingsRepository(FakePreferencesDataStore(), Json)
+    private val settingsRepository = fakeSettingsRepository()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 

@@ -52,6 +52,4 @@ class FakeAPIService : APIService {
     override suspend fun getItem(itemBarcode: String): Item = getItemHandler(itemBarcode)
 
     override suspend fun getStaff(staffBarcode: String): Staff = getStaffHandler(staffBarcode)
-
-    override suspend fun getStatus(): Any = Unit
 }

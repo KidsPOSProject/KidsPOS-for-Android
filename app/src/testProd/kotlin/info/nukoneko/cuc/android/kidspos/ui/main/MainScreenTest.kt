@@ -11,19 +11,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
-import info.nukoneko.cuc.android.kidspos.data.repository.SaleRepository
-import info.nukoneko.cuc.android.kidspos.data.repository.StaffRepository
-import info.nukoneko.cuc.android.kidspos.data.repository.StoreRepository
-import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
-import info.nukoneko.cuc.android.kidspos.testutil.FakePreferencesDataStore
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
+import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
-import kotlinx.serialization.json.Json
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -41,22 +36,17 @@ class MainScreenTest {
     val rules: RuleChain = RuleChain.outerRule(mainDispatcherRule).around(composeRule)
 
     private val apiService = FakeAPIService()
-    private val settingsRepository = SettingsRepository(FakePreferencesDataStore(), Json)
+    private val settingsRepository = fakeSettingsRepository()
     private val barcodeEventBus = BarcodeEventBus()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private fun createViewModel(): MainViewModel {
-        val dispatcher = mainDispatcherRule.dispatcher
-        return MainViewModel(
-            ItemRepository(apiService, dispatcher),
-            StaffRepository(apiService, dispatcher),
-            StoreRepository(apiService, dispatcher),
-            SaleRepository(apiService, dispatcher),
-            settingsRepository,
-            barcodeEventBus
-        )
-    }
+    private fun createViewModel(): MainViewModel = createMainViewModel(
+        apiService,
+        settingsRepository,
+        barcodeEventBus,
+        mainDispatcherRule.dispatcher
+    )
 
     @Test
     fun accountButtonIsDisabledWhenCartIsEmpty() {

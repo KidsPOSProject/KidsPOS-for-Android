@@ -10,5 +10,4 @@ interface APIService {
     suspend fun createSale(storeId: Int, staffBarcode: String, deposit: Int, itemIds: String): Sale
     suspend fun getItem(itemBarcode: String): Item
     suspend fun getStaff(staffBarcode: String): Staff
-    suspend fun getStatus(): Any
 }

@@ -43,10 +43,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun onToggleMode() {
-        val next = when (_uiState.value.mode) {
-            Mode.PRODUCTION -> Mode.PRACTICE
-            Mode.PRACTICE -> Mode.PRODUCTION
-        }
+        val next = _uiState.value.mode.toggle()
         viewModelScope.launch { settingsRepository.setRunningMode(next) }
     }
 }

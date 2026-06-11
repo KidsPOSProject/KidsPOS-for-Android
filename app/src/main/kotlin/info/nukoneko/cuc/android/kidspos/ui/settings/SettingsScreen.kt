@@ -26,7 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
-import info.nukoneko.cuc.android.kidspos.util.Mode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,15 +79,11 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.padding(16.dp))
             Text(stringResource(R.string.current_mode_format, state.mode.modeName))
             Spacer(modifier = Modifier.padding(8.dp))
-            val nextMode = when (state.mode) {
-                Mode.PRODUCTION -> Mode.PRACTICE
-                Mode.PRACTICE -> Mode.PRODUCTION
-            }
             Button(
                 onClick = viewModel::onToggleMode,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.switch_mode_format, nextMode.modeName))
+                Text(stringResource(R.string.switch_mode_format, state.mode.toggle().modeName))
             }
         }
     }

@@ -20,7 +20,7 @@ class SaleRepository @Inject constructor(
         deposit: Int,
         items: List<Item>
     ): Sale = withContext(dispatcher) {
-        val itemIds = items.map { it.id.toString() }.joinToString(",")
+        val itemIds = items.joinToString(",") { it.id.toString() }
         apiService.createSale(storeId, staffBarcode, deposit, itemIds)
     }
 }

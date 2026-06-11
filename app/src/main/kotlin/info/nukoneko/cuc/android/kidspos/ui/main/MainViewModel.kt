@@ -21,12 +21,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.floor
 
 data class MainUiState(
     val items: List<Item> = emptyList(),
@@ -78,19 +78,14 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settingsRepository.runningMode.collect { mode ->
-                _uiState.update { it.copy(mode = mode) }
-            }
-        }
-        viewModelScope.launch {
-            settingsRepository.currentStore.collect { store ->
-                _uiState.update { it.copy(store = store) }
-            }
-        }
-        viewModelScope.launch {
-            settingsRepository.currentStaff.collect { staff ->
-                _uiState.update { it.copy(staff = staff) }
-            }
+            combine(
+                settingsRepository.runningMode,
+                settingsRepository.currentStore,
+                settingsRepository.currentStaff
+            ) { mode, store, staff -> Triple(mode, store, staff) }
+                .collect { (mode, store, staff) ->
+                    _uiState.update { it.copy(mode = mode, store = store, staff = staff) }
+                }
         }
         viewModelScope.launch {
             barcodeEventBus.events.collect { onBarcodeInput(it) }
@@ -160,8 +155,7 @@ class MainViewModel @Inject constructor(
     fun onCalculatorClear() {
         _uiState.update { state ->
             val calc = state.calculator ?: return@update state
-            val newDeposit = if (10 > calc.deposit) 0 else floor((calc.deposit / 10).toDouble()).toInt()
-            state.copy(calculator = calc.copy(deposit = newDeposit))
+            state.copy(calculator = calc.copy(deposit = calc.deposit / 10))
         }
     }
 
@@ -230,13 +224,13 @@ class MainViewModel @Inject constructor(
     }
 
     fun onChangeStoreClick() {
-        _uiState.update { it.copy(storeSelection = StoreSelectionState(loading = true)) }
         if (_uiState.value.mode == Mode.PRACTICE) {
             _uiState.update {
                 it.copy(storeSelection = StoreSelectionState(stores = DUMMY_STORES))
             }
             return
         }
+        _uiState.update { it.copy(storeSelection = StoreSelectionState(loading = true)) }
         viewModelScope.launch {
             try {
                 val stores = withTimeout(3000L) { storeRepository.fetchStores() }

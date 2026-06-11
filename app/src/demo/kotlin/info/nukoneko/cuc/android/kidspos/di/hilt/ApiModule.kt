@@ -5,7 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import info.nukoneko.cuc.android.kidspos.api.APIService
-import info.nukoneko.cuc.android.kidspos.di.module.DemoAPIService
+import info.nukoneko.cuc.android.kidspos.api.DemoAPIService
 import javax.inject.Singleton
 
 @Module

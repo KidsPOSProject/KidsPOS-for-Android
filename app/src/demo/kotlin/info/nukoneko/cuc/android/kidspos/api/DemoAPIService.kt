@@ -1,6 +1,5 @@
-package info.nukoneko.cuc.android.kidspos.di.module
+package info.nukoneko.cuc.android.kidspos.api
 
-import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
@@ -42,6 +41,4 @@ class DemoAPIService : APIService {
 
     override suspend fun getStaff(staffBarcode: String): Staff =
         Staff(staffBarcode, "DemoStaff")
-
-    override suspend fun getStatus(): Any = mapOf("status" to "OK", "mode" to "demo")
 }

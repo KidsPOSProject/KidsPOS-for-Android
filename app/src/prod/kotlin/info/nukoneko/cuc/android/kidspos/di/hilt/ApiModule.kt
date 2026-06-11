@@ -8,10 +8,8 @@ import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.api.OpenApiAPIService
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
-import info.nukoneko.cuc.android.kidspos.api.generated.SettingsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StaffApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
-import info.nukoneko.cuc.android.kidspos.api.generated.UsersApi
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -41,27 +39,15 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideSettingsApi(retrofit: Retrofit): SettingsApi =
-        retrofit.create(SettingsApi::class.java)
-
-    @Provides
-    @Singleton
-    fun provideUsersApi(retrofit: Retrofit): UsersApi =
-        retrofit.create(UsersApi::class.java)
-
-    @Provides
-    @Singleton
     fun provideApiService(
         itemsApi: ItemsApi,
         salesApi: SalesApi,
         staffApi: StaffApi,
-        storesApi: StoresApi,
-        settingsApi: SettingsApi
+        storesApi: StoresApi
     ): APIService = OpenApiAPIService(
         itemsApi = itemsApi,
         salesApi = salesApi,
         staffApi = staffApi,
-        storesApi = storesApi,
-        settingsApi = settingsApi
+        storesApi = storesApi
     )
 }

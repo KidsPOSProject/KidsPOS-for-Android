@@ -1,11 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
-import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
-import info.nukoneko.cuc.android.kidspos.testutil.FakePreferencesDataStore
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -14,7 +12,7 @@ class SettingsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val settingsRepository = SettingsRepository(FakePreferencesDataStore(), Json)
+    private val settingsRepository = fakeSettingsRepository()
 
     @Test
     fun initialStateReflectsStoredSettings() = runTest {
