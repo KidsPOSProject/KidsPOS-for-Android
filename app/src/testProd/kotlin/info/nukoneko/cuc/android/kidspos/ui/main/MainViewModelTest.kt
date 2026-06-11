@@ -274,6 +274,7 @@ class MainViewModelTest {
         val selection = viewModel.uiState.value.storeSelection
         assertNotNull(selection)
         assertEquals(false, selection?.loading)
+        assertEquals(false, selection?.failed)
         assertEquals(2, selection?.stores?.size)
         assertTrue(apiService.createSaleCalls.isEmpty())
     }
