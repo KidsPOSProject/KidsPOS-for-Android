@@ -19,11 +19,13 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            printf '%s' "$KEYSTORE_BASE64" | base64 -di > kidspos.tmp
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::warning::KEYSTORE_BASE64 が未設定のため、同梱の開発用キーストアで署名します"
+          elif printf '%s' "$KEYSTORE_BASE64" | base64 -di > kidspos.tmp 2>/dev/null; then
             mv kidspos.tmp app/kidspos
           else
-            echo "KEYSTORE_BASE64 が未設定のため、同梱の開発用キーストアで署名します"
+            rm -f kidspos.tmp
+            echo "::warning::KEYSTORE_BASE64 を base64 として解釈できないため、同梱の開発用キーストアで署名します"
           fi
       - name: Build APK
         run: |
