@@ -23,6 +23,7 @@
 ## 開発環境
 - Android Studio
 - JDK 17
+- Claude Code
 
 ## ビルド方法
 
