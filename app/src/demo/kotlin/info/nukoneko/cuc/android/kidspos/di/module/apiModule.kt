@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.di.module
 
 import info.nukoneko.cuc.android.kidspos.api.APIService
+import info.nukoneko.cuc.android.kidspos.api.generated.model.StatusResponse
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
@@ -15,11 +16,12 @@ import java.util.*
 class DemoAPIService : APIService(
     itemsApi = throw NotImplementedError("Demo mode - itemsApi not used"),
     salesApi = throw NotImplementedError("Demo mode - salesApi not used"),
-    staffApi = throw NotImplementedError("Demo mode - staffApi not used"),
     storesApi = throw NotImplementedError("Demo mode - storesApi not used"),
-    settingsApi = throw NotImplementedError("Demo mode - settingsApi not used")
+    settingsApi = throw NotImplementedError("Demo mode - settingsApi not used"),
+    statusApi = throw NotImplementedError("Demo mode - statusApi not used")
 ) {
-    override suspend fun getStatus(): Any = mapOf("status" to "OK", "mode" to "demo")
+    override suspend fun getStatus(): StatusResponse =
+        StatusResponse(status = "OK", version = "demo", apiVersion = SUPPORTED_API_VERSION)
 
     override suspend fun createSale(
         storeId: Int,

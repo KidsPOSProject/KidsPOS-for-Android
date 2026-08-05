@@ -100,9 +100,13 @@ class MainViewModel(
             status = ConnectionStatus.CONNECTING
             launch(Dispatchers.IO) {
                 try {
-                    api.getStatus()
+                    val serverStatus = api.getStatus()
                     status = ConnectionStatus.CONNECTED
-                    safetyShowMessage("接続しました")
+                    if (serverStatus.apiVersion != APIService.SUPPORTED_API_VERSION) {
+                        safetyShowMessage("サーバーとアプリのAPIバージョンが一致しません。アプリを更新してください")
+                    } else {
+                        safetyShowMessage("接続しました")
+                    }
                 } catch (e: Throwable) {
                     launch(Dispatchers.Main) {
                         listener?.onNotReachableServer()

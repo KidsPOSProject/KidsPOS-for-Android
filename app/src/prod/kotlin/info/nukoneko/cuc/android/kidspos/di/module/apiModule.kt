@@ -13,17 +13,14 @@ val apiModule = module {
     single<SalesApi> {
         (get<Retrofit>()).create(SalesApi::class.java)
     }
-    single<StaffApi> {
-        (get<Retrofit>()).create(StaffApi::class.java)
-    }
     single<StoresApi> {
         (get<Retrofit>()).create(StoresApi::class.java)
     }
     single<SettingsApi> {
         (get<Retrofit>()).create(SettingsApi::class.java)
     }
-    single<UsersApi> {
-        (get<Retrofit>()).create(UsersApi::class.java)
+    single<StatusApi> {
+        (get<Retrofit>()).create(StatusApi::class.java)
     }
 
     // APIServiceの実装
@@ -31,9 +28,9 @@ val apiModule = module {
         APIService(
             itemsApi = get(),
             salesApi = get(),
-            staffApi = get(),
             storesApi = get(),
-            settingsApi = get()
+            settingsApi = get(),
+            statusApi = get()
         )
     }
 }

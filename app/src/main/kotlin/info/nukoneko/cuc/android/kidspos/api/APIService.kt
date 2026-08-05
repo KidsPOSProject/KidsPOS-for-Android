@@ -6,7 +6,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
-import retrofit2.Response
 
 /**
  * OpenAPI Generator で生成されたクライアントを使用するAPIService実装
@@ -14,10 +13,13 @@ import retrofit2.Response
 open class APIService(
     private val itemsApi: ItemsApi,
     private val salesApi: SalesApi,
-    private val staffApi: StaffApi,
     private val storesApi: StoresApi,
-    private val settingsApi: SettingsApi
+    private val settingsApi: SettingsApi,
+    private val statusApi: StatusApi
 ) {
+    companion object {
+        const val SUPPORTED_API_VERSION = 1
+    }
 
     open suspend fun fetchStores(): List<Store> {
         val response = storesApi.getAllStores()
@@ -25,7 +27,7 @@ open class APIService(
             response.body()?.map { storeEntity ->
                 Store(
                     id = storeEntity.id ?: 0,
-                    name = storeEntity.name ?: "",
+                    name = storeEntity.name,
                     printerUri = storeEntity.printerUri
                 )
             } ?: emptyList()
@@ -40,34 +42,24 @@ open class APIService(
         deposit: Int,
         itemIds: String
     ): Sale {
-        // itemIdsをカンマ区切りからリストに変換
-        // 注意: 新しいAPIではitemIdではなくバーコードを使用
-        val itemBarcodes = itemIds.split(",")
-
         val request = CreateSaleRequest(
             storeId = storeId,
-            staffBarcode = staffBarcode,
-            deposit = deposit,
-            items = itemBarcodes.map { barcode ->
-                CreateSaleRequestItemsInner(
-                    barcode = barcode,
-                    quantity = 1 // デフォルトで1個とする
-                )
-            }
+            itemIds = itemIds,
+            deposit = deposit
         )
 
         val response = salesApi.createSale(request)
         return if (response.isSuccessful) {
             val saleResponse = response.body()!!
             Sale(
-                id = saleResponse.saleId ?: 0,
-                barcode = saleResponse.saleId?.toString() ?: "", // バーコードはIDから生成
-                createdAt = java.util.Date().toString(), // 現在時刻を設定
-                points = 0, // ポイントは新APIにない
-                price = saleResponse.totalAmount ?: 0,
-                items = itemIds, // 元のitemIdsをそのまま使用
-                storeId = storeId,
-                staffId = 0 // スタッフIDは取得できないため仮値
+                id = saleResponse.id ?: 0,
+                barcode = saleResponse.id?.toString() ?: "",
+                createdAt = java.util.Date().toString(),
+                points = 0,
+                price = saleResponse.amount ?: 0,
+                items = itemIds,
+                storeId = saleResponse.storeId ?: storeId,
+                staffId = 0
             )
         } else {
             throw Exception("Failed to create sale: ${response.code()}")
@@ -83,31 +75,21 @@ open class APIService(
                 barcode = itemResponse.barcode,
                 name = itemResponse.name,
                 price = itemResponse.price,
-                storeId = 0, // 新APIではstoreIdが返ってこない
-                genreId = 0  // 新APIではgenreIdが返ってこない
+                storeId = 0,
+                genreId = 0
             )
         } else {
             throw Exception("Failed to get item: ${response.code()}")
         }
     }
 
-    open suspend fun getStaff(staffBarcode: String): Staff {
-        val response = staffApi.getStaffByBarcode(staffBarcode)
-        return if (response.isSuccessful) {
-            val staffResponse = response.body()!!
-            Staff(
-                barcode = staffResponse.barcode ?: staffBarcode,
-                name = staffResponse.name ?: ""
-            )
-        } else {
-            throw Exception("Failed to get staff: ${response.code()}")
-        }
-    }
+    open suspend fun getStaff(staffBarcode: String): Staff =
+        throw UnsupportedOperationException("Staff API is not supported by the server")
 
-    open suspend fun getStatus(): Any {
-        val response = settingsApi.getStatus()
+    open suspend fun getStatus(): StatusResponse {
+        val response = statusApi.getServerStatus()
         return if (response.isSuccessful) {
-            response.body() ?: mapOf<String, Any>()
+            response.body()!!
         } else {
             throw Exception("Failed to get status: ${response.code()}")
         }
