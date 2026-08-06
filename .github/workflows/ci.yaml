@@ -1,34 +1,29 @@
 name: CI
 
 on:
+  pull_request:
   push:
     branches:
       - main
-      - claude/**
-  pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-test:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-      - name: Setup JDK
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
         with:
           distribution: temurin
-          java-version: '17'
-          cache: gradle
-      - name: Build debug variants
-        run: ./gradlew assembleProdDebug assembleDemoDebug
-      - name: Unit tests
-        run: ./gradlew testProdDebugUnitTest
-      - name: Lint
-        run: ./gradlew lintProdDebug
-      - name: Show lint results
-        if: failure()
-        run: cat app/build/intermediates/lint_intermediate_text_report/prodDebug/lintReportProdDebug/lint-results-prodDebug.txt || true
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+      - name: Build, lint and test
+        run: ./gradlew assembleProdDebug assembleDemoDebug lintProdDebug lintDemoDebug testProdDebugUnitTest testDemoDebugUnitTest
       - name: Build release
         run: ./gradlew assembleProdRelease
       - name: Upload reports
