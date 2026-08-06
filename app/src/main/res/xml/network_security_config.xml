@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LAN 内の POS サーバーと HTTP で通信する要件があるため cleartext を許可する -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
