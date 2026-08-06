@@ -16,11 +16,10 @@ class SaleRepository @Inject constructor(
 ) {
     suspend fun createSale(
         storeId: Int,
-        staffBarcode: String,
         deposit: Int,
         items: List<Item>
     ): Sale = withContext(dispatcher) {
         val itemIds = items.joinToString(",") { it.id.toString() }
-        apiService.createSale(storeId, staffBarcode, deposit, itemIds)
+        apiService.createSale(storeId, deposit, itemIds)
     }
 }

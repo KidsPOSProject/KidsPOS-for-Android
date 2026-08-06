@@ -2,7 +2,7 @@ package info.nukoneko.cuc.android.kidspos.api
 
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
-import info.nukoneko.cuc.android.kidspos.entity.Staff
+import info.nukoneko.cuc.android.kidspos.entity.ServerStatus
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import java.util.Date
 
@@ -15,7 +15,6 @@ class DemoAPIService : APIService {
 
     override suspend fun createSale(
         storeId: Int,
-        staffBarcode: String,
         deposit: Int,
         itemIds: String
     ): Sale = Sale(
@@ -39,6 +38,10 @@ class DemoAPIService : APIService {
             genreId = 1
         )
 
-    override suspend fun getStaff(staffBarcode: String): Staff =
-        Staff(staffBarcode, "DemoStaff")
+    override suspend fun getServerStatus(): ServerStatus =
+        ServerStatus(
+            status = "OK",
+            version = "demo",
+            apiVersion = APIService.SUPPORTED_API_VERSION
+        )
 }

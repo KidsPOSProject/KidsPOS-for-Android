@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.ProjectSettings
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.SaleRepository
-import info.nukoneko.cuc.android.kidspos.data.repository.StaffRepository
+import info.nukoneko.cuc.android.kidspos.data.repository.ServerStatusRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.StoreRepository
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.entity.Item
@@ -66,7 +67,7 @@ data class StoreSelectionState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val itemRepository: ItemRepository,
-    private val staffRepository: StaffRepository,
+    private val serverStatusRepository: ServerStatusRepository,
     private val storeRepository: StoreRepository,
     private val saleRepository: SaleRepository,
     private val settingsRepository: SettingsRepository,
@@ -89,6 +90,16 @@ class MainViewModel @Inject constructor(
         }
         viewModelScope.launch {
             barcodeEventBus.events.collect { onBarcodeInput(it) }
+        }
+        viewModelScope.launch {
+            try {
+                val serverStatus = serverStatusRepository.getServerStatus()
+                if (serverStatus.apiVersion != APIService.SUPPORTED_API_VERSION) {
+                    _uiState.update { it.copy(errorMessageRes = R.string.api_version_mismatch) }
+                }
+            } catch (e: Throwable) {
+                Timber.e(e, "getServerStatus failed")
+            }
         }
     }
 
@@ -113,14 +124,7 @@ class MainViewModel @Inject constructor(
                     _uiState.update { it.copy(errorMessageRes = R.string.request_item_failed) }
                 }
             }
-            BarcodeKind.STAFF -> viewModelScope.launch {
-                try {
-                    setStaff(staffRepository.getStaffByBarcode(input.barcode))
-                } catch (e: Throwable) {
-                    Timber.e(e, "getStaffByBarcode failed")
-                    _uiState.update { it.copy(errorMessageRes = R.string.request_staff_failed) }
-                }
-            }
+            BarcodeKind.STAFF -> setStaff(Staff(input.barcode, input.barcode))
             BarcodeKind.SALE -> _uiState.update { it.copy(errorMessageRes = R.string.read_receipt_failed) }
             BarcodeKind.UNKNOWN -> Unit
         }
@@ -202,7 +206,6 @@ class MainViewModel @Inject constructor(
             try {
                 saleRepository.createSale(
                     storeId = state.store?.id ?: 0,
-                    staffBarcode = state.staff?.barcode ?: "",
                     deposit = result.deposit,
                     items = state.items
                 )

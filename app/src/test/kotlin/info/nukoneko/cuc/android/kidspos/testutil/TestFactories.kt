@@ -3,7 +3,7 @@ package info.nukoneko.cuc.android.kidspos.testutil
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.SaleRepository
-import info.nukoneko.cuc.android.kidspos.data.repository.StaffRepository
+import info.nukoneko.cuc.android.kidspos.data.repository.ServerStatusRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.StoreRepository
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
@@ -21,7 +21,7 @@ fun createMainViewModel(
     dispatcher: CoroutineDispatcher
 ): MainViewModel = MainViewModel(
     ItemRepository(apiService, dispatcher),
-    StaffRepository(apiService, dispatcher),
+    ServerStatusRepository(apiService, dispatcher),
     StoreRepository(apiService, dispatcher),
     SaleRepository(apiService, dispatcher),
     settingsRepository,
