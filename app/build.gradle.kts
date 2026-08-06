@@ -196,6 +196,8 @@ openApiGenerate {
             "generateModelDocumentation" to "false"
         )
     )
+    typeMappings.set(mapOf("AnyType" to "JsonElement"))
+    importMappings.set(mapOf("JsonElement" to "kotlinx.serialization.json.JsonElement"))
 }
 
 tasks.withType<KotlinCompile>().configureEach {
