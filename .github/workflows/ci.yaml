@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - claude/**
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Setup JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Build debug variants
+        run: ./gradlew assembleProdDebug assembleDemoDebug
+      - name: Unit tests
+        run: ./gradlew testProdDebugUnitTest
+      - name: Lint
+        run: ./gradlew lintProdDebug
+      - name: Show lint results
+        if: failure()
+        run: cat app/build/intermediates/lint_intermediate_text_report/prodDebug/lintReportProdDebug/lint-results-prodDebug.txt || true
+      - name: Build release
+        run: ./gradlew assembleProdRelease
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: reports
+          path: |
+            app/build/reports/

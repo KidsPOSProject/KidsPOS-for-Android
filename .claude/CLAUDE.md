@@ -4,47 +4,51 @@
 - **名称**: KidsPOS for Android
 - **パッケージ名**: info.nukoneko.cuc.android.kidspos
 - **用途**: キッズビジネスタウンいちかわで使用するAndroid用POSシステム
-- **プラットフォーム**: Android (minSdk: 設定による、targetSdk: 設定による)
+- **プラットフォーム**: Android (minSdk 23 / targetSdk 36)
 
 ## 技術スタック
 
 ### 言語とフレームワーク
 - **言語**: Kotlin
-- **最小SDK**: buildSrcで管理 (Versions.minSdk)
-- **ターゲットSDK**: buildSrcで管理 (Versions.targetSdk)
+- **SDKバージョン**: gradle/libs.versions.toml と app/build.gradle.kts で管理
 - **JVMターゲット**: 17
 
 ### アーキテクチャパターン
-- **MVVM (Model-View-ViewModel)**: ViewModelを使用した実装
-- **DI (依存性注入)**: Koin + Dagger Hilt
-- **イベントバス**: EventBus (org.greenrobot)
+- **Single-Activity + Jetpack Compose (Material3)**: MainActivity 1つ + Navigation Compose
+- **MVVM**: @HiltViewModel + StateFlow の UiState、collectAsStateWithLifecycle で観測
+- **DI (依存性注入)**: Hilt (KSP)
+- **画面間通信**: SettingsRepository (Preferences DataStore) の Flow 観測 + BarcodeEventBus (MutableSharedFlow)
 
 ### 主要ライブラリ
-- **UI**: Android Material Design、DataBinding、ViewBinding
+- **UI**: Jetpack Compose、Material3、Navigation Compose、SplashScreen API
 - **非同期処理**: Kotlin Coroutines
-- **ネットワーク**: Retrofit + OkHttp
+- **ネットワーク**: Retrofit + OkHttp（OpenAPI Generator によるクライアント生成）
 - **シリアライゼーション**: Kotlinx Serialization
-- **バーコード読取**: ZXing Android
-- **ログ**: Logger (orhanobut)
+- **設定永続化**: Preferences DataStore
+- **バーコード読取**: ZXing Android Embedded
+- **ログ**: Timber
 - **クラッシュレポート**: Firebase Crashlytics
+- **テスト**: JUnit4 + kotlinx-coroutines-test + turbine（モックライブラリ不使用、Fake を使用）
 
 ## プロジェクト構造
 
 ### ビルドバリアント
-- **buildTypes**: debug / release
+- **buildTypes**: debug / release（release は minify / shrinkResources 有効）
 - **productFlavors**: prod / demo
 
 ### 主要ディレクトリ構成
 ```
 app/src/main/kotlin/info/nukoneko/cuc/android/kidspos/
-├── api/          # API通信関連
-├── di/           # 依存性注入
+├── api/          # API通信関連（APIService インターフェース、生成クライアント連携）
+├── data/         # Repository 層と SettingsRepository（DataStore）
+├── di/hilt/      # Hilt モジュール（NetworkModule / DataModule）
 ├── entity/       # データモデル
 ├── error/        # 例外定義
-├── event/        # イベントバス関連
-├── extensions/   # 拡張関数
-├── ui/           # UI関連（Activity、Fragment、ViewModel）
+├── ui/           # UI関連（MainActivity、*Screen.kt、*ViewModel.kt、theme、barcode）
 └── util/         # ユーティリティ
+
+app/src/prod, app/src/demo    # フレーバー別 ApiModule
+app/src/test, app/src/testProd # ユニットテスト（testProd は BuildConfig.DEMO_MODE 依存分）
 ```
 
 ### 機能構成
@@ -57,18 +61,14 @@ app/src/main/kotlin/info/nukoneko/cuc/android/kidspos/
 ## 開発規約
 
 ### 命名規則
-- **Activity**: `*Activity.kt` (例: MainActivity.kt)
-- **Fragment**: `*Fragment.kt` (例: ItemListFragment.kt)
+- **画面**: `*Screen.kt` (例: MainScreen.kt)
 - **ViewModel**: `*ViewModel.kt` (例: MainViewModel.kt)
-- **レイアウト**: 
-  - Activity: `activity_*.xml`
-  - Fragment: `fragment_*.xml`
-  - Item: `item_*.xml`
+- **Repository**: `*Repository.kt` (例: SaleRepository.kt)
 
 ### リソース管理
-- **文字列**: strings.xml で日本語リソースを管理
-- **画像**: mipmap-* フォルダでアイコン管理
-- **スタイル**: styles.xml でテーマ管理
+- **文字列**: strings.xml で日本語リソースを管理。Composable 内は stringResource() で解決
+- **画像**: mipmap-* フォルダでアイコン管理、ベクター画像は drawable
+- **テーマ**: ui/theme/ の Material3 テーマ（Color / Type / Theme）
 
 ## 重要な注意事項
 
@@ -90,16 +90,18 @@ app/src/main/kotlin/info/nukoneko/cuc/android/kidspos/
 これにより、同じ指摘を二度と受けることなく、プロジェクトの品質を継続的に向上させる。
 
 ### セキュリティ
-- signing設定は開発用（ストアリリースなし）
-- ProGuardは無効化されている
+- signing設定は開発用（ストアリリースなし）。keystore.properties があれば優先、無ければ同梱の開発用キーストアにフォールバック
+- release ビルドは ProGuard (R8) 有効。ルールは app/proguard-rules.pro
+- cleartext HTTP は network_security_config.xml で許可（LAN内POSサーバーとの通信要件）
 
 ### ビルド設定
 - Java 8 APIのデシュガリングが有効
 - リソース設定は日本語のみ
+- バージョン管理は gradle/libs.versions.toml（Version Catalog）に一元化
 
 ## 今後の開発における注意点
-1. 新機能追加時はMVVMパターンに従う
-2. DIはKoinモジュールに追加
-3. イベント通信はEventBusを使用
+1. 新機能追加時は Compose + @HiltViewModel + StateFlow の UiState パターンに従う
+2. DI は di/hilt/ 配下の Hilt モジュールに追加（フレーバー別は src/prod・src/demo の ApiModule）
+3. 設定値の変更通知は DataStore の Flow 観測、バーコードイベントは BarcodeEventBus を使用
 4. 文字列リソースは必ずstrings.xmlに定義
-5. バーコード読取機能はBarcodeReadDelegateを継承
+5. ログ出力は Timber を使用（print / println 禁止）
