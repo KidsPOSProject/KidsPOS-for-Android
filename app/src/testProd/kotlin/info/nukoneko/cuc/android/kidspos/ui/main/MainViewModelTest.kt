@@ -1,7 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.entity.ServerStatus
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
@@ -76,17 +78,29 @@ class MainViewModelTest {
 
         emitBarcode("1000000001", BarcodeKind.STAFF)
 
-        assertEquals(Staff("1000000001", "staff"), viewModel.uiState.value.staff)
+        assertEquals(Staff("1000000001", "1000000001"), viewModel.uiState.value.staff)
     }
 
     @Test
-    fun staffFetchFailureShowsStaffError() = runTest {
-        apiService.getStaffHandler = { throw RuntimeException("network") }
+    fun apiVersionMismatchShowsUpdateError() = runTest {
+        apiService.getServerStatusHandler = {
+            ServerStatus(
+                status = "OK",
+                version = "1.0.0",
+                apiVersion = APIService.SUPPORTED_API_VERSION + 1
+            )
+        }
         val viewModel = createViewModel()
 
-        emitBarcode("1000000001", BarcodeKind.STAFF)
+        assertEquals(R.string.api_version_mismatch, viewModel.uiState.value.errorMessageRes)
+    }
 
-        assertEquals(R.string.request_staff_failed, viewModel.uiState.value.errorMessageRes)
+    @Test
+    fun serverStatusFailureIsIgnored() = runTest {
+        apiService.getServerStatusHandler = { throw RuntimeException("network") }
+        val viewModel = createViewModel()
+
+        assertNull(viewModel.uiState.value.errorMessageRes)
     }
 
     @Test
@@ -226,7 +240,6 @@ class MainViewModelTest {
 
         val args = apiService.createSaleCalls.single()
         assertEquals(3, args.storeId)
-        assertEquals("1000000001", args.staffBarcode)
         assertEquals(500, args.deposit)
         assertEquals("9", args.itemIds)
         assertTrue(viewModel.uiState.value.items.isEmpty())

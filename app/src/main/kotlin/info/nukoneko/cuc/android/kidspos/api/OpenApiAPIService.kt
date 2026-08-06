@@ -2,19 +2,18 @@ package info.nukoneko.cuc.android.kidspos.api
 
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
-import info.nukoneko.cuc.android.kidspos.api.generated.StaffApi
+import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
 import info.nukoneko.cuc.android.kidspos.api.generated.model.CreateSaleRequest
-import info.nukoneko.cuc.android.kidspos.api.generated.model.CreateSaleRequestItemsInner
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Sale
-import info.nukoneko.cuc.android.kidspos.entity.Staff
+import info.nukoneko.cuc.android.kidspos.entity.ServerStatus
 import info.nukoneko.cuc.android.kidspos.entity.Store
 
 class OpenApiAPIService(
     private val itemsApi: ItemsApi,
     private val salesApi: SalesApi,
-    private val staffApi: StaffApi,
+    private val statusApi: StatusApi,
     private val storesApi: StoresApi
 ) : APIService {
 
@@ -35,30 +34,25 @@ class OpenApiAPIService(
 
     override suspend fun createSale(
         storeId: Int,
-        staffBarcode: String,
         deposit: Int,
         itemIds: String
     ): Sale {
-        val itemBarcodes = itemIds.split(",")
         val request = CreateSaleRequest(
             storeId = storeId,
-            staffBarcode = staffBarcode,
-            deposit = deposit,
-            items = itemBarcodes.map { barcode ->
-                CreateSaleRequestItemsInner(barcode = barcode, quantity = 1)
-            }
+            itemIds = itemIds,
+            deposit = deposit
         )
         val response = salesApi.createSale(request)
         return if (response.isSuccessful) {
             val saleResponse = response.body()!!
             Sale(
-                id = saleResponse.saleId ?: 0,
-                barcode = saleResponse.saleId?.toString() ?: "",
+                id = saleResponse.id ?: 0,
+                barcode = saleResponse.id?.toString() ?: "",
                 createdAt = java.util.Date().toString(),
                 points = 0,
-                price = saleResponse.totalAmount ?: 0,
+                price = saleResponse.amount ?: 0,
                 items = itemIds,
-                storeId = storeId,
+                storeId = saleResponse.storeId ?: storeId,
                 staffId = 0
             )
         } else {
@@ -83,16 +77,17 @@ class OpenApiAPIService(
         }
     }
 
-    override suspend fun getStaff(staffBarcode: String): Staff {
-        val response = staffApi.getStaffByBarcode(staffBarcode)
+    override suspend fun getServerStatus(): ServerStatus {
+        val response = statusApi.getServerStatus()
         return if (response.isSuccessful) {
-            val staffResponse = response.body()!!
-            Staff(
-                barcode = staffResponse.barcode ?: staffBarcode,
-                name = staffResponse.name ?: ""
+            val statusResponse = response.body()!!
+            ServerStatus(
+                status = statusResponse.status,
+                version = statusResponse.version,
+                apiVersion = statusResponse.apiVersion
             )
         } else {
-            throw Exception("Failed to get staff: ${response.code()}")
+            throw Exception("Failed to get server status: ${response.code()}")
         }
     }
 }

@@ -25,14 +25,12 @@ class SaleRepositoryTest {
 
         repository.createSale(
             storeId = 3,
-            staffBarcode = "1000000001",
             deposit = 500,
             items = listOf(item(1), item(2), item(3))
         )
 
         val args = apiService.createSaleCalls.single()
         assertEquals(3, args.storeId)
-        assertEquals("1000000001", args.staffBarcode)
         assertEquals(500, args.deposit)
         assertEquals("1,2,3", args.itemIds)
     }
@@ -44,7 +42,6 @@ class SaleRepositoryTest {
 
         repository.createSale(
             storeId = 1,
-            staffBarcode = "",
             deposit = 100,
             items = listOf(item(7))
         )
