@@ -1,54 +1,33 @@
 # KidsPOS for Android
 
-## 概要
-キッズビジネスタウンいちかわで使用するAndroid用POSシステムです。
+キッズビジネスタウンいちかわのレジ端末として使う Android アプリです。バーコードで商品を読み取って会計し、売上を [KidsPOS-Server](https://github.com/KidsPOSProject/KidsPOS-Server) に送ります。
 
-## 機能
-- 商品バーコード読み取り
-- 会計処理
-- 店舗管理
-- スタッフ管理
-- レシート発行
+サーバーが無くても試せるように demo フレーバーを用意してあります。こちらは通信せずダミーデータで動くので、動作確認やデモにはこちらをどうぞ。本番は prod フレーバーです。
 
-## アーキテクチャ
-- 言語: Kotlin
-- UI: Jetpack Compose (Material3) / Single-Activity + Navigation Compose
-- DI: Hilt (KSP)
-- 状態管理: StateFlow + UiState
-- 設定永続化: Preferences DataStore
-- 通信: Retrofit + OkHttp (OpenAPI Generator によるクライアント生成)
-- ログ: Timber
-- ビルド: Gradle Kotlin DSL + Version Catalog (gradle/libs.versions.toml)
+## ビルド
 
-## 開発環境
-- Android Studio
-- JDK 17
+JDK 17 があればビルドできます（minSdk 23 / targetSdk 36）。
 
-## ビルド方法
-
-### デバッグビルド
 ```bash
-./gradlew assembleProdDebug
-./gradlew assembleDemoDebug
+./gradlew assembleProdDebug   # 本番用
+./gradlew assembleDemoDebug   # デモ用
 ```
 
-### リリースビルド
-```bash
-./gradlew assembleProdRelease
-```
+リリースビルドの署名は keystore.properties があればそれを使い、無ければリポジトリ同梱の開発用キーストアにフォールバックします。ストア配布はしていない、会場運用専用のアプリです。
 
-リリース署名は keystore.properties があればそれを使用し、無ければリポジトリ同梱の開発用キーストアにフォールバックします（ストア配布なしの開発専用アプリ）。
+## つくり
 
-### テストと Lint
+コードは Kotlin、UI は Jetpack Compose（Material3）です。Activity は MainActivity ひとつだけで、画面遷移は Navigation Compose に任せています。ViewModel は Hilt で注入し、状態は StateFlow の UiState として画面へ流します。
+
+サーバーとの通信は Retrofit。API クライアントはサーバー側の api.yaml から OpenAPI Generator で生成しているので、手書きの通信コードはほとんどありません。接続先サーバーや店舗の選択といった設定は Preferences DataStore に保存され、バーコードの読取イベントは BarcodeEventBus 経由で各画面に届きます。
+
+## 開発するとき
+
+コミット前にひととおり回しておくと安心です。
+
 ```bash
 ./gradlew testProdDebugUnitTest
 ./gradlew lintProdDebug
 ```
 
-## プロジェクト構成
-- **app/** - メインアプリケーションモジュール
-  - src/main - アプリ本体（prod / demo の共通部分）
-  - src/prod, src/demo - フレーバー別ソース
-  - src/test, src/testProd - ユニットテスト
-- **gradle/libs.versions.toml** - 依存バージョンの一元管理
-- **docs/** - ドキュメント
+テストはモックライブラリを使わず、Fake 実装 + turbine で書いています。ログ出力は Timber を使ってください（print / println は使いません）。依存ライブラリのバージョンは gradle/libs.versions.toml にまとめてあります。
