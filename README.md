@@ -1,33 +1,49 @@
 # KidsPOS for Android
 
-キッズビジネスタウンいちかわのレジ端末として使う Android アプリです。バーコードで商品を読み取って会計し、売上を [KidsPOS-Server](https://github.com/KidsPOSProject/KidsPOS-Server) に送ります。
+キッズビジネスタウンいちかわで使用するレジ端末用 Android アプリです。バーコードで商品を読み取り、会計処理を行って売上を [KidsPOS-Server](https://github.com/KidsPOSProject/KidsPOS-Server) に送信します。
 
-サーバーが無くても試せるように demo フレーバーを用意してあります。こちらは通信せずダミーデータで動くので、動作確認やデモにはこちらをどうぞ。本番は prod フレーバーです。
+## 機能
+
+- 商品バーコード読み取り
+- 会計処理
+- 店舗切替
+- スタッフ管理
+- レシート発行
+
+## 技術スタック
+
+- Kotlin / Jetpack Compose (Material3)
+- Single-Activity + Navigation Compose
+- Hilt (KSP) / StateFlow / Preferences DataStore
+- Retrofit + OkHttp（OpenAPI Generator によるクライアント生成）
+- Timber
+
+## 必要環境
+
+- JDK 17
+- Android Studio
+- minSdk 23 / targetSdk 36
 
 ## ビルド
-
-JDK 17 があればビルドできます（minSdk 23 / targetSdk 36）。
 
 ```bash
 ./gradlew assembleProdDebug   # 本番用
 ./gradlew assembleDemoDebug   # デモ用
 ```
 
-リリースビルドの署名は keystore.properties があればそれを使い、無ければリポジトリ同梱の開発用キーストアにフォールバックします。ストア配布はしていない、会場運用専用のアプリです。
+demo フレーバーはサーバーと通信せず、ダミーデータで動作します。
 
-## つくり
+リリースビルドの署名は keystore.properties を優先し、無い場合はリポジトリ同梱の開発用キーストアを使用します（ストア配布なしの開発専用アプリ）。
 
-コードは Kotlin、UI は Jetpack Compose（Material3）です。Activity は MainActivity ひとつだけで、画面遷移は Navigation Compose に任せています。ViewModel は Hilt で注入し、状態は StateFlow の UiState として画面へ流します。
-
-サーバーとの通信は Retrofit。API クライアントはサーバー側の api.yaml から OpenAPI Generator で生成しているので、手書きの通信コードはほとんどありません。接続先サーバーや店舗の選択といった設定は Preferences DataStore に保存され、バーコードの読取イベントは BarcodeEventBus 経由で各画面に届きます。
-
-## 開発するとき
-
-コミット前にひととおり回しておくと安心です。
+## テストと Lint
 
 ```bash
 ./gradlew testProdDebugUnitTest
 ./gradlew lintProdDebug
 ```
 
-テストはモックライブラリを使わず、Fake 実装 + turbine で書いています。ログ出力は Timber を使ってください（print / println は使いません）。依存ライブラリのバージョンは gradle/libs.versions.toml にまとめてあります。
+## 開発規約
+
+- テストはモックライブラリを使用せず、Fake 実装と turbine で記述します
+- ログ出力は Timber を使用します（print / println は禁止）
+- 依存ライブラリのバージョンは gradle/libs.versions.toml で管理します
