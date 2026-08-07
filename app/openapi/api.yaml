@@ -201,7 +201,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9]{4,}$'
+            pattern: '^A(00|01|02)[0-9]{6}A$'
       responses:
         '200':
           description: Success
@@ -728,8 +728,8 @@ components:
       properties:
         barcode:
           type: string
-          minLength: 4
-          example: "1234567890"
+          pattern: '^A(00|01|02)[0-9]{6}A$'
+          example: "A01000001A"
         name:
           type: string
           minLength: 1
@@ -842,7 +842,6 @@ components:
           type: string
         printerUri:
           type: string
-          nullable: true
       required:
         - name
 
