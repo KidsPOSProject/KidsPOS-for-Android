@@ -44,4 +44,22 @@
     <string name="network_error">通信エラーが発生しました。</string>
     <string name="current_mode_format">現在は %s モードです</string>
     <string name="switch_mode_format">%s に切り替える</string>
+
+    <!-- App update -->
+    <string name="app_update">アプリの更新</string>
+    <string name="current_version_format">現在のバージョン: %1$s (%2$d)</string>
+    <string name="check_update">アップデートを確認</string>
+    <string name="checking_update">アップデートを確認しています…</string>
+    <string name="app_is_up_to_date">最新のバージョンです</string>
+    <string name="update_available">アップデートがあります</string>
+    <string name="update_version_format">新しいバージョン: %1$s (%2$d)</string>
+    <string name="update_now">更新する</string>
+    <string name="update_later">あとで</string>
+    <string name="downloading_update_format">ダウンロード中… %1$d%%</string>
+    <string name="installing_update">インストールしています…</string>
+    <string name="update_check_failed">アップデートの確認に失敗しました</string>
+    <string name="update_download_failed">アップデートのダウンロードに失敗しました</string>
+    <string name="update_install_failed">アップデートのインストールに失敗しました</string>
+    <string name="install_permission_required">アプリを更新するには、不明なアプリのインストールを許可してください</string>
+    <string name="open_install_permission_setting">設定を開く</string>
 </resources>

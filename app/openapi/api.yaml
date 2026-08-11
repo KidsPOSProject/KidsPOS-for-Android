@@ -24,6 +24,8 @@ tags:
     description: 設定管理
   - name: Status
     description: サーバーステータス
+  - name: Apk
+    description: Androidアプリ配信
 
 paths:
   # Status
@@ -698,6 +700,204 @@ paths:
                   message:
                     type: string
 
+  # APK
+  /api/apk/version/latest:
+    get:
+      tags:
+        - Apk
+      summary: 最新APKバージョン取得
+      description: 配信対象になっているAPKのうち、最もバージョンコードが大きいものの情報を取得します
+      operationId: getLatestApkVersion
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApkVersionResponse'
+        '404':
+          description: No active APK version
+
+  /api/apk/version/check:
+    get:
+      tags:
+        - Apk
+      summary: アップデート確認
+      description: クライアントの現在のバージョンコードより新しいAPKが配信されているかを確認します
+      operationId: checkApkUpdate
+      parameters:
+        - name: currentVersionCode
+          in: query
+          required: true
+          description: クライアントの現在のバージョンコード
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCheckResponse'
+
+  /api/apk/version/all:
+    get:
+      tags:
+        - Apk
+      summary: APKバージョン一覧取得
+      description: 登録済みの全APKバージョン情報をバージョンコード降順で取得します
+      operationId: getAllApkVersions
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApkVersionResponse'
+
+  /api/apk/version/{id}:
+    delete:
+      tags:
+        - Apk
+      summary: APKバージョン削除
+      description: 指定したAPKバージョンの登録情報とファイルを削除します
+      operationId: deleteApkVersion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: APKバージョンID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: APK version not found
+
+  /api/apk/version/{id}/deactivate:
+    put:
+      tags:
+        - Apk
+      summary: APKバージョン無効化
+      description: 指定したAPKバージョンを配信対象から外します
+      operationId: deactivateApkVersion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: APKバージョンID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApkVersionResponse'
+        '404':
+          description: APK version not found
+
+  /api/apk/download/{id}:
+    get:
+      tags:
+        - Apk
+      summary: APKファイルダウンロード
+      description: 指定したAPKバージョンのファイルをダウンロードします。レスポンスが大きいため、クライアントはストリーミングで受信してください
+      operationId: downloadApk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: APKバージョンID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.android.package-archive:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: APK file not found
+
+  /api/apk/download/latest:
+    get:
+      tags:
+        - Apk
+      summary: 最新APKファイルダウンロード
+      description: 最新バージョンのAPKファイルをダウンロードします。レスポンスが大きいため、クライアントはストリーミングで受信してください
+      operationId: downloadLatestApk
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.android.package-archive:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: APK file not found
+
+  /api/apk/upload:
+    post:
+      tags:
+        - Apk
+      summary: APKアップロード
+      description: 新しいAPKファイルを登録します
+      operationId: uploadApk
+      parameters:
+        - name: version
+          in: query
+          required: true
+          description: バージョン名（例 1.2.3）
+          schema:
+            type: string
+        - name: versionCode
+          in: query
+          required: true
+          description: バージョンコード
+          schema:
+            type: integer
+        - name: releaseNotes
+          in: query
+          required: false
+          description: リリースノート
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: APKファイル
+              required:
+                - file
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApkVersionResponse'
+        '400':
+          description: Validation error
+        '409':
+          description: Version already exists
+
 
 components:
   schemas:
@@ -914,6 +1114,69 @@ components:
         - reachable
         - total
         - reachableCount
+
+    ApkVersionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+          description: APKバージョンID
+          example: 1
+        version:
+          type: string
+          description: バージョン名（semver）
+          example: "1.0.7"
+        versionCode:
+          type: integer
+          description: バージョンコード
+          example: 8
+        fileName:
+          type: string
+          description: サーバー上のファイル名
+          example: "kidspos-v1.0.7.apk"
+        fileSize:
+          type: integer
+          format: int64
+          description: ファイルサイズ（バイト）
+          example: 12345678
+        releaseNotes:
+          type: string
+          nullable: true
+          description: リリースノート
+        downloadUrl:
+          type: string
+          description: ダウンロード用のパス
+          example: "/api/apk/download/1"
+        uploadedAt:
+          type: string
+          description: アップロード時刻。サーバーのローカル時刻で、タイムゾーンを含まないISO-8601形式
+          example: "2026-08-11T12:04:41.937"
+        isActive:
+          type: boolean
+          description: 配信対象かどうか
+          example: true
+      required:
+        - version
+        - versionCode
+        - fileName
+        - fileSize
+        - downloadUrl
+        - uploadedAt
+        - isActive
+
+    UpdateCheckResponse:
+      type: object
+      properties:
+        hasUpdate:
+          type: boolean
+          description: 新しいバージョンが存在するか
+          example: true
+        latestVersion:
+          $ref: '#/components/schemas/ApkVersionResponse'
+      required:
+        - hasUpdate
 
     ErrorResponse:
       type: object
