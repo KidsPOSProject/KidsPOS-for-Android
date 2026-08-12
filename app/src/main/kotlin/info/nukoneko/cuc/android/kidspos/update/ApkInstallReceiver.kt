@@ -4,19 +4,29 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import timber.log.Timber
-import javax.inject.Inject
 
-@AndroidEntryPoint
+// BroadcastReceiver.onReceive は abstract なので、@AndroidEntryPoint が注入のために要求する
+// super.onReceive() を Kotlin から呼べない。EntryPoint 経由で同じ Singleton を取得する
 class ApkInstallReceiver : BroadcastReceiver() {
 
-    @Inject
-    lateinit var installResultBus: ApkInstallResultBus
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface ApkInstallEntryPoint {
+        fun installResultBus(): ApkInstallResultBus
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
         if (intent.action != ACTION_INSTALL_STATUS) return
+
+        val installResultBus = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ApkInstallEntryPoint::class.java
+        ).installResultBus()
 
         when (val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, Int.MIN_VALUE)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
