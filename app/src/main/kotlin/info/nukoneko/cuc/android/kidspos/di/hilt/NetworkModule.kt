@@ -11,6 +11,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import org.openapitools.client.infrastructure.Serializer
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -18,9 +19,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    // 生成モデルの date-time 項目は @Contextual な java.time.OffsetDateTime になるため、
+    // 生成側の SerializersModule を登録しないとシリアライザを解決できず実行時に失敗する
     @Provides
     @Singleton
-    fun provideJson(): Json = Json { ignoreUnknownKeys = true }
+    fun provideJson(): Json =
+        Json {
+            serializersModule = Serializer.kotlinxSerializationAdapters
+            ignoreUnknownKeys = true
+        }
 
     @Provides
     @Singleton
