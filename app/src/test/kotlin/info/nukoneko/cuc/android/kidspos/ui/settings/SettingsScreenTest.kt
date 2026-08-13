@@ -7,11 +7,15 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
+import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.util.Mode
 import org.junit.Assert.assertEquals
@@ -38,7 +42,7 @@ class SettingsScreenTest {
 
     @Test
     fun currentServerAddressIsShownInTextField() {
-        val viewModel = SettingsViewModel(settingsRepository)
+        val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
         }
@@ -48,7 +52,7 @@ class SettingsScreenTest {
 
     @Test
     fun typingServerAddressUpdatesState() {
-        val viewModel = SettingsViewModel(settingsRepository)
+        val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
         }
@@ -61,7 +65,7 @@ class SettingsScreenTest {
 
     @Test
     fun toggleModeButtonSwitchesToProduction() {
-        val viewModel = SettingsViewModel(settingsRepository)
+        val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
         }
@@ -80,12 +84,63 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = { navigatedBack = true },
-                viewModel = SettingsViewModel(settingsRepository)
+                viewModel = createSettingsViewModel(settingsRepository)
             )
         }
 
         composeRule.onNodeWithContentDescription(context.getString(R.string.back)).performClick()
 
         assertTrue(navigatedBack)
+    }
+
+    @Test
+    fun checkUpdateButtonShowsUpToDateMessage() {
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(settingsRepository)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.check_update))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.app_is_up_to_date)).assertExists()
+    }
+
+    @Test
+    fun availableUpdateShowsConfirmDialog() {
+        val updateService = FakeAppUpdateService()
+        updateService.checkForUpdateHandler = {
+            AppUpdate(
+                versionName = "9.9.9",
+                versionCode = 99,
+                fileSize = 1024,
+                releaseNotes = null,
+                downloadPath = "/api/apk/download/1"
+            )
+        }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    appUpdateService = updateService
+                )
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.check_update))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.update_available))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(
+            context.getString(R.string.update_version_format, "9.9.9", 99)
+        ).assertIsDisplayed()
     }
 }

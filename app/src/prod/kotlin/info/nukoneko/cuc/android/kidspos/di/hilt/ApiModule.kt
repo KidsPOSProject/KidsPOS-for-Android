@@ -5,7 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import info.nukoneko.cuc.android.kidspos.api.APIService
+import info.nukoneko.cuc.android.kidspos.api.AppUpdateService
 import info.nukoneko.cuc.android.kidspos.api.OpenApiAPIService
+import info.nukoneko.cuc.android.kidspos.api.OpenApiAppUpdateService
+import info.nukoneko.cuc.android.kidspos.api.generated.ApkApi
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
@@ -16,6 +19,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+
+    @Provides
+    @Singleton
+    fun provideApkApi(retrofit: Retrofit): ApkApi =
+        retrofit.create(ApkApi::class.java)
 
     @Provides
     @Singleton
@@ -50,4 +58,9 @@ object ApiModule {
         statusApi = statusApi,
         storesApi = storesApi
     )
+
+    @Provides
+    @Singleton
+    fun provideAppUpdateService(apkApi: ApkApi): AppUpdateService =
+        OpenApiAppUpdateService(apkApi)
 }
