@@ -345,7 +345,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  isValid:
+                  printerConfigured:
                     type: boolean
 
   # Stores
@@ -969,12 +969,25 @@ components:
         saleTime:
           type: string
           format: date-time
-          description: 売上時刻
+          description: 売上時刻（サーバーのタイムゾーンオフセット付き RFC3339）
+          example: "2026-08-13T14:43:22.947+09:00"
         items:
           type: array
           description: 売上商品リスト
           items:
             $ref: '#/components/schemas/SaleItemResponse'
+        totalItems:
+          type: integer
+          description: 売上商品の合計点数
+        formattedTotalAmount:
+          type: string
+          description: 通貨表記の合計金額
+        formattedDeposit:
+          type: string
+          description: 通貨表記の預り金
+        formattedChange:
+          type: string
+          description: 通貨表記のお釣り
       required:
         - id
         - storeId
@@ -1005,6 +1018,12 @@ components:
         subtotal:
           type: integer
           description: 小計（リバー）
+        formattedUnitPrice:
+          type: string
+          description: 通貨表記の単価
+        formattedSubtotal:
+          type: string
+          description: 通貨表記の小計
       required:
         - itemId
         - itemName
