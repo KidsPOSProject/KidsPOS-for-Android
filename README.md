@@ -1,54 +1,49 @@
 # KidsPOS for Android
 
-## 概要
-キッズビジネスタウンいちかわで使用するAndroid用POSシステムです。
+キッズビジネスタウンいちかわで使用するレジ端末用 Android アプリです。バーコードで商品を読み取り、会計処理を行って売上を [KidsPOS-Server](https://github.com/KidsPOSProject/KidsPOS-Server) に送信します。
 
 ## 機能
+
 - 商品バーコード読み取り
 - 会計処理
-- 店舗管理
+- 店舗切替
 - スタッフ管理
 - レシート発行
 
-## アーキテクチャ
-- 言語: Kotlin
-- UI: Jetpack Compose (Material3) / Single-Activity + Navigation Compose
-- DI: Hilt (KSP)
-- 状態管理: StateFlow + UiState
-- 設定永続化: Preferences DataStore
-- 通信: Retrofit + OkHttp (OpenAPI Generator によるクライアント生成)
-- ログ: Timber
-- ビルド: Gradle Kotlin DSL + Version Catalog (gradle/libs.versions.toml)
+## 技術スタック
 
-## 開発環境
-- Android Studio
+- Kotlin / Jetpack Compose (Material3)
+- Single-Activity + Navigation Compose
+- Hilt (KSP) / StateFlow / Preferences DataStore
+- Retrofit + OkHttp（OpenAPI Generator によるクライアント生成）
+- Timber
+
+## 必要環境
+
 - JDK 17
+- Android Studio
+- minSdk 23 / targetSdk 36
 
-## ビルド方法
+## ビルド
 
-### デバッグビルド
 ```bash
-./gradlew assembleProdDebug
-./gradlew assembleDemoDebug
+./gradlew assembleProdDebug   # 本番用
+./gradlew assembleDemoDebug   # デモ用
 ```
 
-### リリースビルド
-```bash
-./gradlew assembleProdRelease
-```
+demo フレーバーはサーバーと通信せず、ダミーデータで動作します。
 
-リリース署名は keystore.properties があればそれを使用し、無ければリポジトリ同梱の開発用キーストアにフォールバックします（ストア配布なしの開発専用アプリ）。
+リリースビルドの署名は keystore.properties を優先し、無い場合はリポジトリ同梱の開発用キーストアを使用します（ストア配布なしの開発専用アプリ）。
 
-### テストと Lint
+## テストと Lint
+
 ```bash
 ./gradlew testProdDebugUnitTest
 ./gradlew lintProdDebug
 ```
 
-## プロジェクト構成
-- **app/** - メインアプリケーションモジュール
-  - src/main - アプリ本体（prod / demo の共通部分）
-  - src/prod, src/demo - フレーバー別ソース
-  - src/test, src/testProd - ユニットテスト
-- **gradle/libs.versions.toml** - 依存バージョンの一元管理
-- **docs/** - ドキュメント
+## 開発規約
+
+- テストはモックライブラリを使用せず、Fake 実装と turbine で記述します
+- ログ出力は Timber を使用します（print / println は禁止）
+- 依存ライブラリのバージョンは gradle/libs.versions.toml で管理します
