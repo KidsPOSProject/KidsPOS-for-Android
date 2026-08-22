@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.roborazzi)
 }
 
 // ストア配布をしない開発専用アプリのため、keystore.properties が無い環境では
@@ -171,6 +172,8 @@ dependencies {
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.compose.ui.test.manifest)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
 }
 
 openApiGenerate {

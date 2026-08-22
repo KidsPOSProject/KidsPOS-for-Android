@@ -24,6 +24,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
       - name: Build, lint and test
         run: ./gradlew assembleProdDebug assembleDemoDebug lintProdDebug lintDemoDebug testProdDebugUnitTest testDemoDebugUnitTest
+      - name: Record screenshots
+        run: ./gradlew recordRoborazziProdDebug
+      - name: Upload screenshots
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: screenshots
+          path: app/screenshots
       - name: Build release
         run: ./gradlew assembleProdRelease
       - name: Upload reports
