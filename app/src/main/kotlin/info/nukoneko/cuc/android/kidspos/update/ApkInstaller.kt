@@ -28,12 +28,17 @@ class PackageInstallerApkInstaller(
         val params =
             PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         val sessionId = installer.createSession(params)
-        installer.openSession(sessionId).use { session ->
-            session.openWrite(WRITE_NAME, 0, apk.length()).use { sink ->
-                apk.inputStream().use { source -> source.copyTo(sink) }
-                session.fsync(sink)
+        try {
+            installer.openSession(sessionId).use { session ->
+                session.openWrite(WRITE_NAME, 0, apk.length()).use { sink ->
+                    apk.inputStream().use { source -> source.copyTo(sink) }
+                    session.fsync(sink)
+                }
+                session.commit(createStatusIntent(sessionId).intentSender)
             }
-            session.commit(createStatusIntent(sessionId).intentSender)
+        } catch (e: Exception) {
+            installer.abandonSession(sessionId)
+            throw e
         }
     }
 

@@ -14,10 +14,14 @@ enum class ApkInstallResult {
 
 @Singleton
 class ApkInstallResultBus @Inject constructor() {
-    private val _results = MutableSharedFlow<ApkInstallResult>(extraBufferCapacity = 1)
+    private val _results = MutableSharedFlow<ApkInstallResult>(replay = 1)
     val results: SharedFlow<ApkInstallResult> = _results.asSharedFlow()
 
     fun emit(result: ApkInstallResult) {
         _results.tryEmit(result)
+    }
+
+    fun clear() {
+        _results.resetReplayCache()
     }
 }
