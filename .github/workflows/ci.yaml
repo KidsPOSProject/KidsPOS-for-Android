@@ -27,6 +27,24 @@ jobs:
       - uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
       - name: Build, lint and test
         run: ./gradlew assembleProdDebug assembleDemoDebug lintProdDebug lintDemoDebug testProdDebugUnitTest testDemoDebugUnitTest
+      - name: Fetch baseline screenshots
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "HAS_BASELINE=false" >> "$GITHUB_ENV"
+          if git fetch origin screenshots; then
+            git worktree add baseline-wt origin/screenshots
+            if ls baseline-wt/main/*.png > /dev/null 2>&1; then
+              mkdir -p app/screenshots
+              cp baseline-wt/main/*.png app/screenshots/
+              echo "HAS_BASELINE=true" >> "$GITHUB_ENV"
+            fi
+          fi
+      - name: Compare screenshots
+        if: github.event_name == 'pull_request' && env.HAS_BASELINE == 'true'
+        run: |
+          ./gradlew compareRoborazziProdDebug
+          find app -name "*_actual.png" -delete
+          find app -name "*_compare.png" -not -path "app/screenshots/*" -exec mv {} app/screenshots/ \;
       - name: Record screenshots
         run: ./gradlew recordRoborazziProdDebug
       - name: Upload screenshots
@@ -36,6 +54,31 @@ jobs:
           path: app/screenshots
       - name: Build release
         run: ./gradlew assembleProdRelease
+      - name: Publish baseline screenshots
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin screenshots; then
+            git worktree add screenshots-wt origin/screenshots
+          else
+            git worktree add --orphan screenshots-wt
+          fi
+          rm -rf screenshots-wt/main
+          mkdir -p screenshots-wt/main
+          cp app/screenshots/*.png screenshots-wt/main/
+          cd screenshots-wt
+          git add main
+          if ! git diff --cached --quiet; then
+            git commit -m "main のスクリーンショット基準画像を更新"
+            for i in 1 2 3; do
+              if git push origin HEAD:screenshots; then
+                break
+              fi
+              git fetch origin screenshots
+              git rebase origin/screenshots
+            done
+          fi
       - name: Publish screenshots to PR
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         env:
@@ -67,9 +110,29 @@ jobs:
           commit=$(git rev-parse HEAD)
           {
             echo "<!-- roborazzi-screenshots -->"
+            echo "## UI差分"
+            echo ""
+            if [ "${HAS_BASELINE}" != "true" ]; then
+              echo "基準画像が未作成のため、差分比較をスキップしました。"
+            elif ls pr-${PR_NUMBER}/*_compare.png > /dev/null 2>&1; then
+              for f in pr-${PR_NUMBER}/*_compare.png; do
+                name=$(basename "$f" _compare.png)
+                echo "<details open><summary>${name}</summary>"
+                echo ""
+                echo "![${name}](https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${commit}/${f})"
+                echo ""
+                echo "</details>"
+              done
+            else
+              echo "基準画像との差分はありません。"
+            fi
+            echo ""
             echo "## 全画面スクリーンショット"
             echo ""
             for f in pr-${PR_NUMBER}/*.png; do
+              case "$f" in
+                *_compare.png) continue ;;
+              esac
               name=$(basename "$f" .png)
               echo "<details><summary>${name}</summary>"
               echo ""
