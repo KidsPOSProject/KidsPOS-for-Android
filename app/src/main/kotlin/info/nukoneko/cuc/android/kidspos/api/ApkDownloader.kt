@@ -28,6 +28,7 @@ class OkHttpApkDownloader(
 
         val directory = File(context.cacheDir, DOWNLOAD_DIRECTORY)
         directory.mkdirs()
+        directory.listFiles()?.forEach { it.delete() }
         val destination = File(directory, "kidspos-${update.versionCode}.apk")
 
         client.newCall(Request.Builder().url(url).build()).execute().use { response ->

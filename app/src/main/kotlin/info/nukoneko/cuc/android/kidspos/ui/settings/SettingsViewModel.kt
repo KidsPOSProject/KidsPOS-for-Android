@@ -74,6 +74,7 @@ class SettingsViewModel @Inject constructor(
                     ApkInstallResult.FAILURE -> UpdateStatus.Failed(UpdateFailure.INSTALL)
                 }
                 _uiState.update { it.copy(updateStatus = status) }
+                apkInstallResultBus.clear()
             }
         }
     }

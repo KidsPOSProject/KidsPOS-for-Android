@@ -189,6 +189,43 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun installResultEmittedBeforeViewModelCreationIsDelivered() = runTest {
+        val bus = ApkInstallResultBus()
+        bus.emit(ApkInstallResult.FAILURE)
+
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            apkInstallResultBus = bus
+        )
+
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.INSTALL),
+            viewModel.uiState.value.updateStatus
+        )
+    }
+
+    @Test
+    fun consumedInstallResultIsNotRedeliveredToNewViewModel() = runTest {
+        val bus = ApkInstallResultBus()
+        val firstViewModel = createSettingsViewModel(
+            settingsRepository,
+            apkInstallResultBus = bus
+        )
+        bus.emit(ApkInstallResult.FAILURE)
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.INSTALL),
+            firstViewModel.uiState.value.updateStatus
+        )
+
+        val secondViewModel = createSettingsViewModel(
+            settingsRepository,
+            apkInstallResultBus = bus
+        )
+
+        assertEquals(UpdateStatus.Idle, secondViewModel.uiState.value.updateStatus)
+    }
+
+    @Test
     fun dismissUpdateReturnsToIdle() = runTest {
         val updateService = FakeAppUpdateService()
         updateService.checkForUpdateHandler = { appUpdate() }
