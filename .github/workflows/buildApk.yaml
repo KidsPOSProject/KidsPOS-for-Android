@@ -7,6 +7,11 @@ jobs:
   deploy-stg:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Setup JDK
@@ -30,7 +35,46 @@ jobs:
       - name: Build APK
         run: |
           ./gradlew clean assembleProdRelease
+      - name: Prepare release asset
+        id: release_asset
+        run: |
+          VERSION_NAME=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
+          VERSION_CODE=$(grep -oP 'versionCode = \K[0-9]+' app/build.gradle.kts)
+          if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
+            echo "::error::app/build.gradle.kts から versionName / versionCode を取得できませんでした"
+            exit 1
+          fi
+          APK_PATH="app/build/outputs/apk/prod/release/app-prod-release.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "::error::APK が見つかりません: ${APK_PATH}"
+            exit 1
+          fi
+          ASSET_PATH="build/release/kidspos-v${VERSION_NAME}.apk"
+          mkdir -p "$(dirname "$ASSET_PATH")"
+          cp "$APK_PATH" "$ASSET_PATH"
+          {
+            echo "version_name=${VERSION_NAME}"
+            echo "version_code=${VERSION_CODE}"
+            echo "asset_path=${ASSET_PATH}"
+          } >> "$GITHUB_OUTPUT"
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ steps.release_asset.outputs.version_name }}
+          VERSION_NAME: ${{ steps.release_asset.outputs.version_name }}
+          VERSION_CODE: ${{ steps.release_asset.outputs.version_code }}
+          ASSET_PATH: ${{ steps.release_asset.outputs.asset_path }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET_PATH" --clobber
+            echo "::notice::既存リリース ${TAG} のアセットを差し替えました"
+          else
+            NOTES=$(printf 'KidsPOS Android アプリ\n\n- versionName: %s\n- versionCode: %s\n\nサーバーの APK 管理画面 (/apk) にこの APK をアップロードすると、端末は /api/apk/download/latest から取得できます。\n' "$VERSION_NAME" "$VERSION_CODE")
+            gh release create "$TAG" "$ASSET_PATH" --title "$TAG" --notes "$NOTES"
+            echo "::notice::リリース ${TAG} を作成しました"
+          fi
       - name: Deploy Firebase App Distribution
+        if: env.FIREBASE_TOKEN != '' && env.FIREBASE_APP_ID != ''
         uses: wzieba/Firebase-Distribution-Github-Action@bd494989dd4bec0343f78adee87fe66e48279ad6 # v1.7.1
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
