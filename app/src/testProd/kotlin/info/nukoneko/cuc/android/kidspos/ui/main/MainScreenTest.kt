@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -22,6 +23,8 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import java.io.IOException
+import kotlin.math.abs
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -106,6 +109,58 @@ class MainScreenTest {
         composeRule.onAllNodesWithText(context.getString(R.string.river_format, 250))
             .assertCountEquals(2)
         composeRule.onNodeWithText(context.getString(R.string.account)).assertIsEnabled()
+    }
+
+    @Test
+    fun calculatorKeysAreSquareAndSameSize() {
+        openCalculator()
+
+        val labels = listOf("1", "5", "9", "0", context.getString(R.string.delete))
+        val sizes = labels.map { label ->
+            val bounds = composeRule.onNodeWithText(label).getUnclippedBoundsInRoot()
+            label to (bounds.width.value to bounds.height.value)
+        }
+
+        sizes.forEach { (label, size) ->
+            val (width, height) = size
+            assertTrue("$label のキーが正方形ではない: ${width}x$height", abs(width - height) <= 1f)
+            assertTrue("$label のキーが小さすぎる: ${width}x$height", width >= 48f)
+        }
+        val widths = sizes.map { it.second.first }
+        assertTrue("キーの大きさが揃っていない: $widths", widths.max() - widths.min() <= 1f)
+    }
+
+    @Test
+    fun calculatorKeysAreLaidOutInThreeColumns() {
+        openCalculator()
+
+        val left = { label: String -> composeRule.onNodeWithText(label).getUnclippedBoundsInRoot().left.value }
+        val top = { label: String -> composeRule.onNodeWithText(label).getUnclippedBoundsInRoot().top.value }
+
+        listOf("1", "4", "7").forEach { assertTrue("$it が1列目にない", abs(left(it) - left("1")) <= 1f) }
+        listOf("2", "5", "8", "0").forEach { assertTrue("$it が2列目にない", abs(left(it) - left("2")) <= 1f) }
+        listOf("3", "6", "9", context.getString(R.string.delete)).forEach {
+            assertTrue("$it が3列目にない", abs(left(it) - left("3")) <= 1f)
+        }
+        assertTrue("0 が最下段にない", top("0") > top("7"))
+        assertTrue(
+            "けす が0と同じ段にない",
+            abs(top(context.getString(R.string.delete)) - top("0")) <= 1f
+        )
+    }
+
+    private fun openCalculator() {
+        apiService.getItemHandler = { barcode ->
+            Item(id = 1, barcode = barcode, name = "テスト商品", price = 300, storeId = 1, genreId = 1)
+        }
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
+        }
+
+        barcodeEventBus.emit(BarcodeInput("1001000001", BarcodeKind.ITEM))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(context.getString(R.string.account)).performClick()
+        composeRule.waitForIdle()
     }
 
     @Test

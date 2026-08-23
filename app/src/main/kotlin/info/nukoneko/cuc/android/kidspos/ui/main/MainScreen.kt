@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -268,11 +272,19 @@ private fun CalculatorDialog(
         Surface(
             shape = MaterialTheme.shapes.medium
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text("${stringResource(R.string.total)}: ${stringResource(R.string.river_format, state.totalPrice)}")
                 Text("${stringResource(R.string.deposit)}: ${stringResource(R.string.river_format, state.deposit)}")
                 Spacer(modifier = Modifier.padding(8.dp))
-                NumberPad(onNumber = onNumber, onClear = onClear)
+                NumberPad(
+                    onNumber = onNumber,
+                    onClear = onClear,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
                 Spacer(modifier = Modifier.padding(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -290,46 +302,54 @@ private fun CalculatorDialog(
     }
 }
 
+private val NumberPadMaxWidth = 360.dp
+
 @Composable
-private fun NumberPad(onNumber: (Int) -> Unit, onClear: () -> Unit) {
+private fun NumberPad(onNumber: (Int) -> Unit, onClear: () -> Unit, modifier: Modifier = Modifier) {
     val rows = listOf(
         listOf(1, 2, 3),
         listOf(4, 5, 6),
         listOf(7, 8, 9)
     )
-    Column {
+    Column(modifier = modifier.widthIn(max = NumberPadMaxWidth)) {
         rows.forEach { row ->
-            Row {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 row.forEach { number ->
-                    Button(
+                    NumberPadButton(
+                        text = "$number",
                         onClick = { onNumber(number) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp)
-                    ) {
-                        Text("$number")
-                    }
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
-        Row {
-            Button(
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Spacer(modifier = Modifier.weight(1f))
+            NumberPadButton(
+                text = "0",
                 onClick = { onNumber(0) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            ) {
-                Text("0")
-            }
-            Button(
+                modifier = Modifier.weight(1f)
+            )
+            NumberPadButton(
+                text = stringResource(R.string.delete),
                 onClick = onClear,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(4.dp)
-            ) {
-                Text(stringResource(R.string.delete))
-            }
+                modifier = Modifier.weight(1f)
+            )
         }
+    }
+}
+
+@Composable
+private fun NumberPadButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier
+            .padding(4.dp)
+            .aspectRatio(1f)
+    ) {
+        Text(text = text, style = MaterialTheme.typography.headlineSmall)
     }
 }
 
