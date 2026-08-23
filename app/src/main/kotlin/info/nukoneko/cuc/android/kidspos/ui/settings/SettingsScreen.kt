@@ -80,6 +80,7 @@ fun SettingsScreen(
             OutlinedTextField(
                 value = state.serverAddress,
                 onValueChange = viewModel::onServerAddressChange,
+                readOnly = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.padding(8.dp))
