@@ -9,12 +9,14 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
@@ -33,9 +35,11 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-// Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する
+// Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する。
+// デフォルト端末は 320x470dp と狭く、電卓の数字キーが画面外に置かれてタップが届かないため、
+// 実際の利用端末であるタブレットの画面サイズで実行する
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
+@Config(sdk = [35], qualifiers = RobolectricDeviceQualifiers.MediumTablet)
 class MainScreenTest {
     private val mainDispatcherRule = MainDispatcherRule()
     private val composeRule = createComposeRule()
@@ -150,6 +154,90 @@ class MainScreenTest {
             abs(top(context.getString(R.string.delete)) - top("0")) <= 1f
         )
     }
+
+    @Test
+    fun calculatorShowsShortageUntilDepositCoversTotal() {
+        openCalculator()
+
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).assertIsNotEnabled()
+
+        pressKeys("1", "0", "0")
+
+        composeRule.onNodeWithText(context.getString(R.string.shortage)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.river_format, 100)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.river_format, 200)).assertIsDisplayed()
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).assertIsNotEnabled()
+    }
+
+    @Test
+    fun calculatorShowsChangeWhenDepositIsEnough() {
+        openCalculator()
+
+        pressKeys("5", "0", "0")
+
+        composeRule.onNodeWithText(context.getString(R.string.change)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.river_format, 500)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.river_format, 200)).assertIsDisplayed()
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).assertIsEnabled()
+    }
+
+    @Test
+    fun calculatorAmountsAreLargerThanTheirLabels() {
+        openCalculator()
+
+        pressKeys("5", "0", "0")
+
+        val labelHeight = heightOf(context.getString(R.string.deposit))
+        val amountHeight = heightOf(context.getString(R.string.river_format, 500))
+        assertTrue(
+            "金額がラベルより大きく表示されていない: label=$labelHeight amount=$amountHeight",
+            amountHeight > labelHeight
+        )
+    }
+
+    @Test
+    fun calculatorAmountsFitInsideTheDialogWidth() {
+        openCalculator()
+
+        pressKeys("9", "9", "9", "9", "9", "9")
+
+        val summaryWidth = composeRule.onNodeWithTag(CalculatorSummaryTag)
+            .getUnclippedBoundsInRoot().width.value
+        listOf(999999, 999699).forEach { amount ->
+            val width = boundsOf(context.getString(R.string.river_format, amount)).width.value
+            assertTrue("$amount の表示が枠に収まっていない: $width / $summaryWidth", width < summaryWidth)
+        }
+    }
+
+    @Test
+    fun accountResultShowsChangeAsTheLargestText() {
+        openCalculator()
+
+        pressKeys("5", "0", "0")
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.change)).assertIsDisplayed()
+        composeRule.onNodeWithTag(AccountResultConfirmButtonTag).assertIsDisplayed()
+
+        val changeHeight = heightOf(context.getString(R.string.river_format, 200))
+        val depositHeight = heightOf(context.getString(R.string.river_format, 500))
+        assertTrue(
+            "おつりがほかの金額より大きく表示されていない: change=$changeHeight deposit=$depositHeight",
+            changeHeight > depositHeight * 1.5f
+        )
+    }
+
+    private fun pressKeys(vararg keys: String) {
+        keys.forEach { key ->
+            composeRule.onNodeWithText(key).assertIsDisplayed().performClick()
+            composeRule.waitForIdle()
+        }
+    }
+
+    private fun boundsOf(text: String) = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot()
+
+    private fun heightOf(text: String) = boundsOf(text).height.value
 
     private fun openCalculator() {
         apiService.getItemHandler = { barcode ->
