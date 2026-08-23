@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
 import android.content.Context
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -8,7 +9,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
@@ -51,16 +51,13 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun typingServerAddressUpdatesState() {
+    fun serverAddressCannotBeEditedByHand() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
         }
 
-        composeRule.onNode(hasSetTextAction()).performTextReplacement("http://10.0.0.5:8080")
-        composeRule.waitForIdle()
-
-        assertEquals("http://10.0.0.5:8080", viewModel.uiState.value.serverAddress)
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
     }
 
     @Test

@@ -9,63 +9,40 @@ data class BarcodeKeyResult(
 
 class BarcodeKeyEventDecoder {
     private val reading = StringBuilder()
-    private val consumedKeys = mutableSetOf<Int>()
-    private var lastKeyTime = NO_KEY_TIME
 
-    fun onKey(
-        action: Int,
-        keyCode: Int,
-        unicodeChar: Int,
-        eventTimeMillis: Long
-    ): BarcodeKeyResult {
-        if (action == ACTION_UP) {
-            return BarcodeKeyResult(consumed = consumedKeys.remove(keyCode))
-        }
-        if (action != ACTION_DOWN) {
-            return BarcodeKeyResult()
-        }
+    fun onKey(action: Int, keyCode: Int, unicodeChar: Int): BarcodeKeyResult {
         if (keyCode in MODIFIER_KEY_CODES) {
             return BarcodeKeyResult()
         }
         if (keyCode in ENTER_KEY_CODES) {
-            return onEnter(keyCode)
+            return onEnter(action)
         }
-        return onCharacter(keyCode, unicodeChar, eventTimeMillis)
+        return onCharacter(action, unicodeChar)
     }
 
-    private fun onEnter(keyCode: Int): BarcodeKeyResult {
+    private fun onEnter(action: Int): BarcodeKeyResult {
+        if (action != ACTION_DOWN) {
+            return BarcodeKeyResult(consumed = true)
+        }
         val input = parse(reading.toString())
         reading.setLength(0)
-        lastKeyTime = NO_KEY_TIME
-        if (input == null) {
-            return BarcodeKeyResult()
-        }
-        consumedKeys += keyCode
         return BarcodeKeyResult(consumed = true, input = input)
     }
 
-    private fun onCharacter(
-        keyCode: Int,
-        unicodeChar: Int,
-        eventTimeMillis: Long
-    ): BarcodeKeyResult {
+    private fun onCharacter(action: Int, unicodeChar: Int): BarcodeKeyResult {
         val char = unicodeChar.toChar()
         if (unicodeChar == 0 || !isBarcodeChar(char)) {
-            reading.setLength(0)
-            lastKeyTime = NO_KEY_TIME
+            if (action == ACTION_DOWN) {
+                reading.setLength(0)
+            }
             return BarcodeKeyResult()
         }
-        // 人が手で打つ速さでは読み取り機とみなさず、キーを画面側へ通す
-        val burst = reading.isNotEmpty() && eventTimeMillis - lastKeyTime <= SCAN_GAP_MILLIS
-        if (reading.length >= BARCODE_LENGTH) {
-            reading.setLength(0)
+        if (action == ACTION_DOWN) {
+            if (reading.length >= BARCODE_LENGTH) {
+                reading.setLength(0)
+            }
+            reading.append(char.uppercaseChar())
         }
-        reading.append(char.uppercaseChar())
-        lastKeyTime = eventTimeMillis
-        if (!burst) {
-            return BarcodeKeyResult()
-        }
-        consumedKeys += keyCode
         return BarcodeKeyResult(consumed = true)
     }
 
@@ -84,17 +61,13 @@ class BarcodeKeyEventDecoder {
     private fun isBarcodeChar(char: Char): Boolean =
         char in '0'..'9' || char in 'A'..'Z' || char in 'a'..'z'
 
-    companion object {
-        const val SCAN_GAP_MILLIS = 200L
-
-        private const val NO_KEY_TIME = 0L
-        private const val ACTION_DOWN = 0
-        private const val ACTION_UP = 1
-        private const val BARCODE_LENGTH = 10
-        private const val PREFIX_LENGTH = 2
-        private const val NUMERIC_PREFIX_START = 2
-        private const val ALPHA_PREFIX_START = 1
-        private val ENTER_KEY_CODES = setOf(66, 160)
-        private val MODIFIER_KEY_CODES = setOf(59, 60, 57, 58, 113, 114)
+    private companion object {
+        const val ACTION_DOWN = 0
+        const val BARCODE_LENGTH = 10
+        const val PREFIX_LENGTH = 2
+        const val NUMERIC_PREFIX_START = 2
+        const val ALPHA_PREFIX_START = 1
+        val ENTER_KEY_CODES = setOf(66, 160)
+        val MODIFIER_KEY_CODES = setOf(59, 60, 57, 58, 113, 114)
     }
 }

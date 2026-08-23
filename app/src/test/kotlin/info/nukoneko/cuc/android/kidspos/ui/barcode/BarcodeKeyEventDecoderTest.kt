@@ -9,7 +9,6 @@ import org.junit.Test
 
 class BarcodeKeyEventDecoderTest {
     private val decoder = BarcodeKeyEventDecoder()
-    private var now = 10_000L
 
     private fun keyCodeOf(char: Char): Int = if (char in '0'..'9') {
         char - '0' + KEYCODE_0
@@ -17,26 +16,22 @@ class BarcodeKeyEventDecoderTest {
         char.uppercaseChar() - 'A' + KEYCODE_A
     }
 
-    private fun press(char: Char, gap: Long = SCAN_GAP): BarcodeKeyResult {
-        now += gap
+    private fun press(char: Char): BarcodeKeyResult {
         val keyCode = keyCodeOf(char)
-        val down = decoder.onKey(ACTION_DOWN, keyCode, char.code, now)
-        decoder.onKey(ACTION_UP, keyCode, char.code, now)
+        val down = decoder.onKey(ACTION_DOWN, keyCode, char.code)
+        decoder.onKey(ACTION_UP, keyCode, char.code)
         return down
     }
 
-    private fun pressEnter(gap: Long = SCAN_GAP): BarcodeKeyResult {
-        now += gap
-        return decoder.onKey(ACTION_DOWN, KEYCODE_ENTER, 0, now)
+    private fun pressEnter(): BarcodeKeyResult = decoder.onKey(ACTION_DOWN, KEYCODE_ENTER, 0)
+
+    private fun type(value: String) {
+        value.forEach { press(it) }
     }
 
-    private fun type(value: String, gap: Long = SCAN_GAP) {
-        value.forEach { press(it, gap) }
-    }
-
-    private fun scan(value: String, gap: Long = SCAN_GAP): BarcodeInput? {
-        type(value, gap)
-        return pressEnter(gap).input
+    private fun scan(value: String): BarcodeInput? {
+        type(value)
+        return pressEnter().input
     }
 
     @Test
@@ -87,9 +82,8 @@ class BarcodeKeyEventDecoderTest {
     @Test
     fun shiftKeyBetweenCharactersDoesNotBreakTheRead() {
         press('A')
-        now += SCAN_GAP
-        decoder.onKey(ACTION_DOWN, KEYCODE_SHIFT_LEFT, 0, now)
-        decoder.onKey(ACTION_UP, KEYCODE_SHIFT_LEFT, 0, now)
+        decoder.onKey(ACTION_DOWN, KEYCODE_SHIFT_LEFT, 0)
+        decoder.onKey(ACTION_UP, KEYCODE_SHIFT_LEFT, 0)
         type("01000008A")
 
         assertEquals(BarcodeInput("A01000008A", BarcodeKind.ITEM), pressEnter().input)
@@ -115,52 +109,63 @@ class BarcodeKeyEventDecoderTest {
     }
 
     @Test
+    fun eleventhCharacterStartsANewRead() {
+        type("0000000000")
+
+        assertEquals(BarcodeInput("A01000008A", BarcodeKind.ITEM), scan("A01000008A"))
+    }
+
+    @Test
     fun unsupportedCharacterClearsTheBuffer() {
         type("A0100")
-        now += SCAN_GAP
-        decoder.onKey(ACTION_DOWN, KEYCODE_MINUS, '-'.code, now)
+        decoder.onKey(ACTION_DOWN, KEYCODE_MINUS, '-'.code)
         type("0008A")
 
         assertNull(pressEnter().input)
     }
 
     @Test
-    fun scannedCharactersAreConsumedSoTheScreenDoesNotSeeThem() {
-        assertFalse(press('A').consumed)
+    fun everyScannedCharacterIsConsumedIncludingTheFirstOne() {
+        assertTrue(press('A').consumed)
         assertTrue(press('0').consumed)
         assertTrue(press('1').consumed)
     }
 
     @Test
-    fun enterIsConsumedOnlyWhenABarcodeWasRead() {
+    fun enterIsConsumedEvenWhenTheReadFailed() {
         type("123456789")
-        assertFalse(pressEnter().consumed)
 
-        type("A01000008A")
         assertTrue(pressEnter().consumed)
     }
 
     @Test
     fun keyUpOfAConsumedKeyIsAlsoConsumed() {
-        type("A0")
-        now += SCAN_GAP
-        assertTrue(decoder.onKey(ACTION_DOWN, keyCodeOf('1'), '1'.code, now).consumed)
-        assertTrue(decoder.onKey(ACTION_UP, keyCodeOf('1'), '1'.code, now).consumed)
+        assertTrue(decoder.onKey(ACTION_UP, keyCodeOf('1'), '1'.code).consumed)
+        assertTrue(decoder.onKey(ACTION_UP, KEYCODE_ENTER, 0).consumed)
     }
 
     @Test
-    fun keyUpOfAnUntouchedKeyIsNotConsumed() {
-        assertFalse(decoder.onKey(ACTION_UP, KEYCODE_ENTER, 0, now).consumed)
+    fun keyUpOfEnterDoesNotEmitABarcode() {
+        type("A01000008A")
+
+        assertNull(decoder.onKey(ACTION_UP, KEYCODE_ENTER, 0).input)
+        assertEquals(BarcodeInput("A01000008A", BarcodeKind.ITEM), pressEnter().input)
     }
 
     @Test
-    fun slowlyTypedCharactersAreNotConsumedButAreStillRead() {
-        val slowGap = BarcodeKeyEventDecoder.SCAN_GAP_MILLIS + 100L
-        "A01000008A".forEach { char ->
-            assertFalse(press(char, slowGap).consumed)
-        }
+    fun keysWithoutACharacterArePassedToTheScreen() {
+        assertFalse(decoder.onKey(ACTION_DOWN, KEYCODE_BACK, 0).consumed)
+        assertFalse(decoder.onKey(ACTION_DOWN, KEYCODE_DEL, 0).consumed)
+    }
 
-        assertEquals(BarcodeInput("A01000008A", BarcodeKind.ITEM), pressEnter(slowGap).input)
+    @Test
+    fun modifierKeysArePassedToTheScreen() {
+        assertFalse(decoder.onKey(ACTION_DOWN, KEYCODE_SHIFT_LEFT, 0).consumed)
+    }
+
+    @Test
+    fun unsupportedCharacterIsPassedToTheScreen() {
+        assertFalse(decoder.onKey(ACTION_DOWN, KEYCODE_MINUS, '-'.code).consumed)
     }
 
     private companion object {
@@ -169,8 +174,9 @@ class BarcodeKeyEventDecoderTest {
         const val KEYCODE_0 = 7
         const val KEYCODE_A = 29
         const val KEYCODE_SHIFT_LEFT = 59
+        const val KEYCODE_BACK = 4
         const val KEYCODE_ENTER = 66
+        const val KEYCODE_DEL = 67
         const val KEYCODE_MINUS = 69
-        const val SCAN_GAP = 10L
     }
 }
