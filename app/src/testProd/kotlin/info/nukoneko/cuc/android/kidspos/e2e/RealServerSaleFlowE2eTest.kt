@@ -87,7 +87,7 @@ class RealServerSaleFlowE2eTest {
         val unique = System.currentTimeMillis()
         val storeId = (unique % 700_000).toInt() + 100_000
         val storeName = "E2Eストア$storeId"
-        val barcode = "A01%06dA".format(unique % 1_000_000)
+        val barcode = itemBarcode(unique)
         seedStore(storeId, storeName)
         seedItem(barcode, "E2E商品", 300)
 
@@ -146,7 +146,7 @@ class RealServerSaleFlowE2eTest {
     @Test
     fun manualItemSelectionAddsSeededItemToCart() {
         val unique = System.currentTimeMillis()
-        val barcode = "A02%06dA".format(unique % 1_000_000)
+        val barcode = itemBarcode(unique, 111_111)
         val name = "E2E手動商品$unique"
         seedItem(barcode, name, 420)
 
@@ -173,7 +173,7 @@ class RealServerSaleFlowE2eTest {
     @Test
     fun manualItemSelectionUsesCacheWhenServerIsUnreachable() {
         val unique = System.currentTimeMillis()
-        val barcode = "A03%06dA".format(unique % 1_000_000)
+        val barcode = itemBarcode(unique, 222_222)
         seedItem(barcode, "E2Eキャッシュ商品$unique", 130)
 
         runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
@@ -219,6 +219,11 @@ class RealServerSaleFlowE2eTest {
     private fun seedStore(id: Int, name: String) {
         postJson("api/stores", """{"id":$id,"name":"$name","printerUri":""}""")
     }
+
+    // サーバは商品バーコードを ^A(00|01|02)\d{6}A$ で検証するため、種別は BarcodeKind.ITEM に固定し
+    // テストごとの衝突は offset で避ける
+    private fun itemBarcode(unique: Long, offset: Long = 0): String =
+        "A%s%06dA".format(BarcodeKind.ITEM.prefix, (unique + offset) % 1_000_000)
 
     private fun seedItem(barcode: String, name: String, price: Int) {
         postJson("api/item", """{"barcode":"$barcode","name":"$name","price":$price}""")
