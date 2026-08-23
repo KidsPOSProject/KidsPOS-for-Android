@@ -12,6 +12,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="DrawerTitleSettings">設定</string>
     <string name="DrawerTitleChangeStore">おみせの切り替え</string>
+    <string name="DrawerTitleManualItemSelection">手動で商品を選ぶ</string>
     <string name="BetaDrawerTitleInputDummyItem">ダミー商品読み込み</string>
     <string name="BetaDrawerTitleInputDummyStaff">ダミースタッフ読み込み</string>
 
@@ -35,6 +36,8 @@
     <string name="change_mode">練習モードに切り替える</string>
     <string name="current_mode">現在のモード</string>
     <string name="store_fetch_failed">サーバーとの通信に失敗しました。\n接続を確認してください。</string>
+    <string name="item_fetch_failed">商品一覧を取得できませんでした。\n接続を確認してください。</string>
+    <string name="item_selection_empty">商品がありません</string>
 
     <string name="river_format">%d リバー</string>
     <string name="staff_name_format">たんとう: %s</string>

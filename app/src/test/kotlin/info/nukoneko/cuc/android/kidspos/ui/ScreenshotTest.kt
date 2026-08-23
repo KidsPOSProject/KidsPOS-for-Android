@@ -179,6 +179,48 @@ class ScreenshotTest {
     }
 
     @Test
+    fun mainScreenItemSelection() {
+        setUpStoreAndStaff()
+        apiService.fetchItemsHandler = {
+            listOf(
+                Item(1, "1000000001", "りんごジュース", 150, 1, 1),
+                Item(2, "1000000002", "チョコレート", 200, 1, 1),
+                Item(3, "1000000003", "やきそば", 300, 1, 1),
+                Item(4, "1000000004", "わたあめ", 100, 1, 1),
+                Item(5, "1000000005", "フランクフルト", 250, 1, 1),
+                Item(6, "1000000006", "かき氷", 180, 1, 1)
+            )
+        }
+        val viewModel = mainViewModel()
+        setMainContent(viewModel)
+        viewModel.onManualItemSelectionClick()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/main_screen_item_selection.png")
+    }
+
+    @Test
+    fun mainScreenItemSelectionLoading() {
+        setUpStoreAndStaff()
+        apiService.fetchItemsHandler = { awaitCancellation() }
+        val viewModel = mainViewModel()
+        setMainContent(viewModel)
+        viewModel.onManualItemSelectionClick()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/main_screen_item_selection_loading.png")
+    }
+
+    @Test
+    fun mainScreenItemSelectionFailed() {
+        setUpStoreAndStaff()
+        apiService.fetchItemsHandler = { throw IOException() }
+        val viewModel = mainViewModel()
+        setMainContent(viewModel)
+        viewModel.onManualItemSelectionClick()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/main_screen_item_selection_failed.png")
+    }
+
+    @Test
     fun mainScreenError() {
         setUpStoreAndStaff()
         val viewModel = mainViewModel()

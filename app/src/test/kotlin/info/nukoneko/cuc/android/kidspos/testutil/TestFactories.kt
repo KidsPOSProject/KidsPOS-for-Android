@@ -1,5 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.testutil
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
@@ -18,13 +20,20 @@ import kotlinx.serialization.json.Json
 fun fakeSettingsRepository(): SettingsRepository =
     SettingsRepository(FakePreferencesDataStore(), Json)
 
+fun createItemRepository(
+    apiService: APIService,
+    dispatcher: CoroutineDispatcher,
+    dataStore: DataStore<Preferences> = FakePreferencesDataStore()
+): ItemRepository = ItemRepository(apiService, dataStore, Json, dispatcher)
+
 fun createMainViewModel(
     apiService: APIService,
     settingsRepository: SettingsRepository,
     barcodeEventBus: BarcodeEventBus,
-    dispatcher: CoroutineDispatcher
+    dispatcher: CoroutineDispatcher,
+    itemRepository: ItemRepository = createItemRepository(apiService, dispatcher)
 ): MainViewModel = MainViewModel(
-    ItemRepository(apiService, dispatcher),
+    itemRepository,
     ServerStatusRepository(apiService, dispatcher),
     StoreRepository(apiService, dispatcher),
     SaleRepository(apiService, dispatcher),

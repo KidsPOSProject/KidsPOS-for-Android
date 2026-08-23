@@ -4,12 +4,17 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -23,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -93,6 +100,14 @@ fun MainScreen(
                     onClick = {
                         scope.launch { drawerState.close() }
                         viewModel.onChangeStoreClick()
+                    }
+                )
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.DrawerTitleManualItemSelection)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        viewModel.onManualItemSelectionClick()
                     }
                 )
                 if (state.demoMode) {
@@ -195,6 +210,16 @@ fun MainScreen(
             onSelect = viewModel::onStoreSelected,
             onReload = viewModel::onStoreSelectionReload,
             onDismiss = viewModel::onStoreSelectionDismiss
+        )
+    }
+
+    state.itemSelection?.let { selection ->
+        ItemSelectionDialog(
+            state = selection,
+            total = state.total,
+            onSelect = viewModel::onManualItemSelected,
+            onReload = viewModel::onItemSelectionReload,
+            onDismiss = viewModel::onItemSelectionDismiss
         )
     }
 
@@ -333,6 +358,87 @@ private fun AccountResultDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ItemSelectionDialog(
+    state: ItemSelectionState,
+    total: Int,
+    onSelect: (Item) -> Unit,
+    onReload: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.medium) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    stringResource(R.string.DrawerTitleManualItemSelection),
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.padding(4.dp))
+                when {
+                    state.loading -> Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                    state.failed -> Text(stringResource(R.string.item_fetch_failed))
+                    state.items.isEmpty() -> Text(stringResource(R.string.item_selection_empty))
+                    else -> LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 140.dp),
+                        modifier = Modifier.heightIn(max = 360.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.items, key = { it.id }) { item ->
+                            ItemSelectionCell(item = item, onClick = { onSelect(item) })
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.padding(4.dp))
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${stringResource(R.string.total)}: ${stringResource(R.string.river_format, total)}",
+                        fontWeight = FontWeight.Bold
+                    )
+                    Row {
+                        if (state.failed) {
+                            TextButton(onClick = onReload) {
+                                Text(stringResource(R.string.reload))
+                            }
+                        }
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.close))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ItemSelectionCell(item: Item, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(item.name, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(stringResource(R.string.river_format, item.price))
+        }
+    }
 }
 
 @Composable

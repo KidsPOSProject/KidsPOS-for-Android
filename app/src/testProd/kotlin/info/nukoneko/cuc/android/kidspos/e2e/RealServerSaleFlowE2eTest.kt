@@ -7,8 +7,10 @@ import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
+import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createItemRepository
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
@@ -16,6 +18,7 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -84,7 +87,7 @@ class RealServerSaleFlowE2eTest {
         val unique = System.currentTimeMillis()
         val storeId = (unique % 700_000).toInt() + 100_000
         val storeName = "E2Eストア$storeId"
-        val barcode = "A01%06dA".format(unique % 1_000_000)
+        val barcode = itemBarcode(unique)
         seedStore(storeId, storeName)
         seedItem(barcode, "E2E商品", 300)
 
@@ -140,6 +143,72 @@ class RealServerSaleFlowE2eTest {
         assertTrue(selection?.stores.orEmpty().any { it.id == storeId && it.name == storeName })
     }
 
+    @Test
+    fun manualItemSelectionAddsSeededItemToCart() {
+        val unique = System.currentTimeMillis()
+        val barcode = itemBarcode(unique, 111_111)
+        val name = "E2E手動商品$unique"
+        seedItem(barcode, name, 420)
+
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val viewModel = createViewModel()
+
+        viewModel.onManualItemSelectionClick()
+        awaitUntil("items are fetched from server") {
+            viewModel.uiState.value.itemSelection?.loading == false
+        }
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(false, selection?.failed)
+        val seeded = selection?.items.orEmpty().single { it.barcode == barcode }
+        assertEquals(name, seeded.name)
+        assertEquals(420, seeded.price)
+
+        viewModel.onManualItemSelected(seeded)
+
+        assertEquals(listOf(seeded), viewModel.uiState.value.items)
+        assertEquals(420, viewModel.uiState.value.total)
+    }
+
+    @Test
+    fun manualItemSelectionUsesCacheWhenServerIsUnreachable() {
+        val unique = System.currentTimeMillis()
+        val barcode = itemBarcode(unique, 222_222)
+        seedItem(barcode, "E2Eキャッシュ商品$unique", 130)
+
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val itemRepository = createItemRepository(apiService, mainDispatcherRule.dispatcher)
+        val viewModel = createMainViewModel(
+            apiService,
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository
+        )
+        viewModel.onManualItemSelectionClick()
+        awaitUntil("items are fetched from server") {
+            viewModel.uiState.value.itemSelection?.loading == false
+        }
+        assertTrue(runBlocking { itemRepository.getCachedItems() }.any { it.barcode == barcode })
+
+        val offlineViewModel = createMainViewModel(
+            UnreachableAPIService(apiService),
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository
+        )
+        offlineViewModel.onManualItemSelectionClick()
+
+        val selection = offlineViewModel.uiState.value.itemSelection
+        assertEquals(false, selection?.failed)
+        assertTrue(selection?.items.orEmpty().any { it.barcode == barcode })
+    }
+
+    private class UnreachableAPIService(private val delegate: APIService) : APIService by delegate {
+        override suspend fun fetchItems(): List<Item> = throw IOException("unreachable")
+    }
+
     private fun createViewModel(): MainViewModel = createMainViewModel(
         apiService,
         settingsRepository,
@@ -150,6 +219,11 @@ class RealServerSaleFlowE2eTest {
     private fun seedStore(id: Int, name: String) {
         postJson("api/stores", """{"id":$id,"name":"$name","printerUri":""}""")
     }
+
+    // サーバは商品バーコードを ^A(00|01|02)\d{6}A$ で検証するため、種別は BarcodeKind.ITEM に固定し
+    // テストごとの衝突は offset で避ける
+    private fun itemBarcode(unique: Long, offset: Long = 0): String =
+        "A%s%06dA".format(BarcodeKind.ITEM.prefix, (unique + offset) % 1_000_000)
 
     private fun seedItem(barcode: String, name: String, price: Int) {
         postJson("api/item", """{"barcode":"$barcode","name":"$name","price":$price}""")
