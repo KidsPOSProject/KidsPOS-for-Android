@@ -847,24 +847,54 @@ paths:
         '404':
           description: APK file not found
 
+  /api/apk/analyze:
+    post:
+      tags:
+        - Apk
+      summary: APK解析
+      description: APKファイルのAndroidManifestからバージョン名とバージョンコードを読み取ります
+      operationId: analyzeApk
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: APKファイル
+              required:
+                - file
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApkAnalyzeResponse'
+        '400':
+          description: APKとして解析できない
+
   /api/apk/upload:
     post:
       tags:
         - Apk
       summary: APKアップロード
-      description: 新しいAPKファイルを登録します
+      description: 新しいAPKファイルを登録します。バージョン情報はAPKから自動的に読み取られます
       operationId: uploadApk
       parameters:
         - name: version
           in: query
-          required: true
-          description: バージョン名（例 1.2.3）
+          required: false
+          description: バージョン名（省略可。指定した場合はAPKの値と一致する必要があります）
           schema:
             type: string
         - name: versionCode
           in: query
-          required: true
-          description: バージョンコード
+          required: false
+          description: バージョンコード（省略可。指定した場合はAPKの値と一致する必要があります）
           schema:
             type: integer
         - name: releaseNotes
@@ -1184,6 +1214,21 @@ components:
         - downloadUrl
         - uploadedAt
         - isActive
+
+    ApkAnalyzeResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          description: APKから読み取ったバージョン名
+          example: "1.0.10"
+        versionCode:
+          type: integer
+          description: APKから読み取ったバージョンコード
+          example: 11
+      required:
+        - version
+        - versionCode
 
     UpdateCheckResponse:
       type: object
