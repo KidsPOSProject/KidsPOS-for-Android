@@ -14,6 +14,7 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -260,6 +261,63 @@ class MainViewModelTest {
 
         assertEquals("boom", viewModel.uiState.value.errorMessage)
         assertFalse(viewModel.uiState.value.items.isEmpty())
+        assertEquals(false, viewModel.uiState.value.accountResult?.processing)
+    }
+
+    @Test
+    fun accountResultStaysProcessingUntilSaleCompletes() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val defaultCreateSale = apiService.createSaleHandler
+        apiService.createSaleHandler = { args ->
+            gate.await()
+            defaultCreateSale(args)
+        }
+        apiService.getItemHandler = { barcode ->
+            Item(id = 9, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
+        }
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        val viewModel = createViewModel()
+        emitBarcode("1001000001", BarcodeKind.ITEM)
+        viewModel.onAccountClick()
+        viewModel.enterDeposit(5, 0, 0)
+        viewModel.onCalculatorOk()
+
+        viewModel.onAccountResultOk()
+
+        assertEquals(true, viewModel.uiState.value.accountResult?.processing)
+
+        viewModel.onAccountResultOk()
+        viewModel.onAccountResultBack()
+
+        assertEquals(1, apiService.createSaleCalls.size)
+        assertEquals(true, viewModel.uiState.value.accountResult?.processing)
+
+        gate.complete(Unit)
+
+        assertNull(viewModel.uiState.value.accountResult)
+        assertTrue(viewModel.uiState.value.items.isEmpty())
+    }
+
+    @Test
+    fun accountResultStopsProcessingWhenSaleFails() = runTest {
+        apiService.createSaleHandler = { throw RuntimeException("boom") }
+        apiService.getItemHandler = { barcode ->
+            Item(id = 9, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
+        }
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        val viewModel = createViewModel()
+        emitBarcode("1001000001", BarcodeKind.ITEM)
+        viewModel.onAccountClick()
+        viewModel.enterDeposit(5, 0, 0)
+        viewModel.onCalculatorOk()
+
+        viewModel.onAccountResultOk()
+
+        assertEquals(false, viewModel.uiState.value.accountResult?.processing)
+
+        viewModel.onAccountResultOk()
+
+        assertEquals(2, apiService.createSaleCalls.size)
     }
 
     @Test

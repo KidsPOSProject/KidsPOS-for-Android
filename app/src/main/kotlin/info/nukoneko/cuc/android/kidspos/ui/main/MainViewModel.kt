@@ -54,7 +54,8 @@ data class CalculatorState(
 
 data class AccountResultState(
     val totalPrice: Int,
-    val deposit: Int
+    val deposit: Int,
+    val processing: Boolean = false
 ) {
     val change: Int get() = deposit - totalPrice
 }
@@ -194,6 +195,7 @@ class MainViewModel @Inject constructor(
 
     fun onAccountResultBack() {
         val result = _uiState.value.accountResult ?: return
+        if (result.processing) return
         _uiState.update {
             it.copy(
                 accountResult = null,
@@ -205,6 +207,7 @@ class MainViewModel @Inject constructor(
     fun onAccountResultOk() {
         val state = _uiState.value
         val result = state.accountResult ?: return
+        if (result.processing) return
         if (state.mode == Mode.PRACTICE) {
             _uiState.update {
                 it.copy(
@@ -216,6 +219,7 @@ class MainViewModel @Inject constructor(
             }
             return
         }
+        _uiState.update { it.copy(accountResult = result.copy(processing = true)) }
         viewModelScope.launch {
             try {
                 saleRepository.createSale(
@@ -230,10 +234,11 @@ class MainViewModel @Inject constructor(
                 Timber.e(e, "createSale failed")
                 val message = e.localizedMessage
                 _uiState.update {
+                    val restored = it.copy(accountResult = result.copy(processing = false))
                     if (message != null) {
-                        it.copy(errorMessage = message)
+                        restored.copy(errorMessage = message)
                     } else {
-                        it.copy(errorMessageRes = R.string.network_error)
+                        restored.copy(errorMessageRes = R.string.network_error)
                     }
                 }
             }
