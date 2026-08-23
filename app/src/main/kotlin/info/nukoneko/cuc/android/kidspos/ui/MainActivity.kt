@@ -39,9 +39,10 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val input = decoder.onKey(event.action, event.keyCode)
-        if (input != null) {
-            barcodeEventBus.emit(input)
+        val result = decoder.onKey(event.action, event.keyCode, event.unicodeChar, event.eventTime)
+        result.input?.let { barcodeEventBus.emit(it) }
+        if (result.consumed) {
+            return true
         }
         return super.dispatchKeyEvent(event)
     }

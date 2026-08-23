@@ -107,4 +107,40 @@ class ItemRepositoryTest {
 
         assertEquals("1001000001", repository.getItemByBarcode("1001000001").barcode)
     }
+
+    @Test
+    fun getItemByBarcodeReturnsCachedItemWithoutCallingApi() = runTest {
+        val apiService = FakeAPIService()
+        val dataStore = FakePreferencesDataStore()
+        var apiCalls = 0
+        apiService.getItemHandler = { barcode ->
+            apiCalls++
+            item(9).copy(barcode = barcode)
+        }
+        apiService.fetchItemsHandler = { listOf(item(1), item(2)) }
+        val repository =
+            createItemRepository(apiService, StandardTestDispatcher(testScheduler), dataStore)
+        repository.refreshItems()
+
+        assertEquals(item(2), repository.getItemByBarcode("1001000002"))
+        assertEquals(0, apiCalls)
+    }
+
+    @Test
+    fun getItemByBarcodeFallsBackToApiWhenBarcodeIsNotCached() = runTest {
+        val apiService = FakeAPIService()
+        val dataStore = FakePreferencesDataStore()
+        var apiCalls = 0
+        apiService.getItemHandler = { barcode ->
+            apiCalls++
+            item(9).copy(barcode = barcode)
+        }
+        apiService.fetchItemsHandler = { listOf(item(1)) }
+        val repository =
+            createItemRepository(apiService, StandardTestDispatcher(testScheduler), dataStore)
+        repository.refreshItems()
+
+        assertEquals("A01000008A", repository.getItemByBarcode("A01000008A").barcode)
+        assertEquals(1, apiCalls)
+    }
 }
