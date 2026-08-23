@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
@@ -34,9 +35,11 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-// Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する
+// Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する。
+// デフォルト端末は 320x470dp と狭く、電卓の数字キーが画面外に置かれてタップが届かないため、
+// 実際の利用端末であるタブレットの画面サイズで実行する
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [35])
+@Config(sdk = [35], qualifiers = RobolectricDeviceQualifiers.MediumTablet)
 class MainScreenTest {
     private val mainDispatcherRule = MainDispatcherRule()
     private val composeRule = createComposeRule()
@@ -227,9 +230,9 @@ class MainScreenTest {
 
     private fun pressKeys(vararg keys: String) {
         keys.forEach { key ->
-            composeRule.onNodeWithText(key).performClick()
+            composeRule.onNodeWithText(key).assertIsDisplayed().performClick()
+            composeRule.waitForIdle()
         }
-        composeRule.waitForIdle()
     }
 
     private fun boundsOf(text: String) = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot()
