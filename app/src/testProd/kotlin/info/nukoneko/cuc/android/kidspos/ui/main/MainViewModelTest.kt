@@ -328,6 +328,100 @@ class MainViewModelTest {
     }
 
     @Test
+    fun manualItemSelectionShowsFetchedItems() = runTest {
+        val items = listOf(
+            Item(1, "1001000001", "りんご", 100, 1, 1),
+            Item(2, "1001000002", "みかん", 200, 1, 1)
+        )
+        apiService.fetchItemsHandler = { items }
+        val viewModel = createViewModel()
+
+        viewModel.onManualItemSelectionClick()
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertNotNull(selection)
+        assertEquals(items, selection?.items)
+        assertEquals(false, selection?.loading)
+        assertEquals(false, selection?.failed)
+    }
+
+    @Test
+    fun manualItemSelectionFallsBackToCacheWhenFetchFails() = runTest {
+        val cached = listOf(Item(1, "1001000001", "りんご", 100, 1, 1))
+        apiService.fetchItemsHandler = { cached }
+        val viewModel = createViewModel()
+
+        apiService.fetchItemsHandler = { throw RuntimeException("network") }
+        viewModel.onManualItemSelectionClick()
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(cached, selection?.items)
+        assertEquals(false, selection?.failed)
+    }
+
+    @Test
+    fun manualItemSelectionMarksFailedWhenFetchFailsWithoutCache() = runTest {
+        apiService.fetchItemsHandler = { throw RuntimeException("network") }
+        val viewModel = createViewModel()
+
+        viewModel.onManualItemSelectionClick()
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(true, selection?.failed)
+        assertTrue(selection?.items.orEmpty().isEmpty())
+    }
+
+    @Test
+    fun manualItemSelectionReloadRecoversAfterFailure() = runTest {
+        apiService.fetchItemsHandler = { throw RuntimeException("network") }
+        val viewModel = createViewModel()
+        viewModel.onManualItemSelectionClick()
+        assertEquals(true, viewModel.uiState.value.itemSelection?.failed)
+
+        val items = listOf(Item(1, "1001000001", "りんご", 100, 1, 1))
+        apiService.fetchItemsHandler = { items }
+        viewModel.onItemSelectionReload()
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(items, selection?.items)
+        assertEquals(false, selection?.failed)
+    }
+
+    @Test
+    fun selectingItemManuallyAddsItToCartAndKeepsSelectionOpen() = runTest {
+        val items = listOf(
+            Item(1, "1001000001", "りんご", 100, 1, 1),
+            Item(2, "1001000002", "みかん", 200, 1, 1)
+        )
+        apiService.fetchItemsHandler = { items }
+        val viewModel = createViewModel()
+        viewModel.onManualItemSelectionClick()
+
+        viewModel.onManualItemSelected(items[0])
+        viewModel.onManualItemSelected(items[1])
+        viewModel.onManualItemSelected(items[0])
+
+        assertEquals(3, viewModel.uiState.value.items.size)
+        assertEquals(400, viewModel.uiState.value.total)
+        assertNotNull(viewModel.uiState.value.itemSelection)
+    }
+
+    @Test
+    fun itemSelectionDismissClosesSelectionKeepingCart() = runTest {
+        val items = listOf(Item(1, "1001000001", "りんご", 100, 1, 1))
+        apiService.fetchItemsHandler = { items }
+        val viewModel = createViewModel()
+        viewModel.onManualItemSelectionClick()
+        viewModel.onManualItemSelected(items[0])
+
+        viewModel.onItemSelectionDismiss()
+
+        assertNull(viewModel.uiState.value.itemSelection)
+        assertEquals(1, viewModel.uiState.value.items.size)
+        assertEquals(100, viewModel.uiState.value.total)
+    }
+
+    @Test
     fun errorDismissClearsBothMessageKinds() = runTest {
         val viewModel = createViewModel()
         emitBarcode("1002000001", BarcodeKind.SALE)

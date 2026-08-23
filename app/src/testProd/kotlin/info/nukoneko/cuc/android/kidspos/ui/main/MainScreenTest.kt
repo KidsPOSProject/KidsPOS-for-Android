@@ -7,7 +7,9 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
@@ -19,6 +21,7 @@ import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
+import java.io.IOException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -75,5 +78,57 @@ class MainScreenTest {
         composeRule.onAllNodesWithText(context.getString(R.string.river_format, 300))
             .assertCountEquals(2)
         composeRule.onNodeWithText(context.getString(R.string.account)).assertIsEnabled()
+    }
+
+    @Test
+    fun manualItemSelectionFromDrawerAddsTappedItemToCart() {
+        apiService.fetchItemsHandler = {
+            listOf(Item(id = 7, barcode = "1001000007", name = "手動商品", price = 250, storeId = 1, genreId = 1))
+        }
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
+        }
+
+        composeRule.onNodeWithContentDescription(
+            context.getString(R.string.navigation_drawer_open)
+        ).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(context.getString(R.string.DrawerTitleManualItemSelection))
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("手動商品").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(context.getString(R.string.close)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("手動商品").assertIsDisplayed()
+        composeRule.onAllNodesWithText(context.getString(R.string.river_format, 250))
+            .assertCountEquals(2)
+        composeRule.onNodeWithText(context.getString(R.string.account)).assertIsEnabled()
+    }
+
+    @Test
+    fun manualItemSelectionShowsFailureMessageWithReload() {
+        apiService.fetchItemsHandler = { throw IOException() }
+        val viewModel = createViewModel()
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = {}, viewModel = viewModel)
+        }
+
+        viewModel.onManualItemSelectionClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.item_fetch_failed))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.reload)).assertIsDisplayed()
+
+        apiService.fetchItemsHandler = {
+            listOf(Item(id = 8, barcode = "1001000008", name = "復活商品", price = 120, storeId = 1, genreId = 1))
+        }
+        composeRule.onNodeWithText(context.getString(R.string.reload)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("復活商品").assertIsDisplayed()
     }
 }

@@ -77,6 +77,24 @@ class OpenApiAPIService(
         }
     }
 
+    override suspend fun fetchItems(): List<Item> {
+        val response = itemsApi.getAllItems()
+        return if (response.isSuccessful) {
+            response.body()?.map { itemResponse ->
+                Item(
+                    id = itemResponse.id,
+                    barcode = itemResponse.barcode,
+                    name = itemResponse.name,
+                    price = itemResponse.price,
+                    storeId = 0,
+                    genreId = 0
+                )
+            } ?: emptyList()
+        } else {
+            throw Exception("Failed to fetch items: ${response.code()}")
+        }
+    }
+
     override suspend fun getServerStatus(): ServerStatus {
         val response = statusApi.getServerStatus()
         return if (response.isSuccessful) {

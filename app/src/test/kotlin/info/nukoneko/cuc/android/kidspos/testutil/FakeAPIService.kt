@@ -31,6 +31,7 @@ class FakeAPIService : APIService {
     var getItemHandler: suspend (String) -> Item = { barcode ->
         Item(id = 1, barcode = barcode, name = "item", price = 100, storeId = 1, genreId = 1)
     }
+    var fetchItemsHandler: suspend () -> List<Item> = { emptyList() }
     var getServerStatusHandler: suspend () -> ServerStatus = {
         ServerStatus(
             status = "OK",
@@ -52,6 +53,8 @@ class FakeAPIService : APIService {
     }
 
     override suspend fun getItem(itemBarcode: String): Item = getItemHandler(itemBarcode)
+
+    override suspend fun fetchItems(): List<Item> = fetchItemsHandler()
 
     override suspend fun getServerStatus(): ServerStatus = getServerStatusHandler()
 }

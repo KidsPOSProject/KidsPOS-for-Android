@@ -39,6 +39,7 @@ data class MainUiState(
     val calculator: CalculatorState? = null,
     val accountResult: AccountResultState? = null,
     val storeSelection: StoreSelectionState? = null,
+    val itemSelection: ItemSelectionState? = null,
     val errorMessage: String? = null,
     @StringRes val errorMessageRes: Int? = null,
     @StringRes val toastMessageRes: Int? = null
@@ -61,6 +62,12 @@ data class AccountResultState(
 data class StoreSelectionState(
     val loading: Boolean = false,
     val stores: List<Store> = emptyList(),
+    val failed: Boolean = false
+)
+
+data class ItemSelectionState(
+    val loading: Boolean = false,
+    val items: List<Item> = emptyList(),
     val failed: Boolean = false
 )
 
@@ -99,6 +106,13 @@ class MainViewModel @Inject constructor(
                 }
             } catch (e: Throwable) {
                 Timber.e(e, "getServerStatus failed")
+            }
+        }
+        viewModelScope.launch {
+            try {
+                itemRepository.refreshItems()
+            } catch (e: Throwable) {
+                Timber.e(e, "refreshItems failed")
             }
         }
     }
@@ -258,6 +272,50 @@ class MainViewModel @Inject constructor(
         onChangeStoreClick()
     }
 
+    fun onManualItemSelectionClick() {
+        viewModelScope.launch {
+            val cached = itemRepository.getCachedItems()
+            _uiState.update {
+                it.copy(
+                    itemSelection = ItemSelectionState(
+                        loading = cached.isEmpty(),
+                        items = cached
+                    )
+                )
+            }
+            try {
+                val items = withTimeout(FETCH_TIMEOUT_MILLIS) { itemRepository.refreshItems() }
+                _uiState.update {
+                    if (it.itemSelection == null) it
+                    else it.copy(itemSelection = ItemSelectionState(items = items))
+                }
+            } catch (e: Throwable) {
+                Timber.e(e, "refreshItems failed")
+                _uiState.update {
+                    val fallback = it.itemSelection?.items ?: return@update it
+                    it.copy(
+                        itemSelection = ItemSelectionState(
+                            items = fallback,
+                            failed = fallback.isEmpty()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun onManualItemSelected(item: Item) {
+        addItem(item)
+    }
+
+    fun onItemSelectionReload() {
+        onManualItemSelectionClick()
+    }
+
+    fun onItemSelectionDismiss() {
+        _uiState.update { it.copy(itemSelection = null) }
+    }
+
     fun onErrorDismiss() {
         _uiState.update { it.copy(errorMessage = null, errorMessageRes = null) }
     }
@@ -275,6 +333,8 @@ class MainViewModel @Inject constructor(
     }
 
     private companion object {
+        const val FETCH_TIMEOUT_MILLIS = 3000L
+
         val DUMMY_STORES = listOf(
             Store(1, "100リバー"),
             Store(2, "デパート")

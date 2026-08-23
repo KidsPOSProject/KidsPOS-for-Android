@@ -9,6 +9,7 @@ interface APIService {
     suspend fun fetchStores(): List<Store>
     suspend fun createSale(storeId: Int, deposit: Int, itemIds: String): Sale
     suspend fun getItem(itemBarcode: String): Item
+    suspend fun fetchItems(): List<Item>
     suspend fun getServerStatus(): ServerStatus
 
     companion object {

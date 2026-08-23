@@ -38,6 +38,13 @@ class DemoAPIService : APIService {
             genreId = 1
         )
 
+    override suspend fun fetchItems(): List<Item> =
+        listOf(
+            Item(1, "1000000001", "DemoItem1", 100, 1, 1),
+            Item(2, "1000000002", "DemoItem2", 200, 1, 1),
+            Item(3, "1000000003", "DemoItem3", 300, 1, 1)
+        )
+
     override suspend fun getServerStatus(): ServerStatus =
         ServerStatus(
             status = "OK",

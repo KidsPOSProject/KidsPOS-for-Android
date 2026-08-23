@@ -7,8 +7,10 @@ import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
+import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createItemRepository
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
@@ -16,6 +18,7 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -138,6 +141,72 @@ class RealServerSaleFlowE2eTest {
         val selection = viewModel.uiState.value.storeSelection
         assertEquals(false, selection?.failed)
         assertTrue(selection?.stores.orEmpty().any { it.id == storeId && it.name == storeName })
+    }
+
+    @Test
+    fun manualItemSelectionAddsSeededItemToCart() {
+        val unique = System.currentTimeMillis()
+        val barcode = "A02%06dA".format(unique % 1_000_000)
+        val name = "E2E手動商品$unique"
+        seedItem(barcode, name, 420)
+
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val viewModel = createViewModel()
+
+        viewModel.onManualItemSelectionClick()
+        awaitUntil("items are fetched from server") {
+            viewModel.uiState.value.itemSelection?.loading == false
+        }
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(false, selection?.failed)
+        val seeded = selection?.items.orEmpty().single { it.barcode == barcode }
+        assertEquals(name, seeded.name)
+        assertEquals(420, seeded.price)
+
+        viewModel.onManualItemSelected(seeded)
+
+        assertEquals(listOf(seeded), viewModel.uiState.value.items)
+        assertEquals(420, viewModel.uiState.value.total)
+    }
+
+    @Test
+    fun manualItemSelectionUsesCacheWhenServerIsUnreachable() {
+        val unique = System.currentTimeMillis()
+        val barcode = "A03%06dA".format(unique % 1_000_000)
+        seedItem(barcode, "E2Eキャッシュ商品$unique", 130)
+
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val itemRepository = createItemRepository(apiService, mainDispatcherRule.dispatcher)
+        val viewModel = createMainViewModel(
+            apiService,
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository
+        )
+        viewModel.onManualItemSelectionClick()
+        awaitUntil("items are fetched from server") {
+            viewModel.uiState.value.itemSelection?.loading == false
+        }
+        assertTrue(runBlocking { itemRepository.getCachedItems() }.any { it.barcode == barcode })
+
+        val offlineViewModel = createMainViewModel(
+            UnreachableAPIService(apiService),
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository
+        )
+        offlineViewModel.onManualItemSelectionClick()
+
+        val selection = offlineViewModel.uiState.value.itemSelection
+        assertEquals(false, selection?.failed)
+        assertTrue(selection?.items.orEmpty().any { it.barcode == barcode })
+    }
+
+    private class UnreachableAPIService(private val delegate: APIService) : APIService by delegate {
+        override suspend fun fetchItems(): List<Item> = throw IOException("unreachable")
     }
 
     private fun createViewModel(): MainViewModel = createMainViewModel(
