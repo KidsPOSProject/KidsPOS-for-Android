@@ -131,6 +131,19 @@ class ScreenshotTest {
     }
 
     @Test
+    fun mainScreenCalculatorShortage() {
+        setUpStoreAndStaff()
+        val viewModel = mainViewModel()
+        addItems(viewModel)
+        viewModel.onAccountClick()
+        viewModel.onCalculatorNumber(1)
+        viewModel.onCalculatorNumber(0)
+        viewModel.onCalculatorNumber(0)
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/main_screen_calculator_shortage.png")
+    }
+
+    @Test
     fun mainScreenAccountResult() {
         setUpStoreAndStaff()
         val viewModel = mainViewModel()
