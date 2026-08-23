@@ -30,7 +30,7 @@ class ItemRepository @Inject constructor(
     }
 
     suspend fun getItemByBarcode(barcode: String): Item = withContext(dispatcher) {
-        apiService.getItem(barcode)
+        getCachedItems().firstOrNull { it.barcode == barcode } ?: apiService.getItem(barcode)
     }
 
     suspend fun refreshItems(): List<Item> = withContext(dispatcher) {
