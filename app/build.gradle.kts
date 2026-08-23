@@ -34,8 +34,8 @@ android {
         applicationId = "info.nukoneko.cuc.android.kidspos"
         minSdk = 23
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
         testApplicationId = "info.nukoneko.cuc.android.kidspos.test"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += "ja"
