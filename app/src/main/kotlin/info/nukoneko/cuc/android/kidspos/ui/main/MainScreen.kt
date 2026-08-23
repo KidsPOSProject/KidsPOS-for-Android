@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -269,15 +271,33 @@ private fun ErrorDialog(message: String, onDismiss: () -> Unit) {
     )
 }
 
+internal const val CalculatorDialogTag = "calculator_dialog"
 internal const val CalculatorSummaryTag = "calculator_summary"
 internal const val CalculatorAccountButtonTag = "calculator_account_button"
 internal const val AccountResultConfirmButtonTag = "account_result_confirm_button"
+internal const val AccountResultProgressTag = "account_result_progress"
 
 private val DialogMaxWidth = 720.dp
+private val DialogPadding = 24.dp
 private val NumberPadMaxWidth = 360.dp
+private val NumberPadMinWidth = 156.dp
 private val TwoPaneMinWidth = 600.dp
 private val KeyGap = 4.dp
 private val AmountSafetyMargin = 8.dp
+private val SummaryGapHeight = 40.dp
+private val PaneGap = 24.dp
+private val ProgressIndicatorSize = 24.dp
+private const val NumberPadRows = 4
+private const val NumberPadColumns = 3
+private const val AmountBlockCount = 3
+private const val SinglePaneSummaryRatio = 0.45f
+
+// 高さが足りない端末では横幅ではなく高さがキーの大きさを決める
+private fun fittingPadWidth(availableWidth: Dp, availableHeight: Dp): Dp {
+    val byWidth = min(availableWidth, NumberPadMaxWidth)
+    val byHeight = availableHeight * (NumberPadColumns.toFloat() / NumberPadRows)
+    return min(byWidth, byHeight).coerceAtLeast(min(NumberPadMinWidth, byWidth))
+}
 
 // タブレットでも文字が切れないよう、実測して収まる最大のスタイルを選ぶ
 @Composable
@@ -289,6 +309,32 @@ private fun fittingStyle(samples: List<String>, candidates: List<TextStyle>, max
             measurer.measure(text = sample, style = style, softWrap = false, maxLines = 1)
                 .size.width <= maxWidthPx
         }
+    } ?: candidates.last()
+}
+
+// 横幅だけでなく、3段の金額とラベルが縦にも収まるスタイルを選ぶ
+@Composable
+private fun fittingAmountStyle(
+    samples: List<String>,
+    candidates: List<TextStyle>,
+    maxWidth: Dp,
+    maxHeight: Dp
+): TextStyle {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val maxWidthPx = with(density) { maxWidth.coerceAtLeast(0.dp).toPx() }
+    val labelsHeightPx = measurer
+        .measure(text = "0", style = MaterialTheme.typography.titleMedium, maxLines = 1)
+        .size.height * AmountBlockCount
+    val amountBudgetPx = with(density) {
+        (maxHeight - SummaryGapHeight).coerceAtLeast(0.dp).toPx()
+    } - labelsHeightPx
+    return candidates.firstOrNull { style ->
+        val measured = samples.map {
+            measurer.measure(text = it, style = style, softWrap = false, maxLines = 1)
+        }
+        measured.all { it.size.width <= maxWidthPx } &&
+            measured.maxOf { it.size.height } * AmountBlockCount <= amountBudgetPx
     } ?: candidates.last()
 }
 
@@ -319,50 +365,63 @@ private fun CalculatorDialog(
     ) {
         BoxWithConstraints(modifier = Modifier.padding(16.dp)) {
             val contentWidth = min(maxWidth, DialogMaxWidth)
-            val innerWidth = contentWidth - 48.dp
+            val availableHeight = maxHeight
+            val innerWidth = contentWidth - DialogPadding * 2
             val twoPane = contentWidth >= TwoPaneMinWidth
-            val padWidth = min(innerWidth, NumberPadMaxWidth)
-            val summaryWidth = if (twoPane) innerWidth - padWidth - 24.dp else innerWidth
 
             Surface(
                 shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.width(contentWidth)
+                modifier = Modifier
+                    .width(contentWidth)
+                    .heightIn(max = availableHeight)
+                    .testTag(CalculatorDialogTag)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    if (twoPane) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            CalculatorSummary(
-                                state = state,
-                                maxWidth = summaryWidth,
-                                modifier = Modifier.width(summaryWidth)
-                            )
-                            Spacer(modifier = Modifier.width(24.dp))
-                            NumberPad(
-                                onNumber = onNumber,
-                                onClear = onClear,
-                                modifier = Modifier.width(padWidth)
-                            )
+                Column(modifier = Modifier.padding(DialogPadding)) {
+                    // フッターを先に測らせ、その残りの高さでキーパッドの大きさを決める
+                    BoxWithConstraints(modifier = Modifier.weight(1f, fill = false)) {
+                        val bodyHeight = maxHeight
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            if (twoPane) {
+                                val padWidth = fittingPadWidth(innerWidth - PaneGap, bodyHeight)
+                                val summaryWidth = innerWidth - padWidth - PaneGap
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    CalculatorSummary(
+                                        state = state,
+                                        maxWidth = summaryWidth,
+                                        maxHeight = bodyHeight,
+                                        modifier = Modifier.width(summaryWidth)
+                                    )
+                                    Spacer(modifier = Modifier.width(PaneGap))
+                                    NumberPad(
+                                        onNumber = onNumber,
+                                        onClear = onClear,
+                                        modifier = Modifier.width(padWidth)
+                                    )
+                                }
+                            } else {
+                                val summaryHeight = bodyHeight * SinglePaneSummaryRatio
+                                CalculatorSummary(
+                                    state = state,
+                                    maxWidth = innerWidth,
+                                    maxHeight = summaryHeight,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.padding(12.dp))
+                                NumberPad(
+                                    onNumber = onNumber,
+                                    onClear = onClear,
+                                    modifier = Modifier
+                                        .width(
+                                            fittingPadWidth(
+                                                innerWidth,
+                                                bodyHeight - summaryHeight - PaneGap
+                                            )
+                                        ).align(Alignment.CenterHorizontally)
+                                )
+                            }
                         }
-                    } else {
-                        CalculatorSummary(
-                            state = state,
-                            maxWidth = summaryWidth,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.padding(12.dp))
-                        NumberPad(
-                            onNumber = onNumber,
-                            onClear = onClear,
-                            modifier = Modifier
-                                .width(padWidth)
-                                .align(Alignment.CenterHorizontally)
-                        )
                     }
-                    Spacer(modifier = Modifier.padding(10.dp))
+                    Spacer(modifier = Modifier.padding(8.dp))
                     HorizontalDivider()
                     Spacer(modifier = Modifier.padding(8.dp))
                     Row(
@@ -400,7 +459,12 @@ private fun CalculatorDialog(
 }
 
 @Composable
-private fun CalculatorSummary(state: CalculatorState, maxWidth: Dp, modifier: Modifier = Modifier) {
+private fun CalculatorSummary(
+    state: CalculatorState,
+    maxWidth: Dp,
+    maxHeight: Dp,
+    modifier: Modifier = Modifier
+) {
     val remaining = state.deposit - state.totalPrice
     val totalText = stringResource(R.string.river_format, state.totalPrice)
     val depositText = stringResource(R.string.river_format, state.deposit)
@@ -408,10 +472,11 @@ private fun CalculatorSummary(state: CalculatorState, maxWidth: Dp, modifier: Mo
         R.string.river_format,
         if (remaining >= 0) remaining else -remaining
     )
-    val amountStyle = fittingStyle(
+    val amountStyle = fittingAmountStyle(
         samples = listOf(totalText, depositText, remainingText),
         candidates = amountStyleCandidates(),
-        maxWidth = maxWidth - AmountSafetyMargin
+        maxWidth = maxWidth - AmountSafetyMargin,
+        maxHeight = maxHeight
     )
     val onSurface = MaterialTheme.colorScheme.onSurface
 
@@ -561,6 +626,7 @@ private fun AccountResultDialog(
         BoxWithConstraints(modifier = Modifier.padding(16.dp)) {
             val typography = MaterialTheme.typography
             val contentWidth = min(maxWidth, DialogMaxWidth)
+            val availableHeight = maxHeight
             val changeText = stringResource(R.string.river_format, state.change)
             val changeStyle = fittingStyle(
                 samples = listOf(changeText),
@@ -577,39 +643,43 @@ private fun AccountResultDialog(
 
             Surface(
                 shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.width(contentWidth)
+                modifier = Modifier
+                    .width(contentWidth)
+                    .heightIn(max = availableHeight)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(32.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.change),
-                        style = typography.headlineMedium,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(
-                        text = changeText,
-                        style = changeStyle,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Clip
-                    )
-                    Spacer(modifier = Modifier.padding(10.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.padding(6.dp))
-                    ResultSummaryRow(
-                        label = stringResource(R.string.total),
-                        amount = stringResource(R.string.river_format, state.totalPrice)
-                    )
-                    ResultSummaryRow(
-                        label = stringResource(R.string.deposit),
-                        amount = stringResource(R.string.river_format, state.deposit)
-                    )
+                Column(modifier = Modifier.padding(32.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.change),
+                            style = typography.headlineMedium,
+                            maxLines = 1
+                        )
+                        Spacer(modifier = Modifier.padding(4.dp))
+                        Text(
+                            text = changeText,
+                            style = changeStyle,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Clip
+                        )
+                        Spacer(modifier = Modifier.padding(10.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.padding(6.dp))
+                        ResultSummaryRow(
+                            label = stringResource(R.string.total),
+                            amount = stringResource(R.string.river_format, state.totalPrice)
+                        )
+                        ResultSummaryRow(
+                            label = stringResource(R.string.deposit),
+                            amount = stringResource(R.string.river_format, state.deposit)
+                        )
+                    }
                     Spacer(modifier = Modifier.padding(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -618,6 +688,7 @@ private fun AccountResultDialog(
                     ) {
                         TextButton(
                             onClick = onBack,
+                            enabled = !state.processing,
                             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
                         ) {
                             Text(
@@ -628,9 +699,20 @@ private fun AccountResultDialog(
                         }
                         Button(
                             onClick = onOk,
+                            enabled = !state.processing,
                             contentPadding = PaddingValues(horizontal = 40.dp, vertical = 16.dp),
                             modifier = Modifier.testTag(AccountResultConfirmButtonTag)
                         ) {
+                            if (state.processing) {
+                                CircularProgressIndicator(
+                                    strokeWidth = 3.dp,
+                                    color = LocalContentColor.current,
+                                    modifier = Modifier
+                                        .size(ProgressIndicatorSize)
+                                        .testTag(AccountResultProgressTag)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                            }
                             Text(
                                 text = stringResource(R.string.account),
                                 style = typography.headlineSmall,

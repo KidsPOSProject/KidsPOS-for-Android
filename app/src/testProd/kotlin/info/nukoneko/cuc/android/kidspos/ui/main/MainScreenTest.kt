@@ -26,8 +26,11 @@ import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import java.io.IOException
 import kotlin.math.abs
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -228,6 +231,74 @@ class MainScreenTest {
         )
     }
 
+    @Test
+    @Config(qualifiers = "w960dp-h600dp-land-xhdpi")
+    fun calculatorFitsInsideNexus7Landscape() {
+        assertCalculatorFitsIn(600f)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp-port-xhdpi")
+    fun calculatorFitsInsideSmallPhonePortrait() {
+        assertCalculatorFitsIn(640f)
+    }
+
+    @Test
+    fun accountResultShowsProgressWhileSaleIsInFlight() {
+        val gate = CompletableDeferred<Unit>()
+        val defaultCreateSale = apiService.createSaleHandler
+        apiService.createSaleHandler = { args ->
+            gate.await()
+            defaultCreateSale(args)
+        }
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        openCalculator()
+
+        pressKeys("5", "0", "0")
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(AccountResultProgressTag).assertDoesNotExist()
+
+        // ぐるぐるは終わらないアニメーションのため、waitForIdle が止まらなくなる
+        composeRule.mainClock.autoAdvance = false
+        composeRule.onNodeWithTag(AccountResultConfirmButtonTag).performClick()
+        composeRule.mainClock.advanceTimeBy(FRAME_STEP_MILLIS)
+
+        composeRule.onNodeWithTag(AccountResultProgressTag).assertIsDisplayed()
+        composeRule.onNodeWithTag(AccountResultConfirmButtonTag).assertIsNotEnabled()
+
+        gate.complete(Unit)
+        composeRule.mainClock.advanceTimeBy(FRAME_STEP_MILLIS)
+        composeRule.mainClock.autoAdvance = true
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(AccountResultProgressTag).assertDoesNotExist()
+        composeRule.onNodeWithTag(AccountResultConfirmButtonTag).assertDoesNotExist()
+    }
+
+    private fun assertCalculatorFitsIn(screenHeight: Float) {
+        openCalculator()
+        pressKeys("5", "0", "0")
+
+        val dialog = composeRule.onNodeWithTag(CalculatorDialogTag).getUnclippedBoundsInRoot()
+        assertTrue(
+            "ダイアログが画面からはみ出している: ${dialog.height.value} / $screenHeight",
+            dialog.height.value <= screenHeight
+        )
+
+        val footer = composeRule.onNodeWithTag(CalculatorAccountButtonTag)
+            .getUnclippedBoundsInRoot()
+        assertTrue(
+            "かいけいボタンがダイアログの外にある: ${footer.bottom.value} / ${dialog.bottom.value}",
+            footer.bottom.value <= dialog.bottom.value + 1f
+        )
+
+        composeRule.onNodeWithTag(CalculatorAccountButtonTag).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.back)).assertIsDisplayed()
+        composeRule.onNodeWithText("0").assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.delete)).assertIsDisplayed()
+    }
+
     private fun pressKeys(vararg keys: String) {
         keys.forEach { key ->
             composeRule.onNodeWithText(key).assertIsDisplayed().performClick()
@@ -275,5 +346,9 @@ class MainScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText("復活商品").assertIsDisplayed()
+    }
+
+    private companion object {
+        const val FRAME_STEP_MILLIS = 100L
     }
 }
