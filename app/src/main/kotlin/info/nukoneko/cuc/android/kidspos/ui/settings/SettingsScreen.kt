@@ -40,6 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.update.UpdateFailure
+import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
