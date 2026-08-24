@@ -26,6 +26,8 @@ tags:
     description: サーバーステータス
   - name: Apk
     description: Androidアプリ配信
+  - name: Reports
+    description: 売上レポート
 
 paths:
   # Status
@@ -928,6 +930,274 @@ paths:
         '409':
           description: Version already exists
 
+  # Reports
+  /api/reports/sales/summary:
+    get:
+      tags:
+        - Reports
+      summary: 売上集計取得
+      description: 指定期間の売上を集計します。終了日は当日の終端まで含みます
+      operationId: getSalesSummary
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: 集計開始日
+          schema:
+            type: string
+            format: date
+            example: "2026-08-01"
+        - name: endDate
+          in: query
+          required: true
+          description: 集計終了日（当日を含む）
+          schema:
+            type: string
+            format: date
+            example: "2026-08-31"
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/summary/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上集計取得
+      operationId: getTodaySalesSummary
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/summary/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上集計取得
+      operationId: getMonthlySalesSummary
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2026
+        - name: month
+          in: query
+          required: true
+          description: 1から12
+          schema:
+            type: integer
+            example: 8
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/pdf:
+    get:
+      tags:
+        - Reports
+      summary: 売上レポートPDF取得
+      operationId: downloadSalesReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Report generation failed
+
+  /api/reports/sales/pdf/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上レポートPDF取得
+      operationId: downloadTodaySalesReport
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/pdf/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上レポートPDF取得
+      operationId: downloadMonthlySalesReport
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/excel:
+    get:
+      tags:
+        - Reports
+      summary: 売上レポートExcel取得
+      operationId: downloadSalesExcelReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Report generation failed
+
+  /api/reports/sales/excel/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上レポートExcel取得
+      operationId: downloadTodaySalesExcelReport
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/excel/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上レポートExcel取得
+      operationId: downloadMonthlySalesExcelReport
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
 
 components:
   schemas:
@@ -1270,6 +1540,122 @@ components:
         - code
         - message
         - timestamp
+
+    SaleSummaryResponse:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: 集計開始日時（当日の0時に補正済み）
+        endDate:
+          type: string
+          format: date-time
+          description: 集計終了日時（当日の終端に補正済み）
+        totalSales:
+          type: integer
+          description: 取引件数
+        totalItemCount:
+          type: integer
+          description: 販売点数
+        totalAmount:
+          type: integer
+          description: 売上金額
+        averageAmount:
+          type: integer
+          description: 平均客単価
+        stores:
+          type: array
+          description: 店舗別集計（金額の多い順）
+          items:
+            $ref: '#/components/schemas/StoreSalesSummary'
+        items:
+          type: array
+          description: 商品別集計（金額の多い順）
+          items:
+            $ref: '#/components/schemas/ItemSalesSummary'
+        daily:
+          type: array
+          description: 日別集計（日付の昇順）
+          items:
+            $ref: '#/components/schemas/DailySalesSummary'
+      required:
+        - startDate
+        - endDate
+        - totalSales
+        - totalItemCount
+        - totalAmount
+        - averageAmount
+        - stores
+        - items
+        - daily
+
+    StoreSalesSummary:
+      type: object
+      properties:
+        storeId:
+          type: integer
+        storeName:
+          type: string
+        salesCount:
+          type: integer
+          description: 取引件数
+        itemCount:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - storeId
+        - storeName
+        - salesCount
+        - itemCount
+        - amount
+
+    ItemSalesSummary:
+      type: object
+      properties:
+        itemId:
+          type: integer
+        itemName:
+          type: string
+        unitPrice:
+          type: integer
+          description: 単価
+        quantity:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - itemId
+        - itemName
+        - unitPrice
+        - quantity
+        - amount
+
+    DailySalesSummary:
+      type: object
+      properties:
+        date:
+          type: string
+          example: "2026-08-21"
+        salesCount:
+          type: integer
+          description: 取引件数
+        itemCount:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - date
+        - salesCount
+        - itemCount
+        - amount
 
   securitySchemes:
     bearerAuth:
