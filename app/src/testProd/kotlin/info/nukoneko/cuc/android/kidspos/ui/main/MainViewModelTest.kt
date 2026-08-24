@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.main
 
+import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.entity.Item
@@ -15,6 +16,7 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -383,6 +385,16 @@ class MainViewModelTest {
         assertNull(viewModel.uiState.value.storeSelection)
         assertEquals(Store(2, "デパート"), viewModel.uiState.value.store)
         assertEquals(Store(2, "デパート"), settingsRepository.currentStore.first())
+    }
+
+    @Test
+    fun selectedStoreIsPersistedEvenWhenTheScreenIsLeftImmediately() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.viewModelScope.cancel()
+        viewModel.onStoreSelected(Store(3, "やたい"))
+
+        assertEquals(Store(3, "やたい"), settingsRepository.currentStore.first())
     }
 
     @Test

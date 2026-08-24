@@ -10,6 +10,7 @@ import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.update.AppUpdateManager
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,7 +54,8 @@ data class SettingsUiState(
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dangerZoneRepository: DangerZoneRepository,
-    private val appUpdateManager: AppUpdateManager
+    private val appUpdateManager: AppUpdateManager,
+    private val applicationScope: CoroutineScope
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -142,13 +144,15 @@ class SettingsViewModel @Inject constructor(
         checkDangerZoneStatus()
     }
 
+    // 書き込み直後に画面を離れると viewModelScope が閉じて保存が取り消されるため、
+    // 設定の永続化はアプリケーションスコープで行う
     fun onServerAddressChange(value: String) {
-        viewModelScope.launch { settingsRepository.setServerAddress(value) }
+        applicationScope.launch { settingsRepository.setServerAddress(value) }
     }
 
     fun onToggleMode() {
         val next = _uiState.value.mode.toggle()
-        viewModelScope.launch { settingsRepository.setRunningMode(next) }
+        applicationScope.launch { settingsRepository.setRunningMode(next) }
     }
 
     fun onCheckUpdate() {

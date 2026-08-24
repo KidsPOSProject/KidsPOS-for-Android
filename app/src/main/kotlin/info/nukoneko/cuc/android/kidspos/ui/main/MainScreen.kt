@@ -104,9 +104,13 @@ fun MainScreen(
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.DrawerTitleSettings)) },
                     selected = false,
+                    // 閉じるアニメーションの途中で画面を離れると開いた状態が復元されるため、
+                    // 閉じ終えてから遷移する
                     onClick = {
-                        scope.launch { drawerState.close() }
-                        onNavigateToSettings()
+                        scope.launch {
+                            drawerState.close()
+                            onNavigateToSettings()
+                        }
                     }
                 )
                 NavigationDrawerItem(

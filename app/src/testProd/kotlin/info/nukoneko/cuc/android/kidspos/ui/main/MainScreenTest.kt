@@ -31,6 +31,7 @@ import java.io.IOException
 import kotlin.math.abs
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -118,6 +119,28 @@ class MainScreenTest {
         composeRule.onAllNodesWithText(context.getString(R.string.river_format, 250))
             .assertCountEquals(2)
         composeRule.onNodeWithText(context.getString(R.string.account)).assertIsEnabled()
+    }
+
+    @Test
+    fun settingsDrawerItemNavigatesAfterTheDrawerIsClosed() {
+        var navigated = false
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = { navigated = true }, viewModel = createViewModel())
+        }
+
+        composeRule.onNodeWithContentDescription(
+            context.getString(R.string.navigation_drawer_open)
+        ).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.mainClock.autoAdvance = false
+        composeRule.onNodeWithText(context.getString(R.string.DrawerTitleSettings)).performClick()
+        composeRule.mainClock.advanceTimeByFrame()
+        assertFalse("ドロワーが閉じ切る前に遷移している", navigated)
+
+        composeRule.mainClock.autoAdvance = true
+        composeRule.waitForIdle()
+        assertTrue("ドロワーを閉じた後に遷移していない", navigated)
     }
 
     @Test

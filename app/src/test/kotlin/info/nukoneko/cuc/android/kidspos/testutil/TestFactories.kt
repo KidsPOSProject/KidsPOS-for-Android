@@ -34,13 +34,15 @@ fun createMainViewModel(
     settingsRepository: SettingsRepository,
     barcodeEventBus: BarcodeEventBus,
     dispatcher: CoroutineDispatcher,
-    itemRepository: ItemRepository = createItemRepository(apiService, dispatcher)
+    itemRepository: ItemRepository = createItemRepository(apiService, dispatcher),
+    applicationScope: CoroutineScope = CoroutineScope(dispatcher)
 ): MainViewModel = MainViewModel(
     itemRepository,
     ServerStatusRepository(apiService, dispatcher),
     StoreRepository(apiService, dispatcher),
     SaleRepository(apiService, dispatcher),
     settingsRepository,
+    applicationScope,
     barcodeEventBus
 )
 
@@ -72,9 +74,11 @@ fun createSettingsViewModel(
         apkInstaller,
         apkInstallResultBus,
         dispatcher
-    )
+    ),
+    applicationScope: CoroutineScope = CoroutineScope(dispatcher)
 ): SettingsViewModel = SettingsViewModel(
     settingsRepository,
     DangerZoneRepository(dangerZoneService, dispatcher),
-    appUpdateManager
+    appUpdateManager,
+    applicationScope
 )
