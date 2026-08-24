@@ -723,7 +723,7 @@ paths:
       tags:
         - DangerZone
       summary: Danger Zone パスワード照合
-      description: 入力されたパスワードが設定済みパスワードと一致するかを判定する。不一致でも200を返し、validフラグで判定する
+      description: 入力されたパスワードが設定済みパスワードと一致するかを判定する。不一致でも200を返し、validフラグで判定する。接続元ごとに連続失敗を数え、上限に達している間は429を返す
       operationId: verifyDangerZonePassword
       requestBody:
         required: true
@@ -744,6 +744,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 連続失敗が上限に達したため一時的に照合を受け付けない
+          headers:
+            Retry-After:
+              description: 再試行できるまでの秒数
+              schema:
+                type: integer
+                example: 60
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneVerifyResponse'
 
   # APK
   /api/apk/version/latest:

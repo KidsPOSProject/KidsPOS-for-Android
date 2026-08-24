@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.api.DangerZoneRateLimitedException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.entity.DangerZoneVerification
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
@@ -187,6 +188,59 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText("パスワードが違います").assertExists()
         composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertDoesNotExist()
+    }
+
+    @Test
+    fun rateLimitedVerifyShowsRetryAfterMessage() {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = { throw DangerZoneRateLimitedException(45) }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    dangerZoneService = dangerZoneService
+                )
+            )
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("wrong")
+        composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(
+            context.getString(R.string.danger_zone_rate_limited, 45L)
+        ).assertExists()
+        composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertDoesNotExist()
+    }
+
+    @Test
+    fun rateLimitedVerifyWithoutRetryAfterShowsGenericMessage() {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = { throw DangerZoneRateLimitedException(null) }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    dangerZoneService = dangerZoneService
+                )
+            )
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("wrong")
+        composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(
+            context.getString(R.string.danger_zone_rate_limited_unknown)
+        ).assertExists()
     }
 
     @Test

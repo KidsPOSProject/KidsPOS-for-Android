@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.nukoneko.cuc.android.kidspos.BuildConfig
+import info.nukoneko.cuc.android.kidspos.api.DangerZoneRateLimitedException
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.DangerZoneRepository
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
@@ -51,6 +52,7 @@ sealed interface DangerZoneStatus {
 
 sealed interface DangerZoneError {
     data class Rejected(val message: String) : DangerZoneError
+    data class RateLimited(val retryAfterSeconds: Long?) : DangerZoneError
     data object Unreachable : DangerZoneError
 }
 
@@ -138,6 +140,9 @@ class SettingsViewModel @Inject constructor(
                     !result.configured -> DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED)
                     else -> DangerZoneStatus.Locked(DangerZoneError.Rejected(result.message))
                 }
+            } catch (e: DangerZoneRateLimitedException) {
+                Timber.w(e, "Danger zone verification is rate limited")
+                DangerZoneStatus.Locked(DangerZoneError.RateLimited(e.retryAfterSeconds))
             } catch (e: Exception) {
                 Timber.w(e, "Failed to verify danger zone password")
                 DangerZoneStatus.Locked(DangerZoneError.Unreachable)

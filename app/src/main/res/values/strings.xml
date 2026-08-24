@@ -79,4 +79,6 @@
     <string name="danger_zone_not_configured">サーバーにパスワードが設定されていないため、そのまま操作できます</string>
     <string name="danger_zone_status_failed">サーバーに接続できないため、そのまま操作できます</string>
     <string name="danger_zone_verify_failed">サーバーに接続できませんでした</string>
+    <string name="danger_zone_rate_limited">試行回数が多すぎます。%1$d秒後にもう一度お試しください</string>
+    <string name="danger_zone_rate_limited_unknown">試行回数が多すぎます。しばらく待ってからもう一度お試しください</string>
 </resources>
