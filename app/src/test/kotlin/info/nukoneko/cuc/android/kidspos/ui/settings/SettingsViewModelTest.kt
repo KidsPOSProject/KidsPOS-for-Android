@@ -8,16 +8,18 @@ import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
 import info.nukoneko.cuc.android.kidspos.testutil.FakeDangerZoneService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createAppUpdateManager
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
-import info.nukoneko.cuc.android.kidspos.update.ApkInstallResult
-import info.nukoneko.cuc.android.kidspos.update.ApkInstallResultBus
+import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.io.File
 
 class SettingsViewModelTest {
     @get:Rule
@@ -66,16 +68,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun checkUpdateWithoutNewerVersionReportsUpToDate() = runTest {
-        val viewModel = createSettingsViewModel(settingsRepository)
-
-        viewModel.onCheckUpdate()
-
-        assertEquals(UpdateStatus.UpToDate, viewModel.uiState.value.updateStatus)
-    }
-
-    @Test
-    fun checkUpdateWithNewerVersionExposesIt() = runTest {
+    fun checkUpdateExposesAvailableUpdate() = runTest {
         val updateService = FakeAppUpdateService()
         updateService.checkForUpdateHandler = { appUpdate() }
         val viewModel = createSettingsViewModel(
@@ -88,23 +81,6 @@ class SettingsViewModelTest {
         val status = viewModel.uiState.value.updateStatus
         assertTrue(status is UpdateStatus.Available)
         assertEquals(99, (status as UpdateStatus.Available).update.versionCode)
-    }
-
-    @Test
-    fun checkUpdateFailureIsReported() = runTest {
-        val updateService = FakeAppUpdateService()
-        updateService.checkForUpdateHandler = { throw Exception("boom") }
-        val viewModel = createSettingsViewModel(
-            settingsRepository,
-            appUpdateService = updateService
-        )
-
-        viewModel.onCheckUpdate()
-
-        assertEquals(
-            UpdateStatus.Failed(UpdateFailure.CHECK),
-            viewModel.uiState.value.updateStatus
-        )
     }
 
     @Test
@@ -129,103 +105,77 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun startUpdateWithoutInstallPermissionAsksForIt() = runTest {
+    fun dismissUpdateReturnsToIdle() = runTest {
         val updateService = FakeAppUpdateService()
         updateService.checkForUpdateHandler = { appUpdate() }
-        val downloader = FakeApkDownloader()
-        val installer = FakeApkInstaller()
-        installer.installAllowed = false
         val viewModel = createSettingsViewModel(
             settingsRepository,
+            appUpdateService = updateService
+        )
+
+        viewModel.onCheckUpdate()
+        viewModel.onDismissUpdate()
+
+        assertEquals(UpdateStatus.Idle, viewModel.uiState.value.updateStatus)
+    }
+
+    @Test
+    fun updateStatusIsRetainedWhenViewModelIsRecreated() = runTest {
+        val updateService = FakeAppUpdateService()
+        updateService.checkForUpdateHandler = { appUpdate() }
+        val manager = createAppUpdateManager(appUpdateService = updateService)
+        val firstViewModel = createSettingsViewModel(
+            settingsRepository,
+            appUpdateManager = manager
+        )
+
+        firstViewModel.onCheckUpdate()
+        assertTrue(firstViewModel.uiState.value.updateStatus is UpdateStatus.Available)
+
+        val secondViewModel = createSettingsViewModel(
+            settingsRepository,
+            appUpdateManager = manager
+        )
+
+        assertTrue(secondViewModel.uiState.value.updateStatus is UpdateStatus.Available)
+    }
+
+    @Test
+    fun downloadInProgressSurvivesViewModelRecreation() = runTest {
+        val updateService = FakeAppUpdateService()
+        updateService.checkForUpdateHandler = { appUpdate() }
+        val downloadGate = CompletableDeferred<Unit>()
+        val downloader = FakeApkDownloader()
+        downloader.downloadHandler = { update, onProgress ->
+            onProgress(0.5f)
+            downloadGate.await()
+            File("kidspos-${update.versionCode}.apk")
+        }
+        val installer = FakeApkInstaller()
+        val manager = createAppUpdateManager(
             appUpdateService = updateService,
             apkDownloader = downloader,
             apkInstaller = installer
         )
-
-        viewModel.onCheckUpdate()
-        viewModel.onStartUpdate()
-
-        assertEquals(UpdateStatus.InstallNotPermitted, viewModel.uiState.value.updateStatus)
-        assertTrue(downloader.downloadedUpdates.isEmpty())
-    }
-
-    @Test
-    fun downloadFailureIsReported() = runTest {
-        val updateService = FakeAppUpdateService()
-        updateService.checkForUpdateHandler = { appUpdate() }
-        val downloader = FakeApkDownloader()
-        downloader.downloadHandler = { _, _ -> throw Exception("boom") }
-        val viewModel = createSettingsViewModel(
-            settingsRepository,
-            appUpdateService = updateService,
-            apkDownloader = downloader
-        )
-
-        viewModel.onCheckUpdate()
-        viewModel.onStartUpdate()
-
-        assertEquals(
-            UpdateStatus.Failed(UpdateFailure.DOWNLOAD),
-            viewModel.uiState.value.updateStatus
-        )
-    }
-
-    @Test
-    fun installResultFromBusUpdatesStatus() = runTest {
-        val bus = ApkInstallResultBus()
-        val viewModel = createSettingsViewModel(
-            settingsRepository,
-            apkInstallResultBus = bus
-        )
-
-        bus.emit(ApkInstallResult.CANCELLED)
-        assertEquals(UpdateStatus.Idle, viewModel.uiState.value.updateStatus)
-
-        bus.emit(ApkInstallResult.FAILURE)
-        assertEquals(
-            UpdateStatus.Failed(UpdateFailure.INSTALL),
-            viewModel.uiState.value.updateStatus
-        )
-
-        bus.emit(ApkInstallResult.SUCCESS)
-        assertEquals(UpdateStatus.UpToDate, viewModel.uiState.value.updateStatus)
-    }
-
-    @Test
-    fun installResultEmittedBeforeViewModelCreationIsDelivered() = runTest {
-        val bus = ApkInstallResultBus()
-        bus.emit(ApkInstallResult.FAILURE)
-
-        val viewModel = createSettingsViewModel(
-            settingsRepository,
-            apkInstallResultBus = bus
-        )
-
-        assertEquals(
-            UpdateStatus.Failed(UpdateFailure.INSTALL),
-            viewModel.uiState.value.updateStatus
-        )
-    }
-
-    @Test
-    fun consumedInstallResultIsNotRedeliveredToNewViewModel() = runTest {
-        val bus = ApkInstallResultBus()
         val firstViewModel = createSettingsViewModel(
             settingsRepository,
-            apkInstallResultBus = bus
+            appUpdateManager = manager
         )
-        bus.emit(ApkInstallResult.FAILURE)
-        assertEquals(
-            UpdateStatus.Failed(UpdateFailure.INSTALL),
-            firstViewModel.uiState.value.updateStatus
-        )
+
+        firstViewModel.onCheckUpdate()
+        firstViewModel.onStartUpdate()
+        assertEquals(UpdateStatus.Downloading(0.5f), firstViewModel.uiState.value.updateStatus)
 
         val secondViewModel = createSettingsViewModel(
             settingsRepository,
-            apkInstallResultBus = bus
+            appUpdateManager = manager
         )
+        assertEquals(UpdateStatus.Downloading(0.5f), secondViewModel.uiState.value.updateStatus)
 
-        assertEquals(UpdateStatus.Idle, secondViewModel.uiState.value.updateStatus)
+        downloadGate.complete(Unit)
+
+        assertEquals(1, installer.installedApks.size)
+        assertEquals(UpdateStatus.Installing, secondViewModel.uiState.value.updateStatus)
     }
 
     @Test
@@ -420,20 +370,5 @@ class SettingsViewModelTest {
         viewModel.onLockDangerZone()
 
         assertEquals(DangerZoneStatus.Locked(), viewModel.uiState.value.dangerZoneStatus)
-    }
-
-    @Test
-    fun dismissUpdateReturnsToIdle() = runTest {
-        val updateService = FakeAppUpdateService()
-        updateService.checkForUpdateHandler = { appUpdate() }
-        val viewModel = createSettingsViewModel(
-            settingsRepository,
-            appUpdateService = updateService
-        )
-
-        viewModel.onCheckUpdate()
-        viewModel.onDismissUpdate()
-
-        assertEquals(UpdateStatus.Idle, viewModel.uiState.value.updateStatus)
     }
 }

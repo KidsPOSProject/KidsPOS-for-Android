@@ -14,7 +14,9 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
 import info.nukoneko.cuc.android.kidspos.ui.settings.SettingsViewModel
 import info.nukoneko.cuc.android.kidspos.update.ApkInstallResultBus
+import info.nukoneko.cuc.android.kidspos.update.AppUpdateManager
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 
@@ -42,6 +44,20 @@ fun createMainViewModel(
     barcodeEventBus
 )
 
+fun createAppUpdateManager(
+    appUpdateService: FakeAppUpdateService = FakeAppUpdateService(),
+    apkDownloader: FakeApkDownloader = FakeApkDownloader(),
+    apkInstaller: FakeApkInstaller = FakeApkInstaller(),
+    apkInstallResultBus: ApkInstallResultBus = ApkInstallResultBus(),
+    dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    applicationScope: CoroutineScope = CoroutineScope(dispatcher)
+): AppUpdateManager = AppUpdateManager(
+    AppUpdateRepository(appUpdateService, apkDownloader, dispatcher),
+    apkInstaller,
+    apkInstallResultBus,
+    applicationScope
+)
+
 fun createSettingsViewModel(
     settingsRepository: SettingsRepository,
     appUpdateService: FakeAppUpdateService = FakeAppUpdateService(),
@@ -49,11 +65,16 @@ fun createSettingsViewModel(
     apkInstaller: FakeApkInstaller = FakeApkInstaller(),
     apkInstallResultBus: ApkInstallResultBus = ApkInstallResultBus(),
     dangerZoneService: FakeDangerZoneService = FakeDangerZoneService(),
-    dispatcher: CoroutineDispatcher = Dispatchers.Unconfined
+    dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    appUpdateManager: AppUpdateManager = createAppUpdateManager(
+        appUpdateService,
+        apkDownloader,
+        apkInstaller,
+        apkInstallResultBus,
+        dispatcher
+    )
 ): SettingsViewModel = SettingsViewModel(
     settingsRepository,
-    AppUpdateRepository(appUpdateService, apkDownloader, dispatcher),
     DangerZoneRepository(dangerZoneService, dispatcher),
-    apkInstaller,
-    apkInstallResultBus
+    appUpdateManager
 )
