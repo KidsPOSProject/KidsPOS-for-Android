@@ -26,8 +26,14 @@ tags:
     description: サーバーステータス
   - name: Apk
     description: Androidアプリ配信
+  - name: Reports
+    description: 売上レポート
+  - name: Logs
+    description: サーバーログ
+  - name: System
+    description: サーバー時刻
   - name: DangerZone
-    description: 危険操作の保護
+    description: 危険操作を保護するパスワード
 
 paths:
   # Status
@@ -223,8 +229,15 @@ paths:
       tags:
         - Items
       summary: バーコードPDF生成
-      description: 全商品のバーコードをPDF形式で生成します
+      description: 全商品のバーコードをPDF形式で生成します。生成結果は商品一覧が変わるまで再利用されます
       operationId: generateBarcodePdf
+      parameters:
+        - name: showBorders
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: Success
@@ -233,6 +246,76 @@ paths:
               schema:
                 type: string
                 format: binary
+
+  /api/item/barcode-pdf/selected:
+    get:
+      tags:
+        - Items
+      summary: 選択商品のバーコードPDF生成
+      description: 指定した商品IDのバーコードをPDF形式で生成します
+      operationId: downloadSelectedBarcodePdf
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: false
+        - name: showBorders
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: No items selected
+        '404':
+          description: Item not found
+
+    post:
+      tags:
+        - Items
+      summary: 選択商品のバーコードPDF生成
+      description: リクエストボディで渡した商品IDのバーコードをPDF形式で生成します
+      operationId: generateSelectedBarcodePdf
+      parameters:
+        - name: showBorders
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: No items selected
+        '404':
+          description: Item not found
 
   # Sales
   /api/sales:
@@ -702,49 +785,6 @@ paths:
                   message:
                     type: string
 
-  # DangerZone
-  /api/setting/danger-zone/status:
-    get:
-      tags:
-        - DangerZone
-      summary: Danger Zone パスワード設定状態取得
-      description: 危険操作を保護するパスワードが設定済みかを取得する
-      operationId: getDangerZoneStatus
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DangerZoneStatusResponse'
-
-  /api/setting/danger-zone/verify:
-    post:
-      tags:
-        - DangerZone
-      summary: Danger Zone パスワード照合
-      description: 入力されたパスワードが設定済みパスワードと一致するかを判定する。不一致でも200を返し、validフラグで判定する
-      operationId: verifyDangerZonePassword
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyDangerZonePasswordRequest'
-      responses:
-        '200':
-          description: 照合結果
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DangerZoneVerifyResponse'
-        '400':
-          description: パスワードが空
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   # APK
   /api/apk/version/latest:
     get:
@@ -973,6 +1013,478 @@ paths:
         '409':
           description: Version already exists
 
+  # Reports
+  /api/reports/sales/summary:
+    get:
+      tags:
+        - Reports
+      summary: 売上集計取得
+      description: 指定期間の売上を集計します。終了日は当日の終端まで含みます
+      operationId: getSalesSummary
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          description: 集計開始日
+          schema:
+            type: string
+            format: date
+            example: "2026-08-01"
+        - name: endDate
+          in: query
+          required: true
+          description: 集計終了日（当日を含む）
+          schema:
+            type: string
+            format: date
+            example: "2026-08-31"
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/summary/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上集計取得
+      operationId: getTodaySalesSummary
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/summary/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上集計取得
+      operationId: getMonthlySalesSummary
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2026
+        - name: month
+          in: query
+          required: true
+          description: 1から12
+          schema:
+            type: integer
+            example: 8
+        - name: storeId
+          in: query
+          required: false
+          description: 店舗IDで絞り込み
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleSummaryResponse'
+
+  /api/reports/sales/pdf:
+    get:
+      tags:
+        - Reports
+      summary: 売上レポートPDF取得
+      operationId: downloadSalesReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Report generation failed
+
+  /api/reports/sales/pdf/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上レポートPDF取得
+      operationId: downloadTodaySalesReport
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/pdf/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上レポートPDF取得
+      operationId: downloadMonthlySalesReport
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/excel:
+    get:
+      tags:
+        - Reports
+      summary: 売上レポートExcel取得
+      operationId: downloadSalesExcelReport
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Report generation failed
+
+  /api/reports/sales/excel/today:
+    get:
+      tags:
+        - Reports
+      summary: 本日の売上レポートExcel取得
+      operationId: downloadTodaySalesExcelReport
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /api/reports/sales/excel/month:
+    get:
+      tags:
+        - Reports
+      summary: 月次の売上レポートExcel取得
+      operationId: downloadMonthlySalesExcelReport
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  # Logs
+  /api/logs:
+    get:
+      tags:
+        - Logs
+      summary: 直近のサーバーログ取得
+      description: メモリ上に保持している直近のログを新しい順に返す
+      operationId: getLogs
+      parameters:
+        - name: level
+          in: query
+          required: false
+          description: 指定したレベル以上のログのみを返す
+          schema:
+            type: string
+            enum: [TRACE, DEBUG, INFO, WARN, ERROR]
+        - name: keyword
+          in: query
+          required: false
+          description: メッセージ・ロガー名・スタックトレースの部分一致で絞り込む
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: 最大取得件数
+          schema:
+            type: integer
+            default: 200
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogListResponse'
+    delete:
+      tags:
+        - Logs
+      summary: メモリ上のログ消去
+      description: メモリ上に保持しているログを消去する。ログファイルは削除しない
+      operationId: clearLogs
+      responses:
+        '204':
+          description: No Content
+
+  # System
+  /api/system/time:
+    get:
+      tags:
+        - System
+      summary: サーバー時刻取得
+      description: サーバーの現在時刻とタイムゾーンを取得する
+      operationId: getSystemTime
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemTimeResponse'
+    post:
+      tags:
+        - System
+      summary: サーバー時刻同期
+      description: 指定された時刻にサーバーのシステム時刻を合わせる。イントラネット運用で時刻同期サーバーに到達できない環境向け
+      operationId: syncSystemTime
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncSystemTimeRequest'
+      responses:
+        '200':
+          description: 同期成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemTimeSyncResponse'
+        '400':
+          description: 時刻が有効範囲外
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 時刻変更に失敗（権限不足など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemTimeSyncResponse'
+
+  # DangerZone
+  /api/setting/danger-zone/status:
+    get:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード設定状態取得
+      description: 危険操作を保護するパスワードが設定済みかを取得する
+      operationId: getDangerZoneStatus
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneStatusResponse'
+
+  /api/setting/danger-zone/password:
+    post:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード設定
+      description: 危険操作を保護するパスワードを設定または変更する。設定済みの場合は現在のパスワードが必要
+      operationId: changeDangerZonePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeDangerZonePasswordRequest'
+      responses:
+        '200':
+          description: 設定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZonePasswordResponse'
+        '400':
+          description: 現在のパスワード不一致、または新パスワードが長さ制約を満たさない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZonePasswordResponse'
+
+  /api/setting/danger-zone/password/clear:
+    post:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード解除
+      description: 設定済みのパスワードを削除する。現在のパスワードが必要
+      operationId: clearDangerZonePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearDangerZonePasswordRequest'
+      responses:
+        '200':
+          description: 解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZonePasswordResponse'
+        '400':
+          description: 現在のパスワード不一致、または未設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZonePasswordResponse'
+
+  /api/setting/danger-zone/verify:
+    post:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード照合
+      description: 入力されたパスワードが設定済みパスワードと一致するかを判定する。不一致でも200を返し、validフラグで判定する。接続元ごとに連続失敗を数え、上限に達している間は429を返す
+      operationId: verifyDangerZonePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyDangerZonePasswordRequest'
+      responses:
+        '200':
+          description: 照合結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneVerifyResponse'
+        '400':
+          description: パスワードが空
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: 連続失敗が上限に達したため一時的に照合を受け付けない
+          headers:
+            Retry-After:
+              description: 再試行できるまでの秒数
+              schema:
+                type: integer
+                example: 60
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneVerifyResponse'
+
 
 components:
   schemas:
@@ -1172,6 +1684,11 @@ components:
           type: string
           description: アプリケーションバージョン（semver）
           example: "1.0.0"
+        commit:
+          type: string
+          nullable: true
+          description: ビルド元の Git コミット（短縮ハッシュ）。取得できなかった場合は null
+          example: "a1b2c3d"
         apiVersion:
           type: integer
           description: API互換バージョン。クライアント側で対応バージョンと比較する
@@ -1287,43 +1804,6 @@ components:
       required:
         - hasUpdate
 
-    DangerZoneStatusResponse:
-      type: object
-      properties:
-        configured:
-          type: boolean
-          description: パスワードが設定済みか
-      required:
-        - configured
-
-    VerifyDangerZonePasswordRequest:
-      type: object
-      properties:
-        password:
-          type: string
-          description: 照合するパスワード
-          example: "kidspos1234"
-      required:
-        - password
-
-    DangerZoneVerifyResponse:
-      type: object
-      properties:
-        valid:
-          type: boolean
-          description: パスワードが一致したか
-        configured:
-          type: boolean
-          description: サーバーにパスワードが設定済みか
-        message:
-          type: string
-          description: 結果メッセージ
-          example: "認証しました"
-      required:
-        - valid
-        - configured
-        - message
-
     ErrorResponse:
       type: object
       properties:
@@ -1352,6 +1832,320 @@ components:
         - code
         - message
         - timestamp
+
+    SaleSummaryResponse:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: 集計開始日時（当日の0時に補正済み）
+        endDate:
+          type: string
+          format: date-time
+          description: 集計終了日時（当日の終端に補正済み）
+        totalSales:
+          type: integer
+          description: 取引件数
+        totalItemCount:
+          type: integer
+          description: 販売点数
+        totalAmount:
+          type: integer
+          description: 売上金額
+        averageAmount:
+          type: integer
+          description: 平均客単価
+        stores:
+          type: array
+          description: 店舗別集計（金額の多い順）
+          items:
+            $ref: '#/components/schemas/StoreSalesSummary'
+        items:
+          type: array
+          description: 商品別集計（金額の多い順）
+          items:
+            $ref: '#/components/schemas/ItemSalesSummary'
+        daily:
+          type: array
+          description: 日別集計（日付の昇順）
+          items:
+            $ref: '#/components/schemas/DailySalesSummary'
+      required:
+        - startDate
+        - endDate
+        - totalSales
+        - totalItemCount
+        - totalAmount
+        - averageAmount
+        - stores
+        - items
+        - daily
+
+    StoreSalesSummary:
+      type: object
+      properties:
+        storeId:
+          type: integer
+        storeName:
+          type: string
+        salesCount:
+          type: integer
+          description: 取引件数
+        itemCount:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - storeId
+        - storeName
+        - salesCount
+        - itemCount
+        - amount
+
+    ItemSalesSummary:
+      type: object
+      properties:
+        itemId:
+          type: integer
+        itemName:
+          type: string
+        unitPrice:
+          type: integer
+          description: 単価
+        quantity:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - itemId
+        - itemName
+        - unitPrice
+        - quantity
+        - amount
+
+    DailySalesSummary:
+      type: object
+      properties:
+        date:
+          type: string
+          example: "2026-08-21"
+        salesCount:
+          type: integer
+          description: 取引件数
+        itemCount:
+          type: integer
+          description: 販売点数
+        amount:
+          type: integer
+          description: 売上金額
+      required:
+        - date
+        - salesCount
+        - itemCount
+        - amount
+
+    LogEntryResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          example: "2026-08-24 12:34:56.789"
+        level:
+          type: string
+          example: "ERROR"
+        logger:
+          type: string
+          example: "info.nukoneko.kidspos.server.service.SaleService"
+        thread:
+          type: string
+          example: "http-nio-8080-exec-1"
+        message:
+          type: string
+          example: "Failed to save sale"
+        stackTrace:
+          type: string
+          nullable: true
+      required:
+        - timestamp
+        - level
+        - logger
+        - thread
+        - message
+
+    LogListResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogEntryResponse'
+        counts:
+          type: object
+          additionalProperties:
+            type: integer
+          description: レベルごとの保持件数
+        total:
+          type: integer
+          description: 保持しているログの総件数
+        capacity:
+          type: integer
+          description: 保持件数の上限
+      required:
+        - entries
+        - counts
+        - total
+        - capacity
+
+    SystemTimeResponse:
+      type: object
+      properties:
+        epochMillis:
+          type: integer
+          format: int64
+          description: エポックミリ秒
+          example: 1735689600000
+        iso:
+          type: string
+          description: ISO 8601形式の時刻
+          example: "2025-01-01T09:00:00+09:00"
+        display:
+          type: string
+          description: 表示用の時刻
+          example: "2025-01-01 09:00:00"
+        timeZone:
+          type: string
+          description: サーバーのタイムゾーン
+          example: "Asia/Tokyo"
+      required:
+        - epochMillis
+        - iso
+        - display
+        - timeZone
+
+    SyncSystemTimeRequest:
+      type: object
+      properties:
+        epochMillis:
+          type: integer
+          format: int64
+          description: 同期したい時刻のエポックミリ秒
+          minimum: 1577836800000
+          maximum: 4102444800000
+          example: 1735689600000
+      required:
+        - epochMillis
+
+    SystemTimeSyncResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 同期に成功したか
+        message:
+          type: string
+          description: 結果メッセージ
+          example: "システム時刻を同期しました"
+        driftMillis:
+          type: integer
+          format: int64
+          description: 同期前のサーバー時刻との差分ミリ秒
+          example: 125000
+        requested:
+          $ref: '#/components/schemas/SystemTimeResponse'
+        current:
+          $ref: '#/components/schemas/SystemTimeResponse'
+      required:
+        - success
+        - message
+        - driftMillis
+        - requested
+        - current
+
+    DangerZoneStatusResponse:
+      type: object
+      properties:
+        configured:
+          type: boolean
+          description: パスワードが設定済みか
+      required:
+        - configured
+
+    ChangeDangerZonePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          description: 現在のパスワード。未設定の状態から初めて設定する場合は不要
+          example: "kidspos1234"
+        newPassword:
+          type: string
+          description: 新しいパスワード
+          minLength: 4
+          maxLength: 128
+          example: "kidspos5678"
+      required:
+        - newPassword
+
+    ClearDangerZonePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          description: 現在のパスワード
+          example: "kidspos1234"
+      required:
+        - currentPassword
+
+    VerifyDangerZonePasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: 照合するパスワード
+          example: "kidspos1234"
+      required:
+        - password
+
+    DangerZonePasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 操作に成功したか
+        message:
+          type: string
+          description: 結果メッセージ
+          example: "パスワードを保存しました"
+        configured:
+          type: boolean
+          description: 操作後にパスワードが設定済みか
+      required:
+        - success
+        - message
+        - configured
+
+    DangerZoneVerifyResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: パスワードが一致したか
+        configured:
+          type: boolean
+          description: サーバーにパスワードが設定済みか
+        message:
+          type: string
+          description: 結果メッセージ
+          example: "認証しました"
+      required:
+        - valid
+        - configured
+        - message
 
   securitySchemes:
     bearerAuth:
