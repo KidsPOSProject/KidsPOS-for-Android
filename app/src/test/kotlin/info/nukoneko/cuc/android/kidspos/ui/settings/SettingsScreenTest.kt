@@ -9,11 +9,14 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
+import info.nukoneko.cuc.android.kidspos.entity.DangerZoneVerification
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeDangerZoneService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
@@ -105,6 +108,84 @@ class SettingsScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(context.getString(R.string.app_is_up_to_date)).assertExists()
+    }
+
+    @Test
+    fun lockedDangerZoneHidesDangerousActions() {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    dangerZoneService = dangerZoneService
+                )
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertDoesNotExist()
+        composeRule.onNodeWithText(context.getString(R.string.check_update)).assertDoesNotExist()
+        composeRule.onNodeWithText(
+            context.getString(R.string.switch_mode_format, Mode.PRODUCTION.modeName)
+        ).assertDoesNotExist()
+    }
+
+    @Test
+    fun correctPasswordRevealsDangerousActions() {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = {
+            DangerZoneVerification(valid = true, configured = true, message = "OK")
+        }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    dangerZoneService = dangerZoneService
+                )
+            )
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("secret")
+        composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(listOf("secret"), dangerZoneService.verifiedPasswords)
+        composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertExists()
+        composeRule.onNodeWithText(context.getString(R.string.check_update)).assertExists()
+    }
+
+    @Test
+    fun wrongPasswordShowsServerMessage() {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = {
+            DangerZoneVerification(valid = false, configured = true, message = "パスワードが違います")
+        }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    dangerZoneService = dangerZoneService
+                )
+            )
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("wrong")
+        composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("パスワードが違います").assertExists()
+        composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertDoesNotExist()
     }
 
     @Test
