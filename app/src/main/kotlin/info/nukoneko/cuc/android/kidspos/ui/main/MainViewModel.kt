@@ -19,6 +19,7 @@ import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,6 +80,7 @@ class MainViewModel @Inject constructor(
     private val storeRepository: StoreRepository,
     private val saleRepository: SaleRepository,
     private val settingsRepository: SettingsRepository,
+    private val applicationScope: CoroutineScope,
     barcodeEventBus: BarcodeEventBus
 ) : ViewModel() {
 
@@ -152,8 +154,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    // 書き込み直後に画面を離れると viewModelScope が閉じて保存が取り消されるため、
+    // 設定の永続化はアプリケーションスコープで行う
     private fun setStaff(staff: Staff) {
-        viewModelScope.launch { settingsRepository.setCurrentStaff(staff) }
+        applicationScope.launch { settingsRepository.setCurrentStaff(staff) }
     }
 
     fun onAccountClick() {
@@ -265,7 +269,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onStoreSelected(store: Store) {
-        viewModelScope.launch { settingsRepository.setCurrentStore(store) }
+        applicationScope.launch { settingsRepository.setCurrentStore(store) }
         _uiState.update { it.copy(storeSelection = null) }
     }
 

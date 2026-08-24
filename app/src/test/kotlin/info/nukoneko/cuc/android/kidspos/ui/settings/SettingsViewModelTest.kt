@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
+import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.api.DangerZoneRateLimitedException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.entity.DangerZoneVerification
@@ -14,6 +15,8 @@ import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
 import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -65,6 +68,26 @@ class SettingsViewModelTest {
 
         viewModel.onToggleMode()
         assertEquals(Mode.PRACTICE, viewModel.uiState.value.mode)
+    }
+
+    @Test
+    fun toggleModeIsPersistedEvenWhenTheScreenIsLeftImmediately() = runTest {
+        val viewModel = createSettingsViewModel(settingsRepository)
+
+        viewModel.viewModelScope.cancel()
+        viewModel.onToggleMode()
+
+        assertEquals(Mode.PRODUCTION, settingsRepository.runningMode.first())
+    }
+
+    @Test
+    fun serverAddressIsPersistedEvenWhenTheScreenIsLeftImmediately() = runTest {
+        val viewModel = createSettingsViewModel(settingsRepository)
+
+        viewModel.viewModelScope.cancel()
+        viewModel.onServerAddressChange("http://192.168.1.20:8080")
+
+        assertEquals("http://192.168.1.20:8080", settingsRepository.serverAddress.first())
     }
 
     @Test

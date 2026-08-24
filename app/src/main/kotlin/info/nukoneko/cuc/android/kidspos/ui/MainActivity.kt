@@ -24,9 +24,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
-        val splashStartTime = SystemClock.elapsedRealtime()
-        splashScreen.setKeepOnScreenCondition {
-            SystemClock.elapsedRealtime() - splashStartTime < SPLASH_DURATION_MS
+        // Activity 再生成時はシステムのスプラッシュが描画されないため、描画を止めると
+        // 白い window background がそのまま見えてしまう。初回作成時だけ保持する
+        if (savedInstanceState == null) {
+            val splashStartTime = SystemClock.elapsedRealtime()
+            splashScreen.setKeepOnScreenCondition {
+                SystemClock.elapsedRealtime() - splashStartTime < SPLASH_DURATION_MS
+            }
         }
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
