@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
+import info.nukoneko.cuc.android.kidspos.api.DangerZoneRateLimitedException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.entity.DangerZoneVerification
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkDownloader
@@ -321,6 +322,45 @@ class SettingsViewModelTest {
 
         assertEquals(
             DangerZoneStatus.Locked(DangerZoneError.Unreachable),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+    }
+
+    @Test
+    fun rateLimitedVerifyKeepsDangerZoneLockedWithRetryAfter() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = { throw DangerZoneRateLimitedException(45) }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("wrong")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Locked(DangerZoneError.RateLimited(45)),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+        assertEquals("wrong", viewModel.uiState.value.dangerZonePassword)
+    }
+
+    @Test
+    fun rateLimitedVerifyWithoutRetryAfterKeepsDangerZoneLocked() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = { throw DangerZoneRateLimitedException(null) }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("wrong")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Locked(DangerZoneError.RateLimited(null)),
             viewModel.uiState.value.dangerZoneStatus
         )
     }

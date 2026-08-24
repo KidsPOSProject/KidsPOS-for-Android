@@ -20,6 +20,11 @@ class OpenApiDangerZoneService(
         val response = dangerZoneApi.verifyDangerZonePassword(
             VerifyDangerZonePasswordRequest(password = password)
         )
+        if (response.code() == HTTP_TOO_MANY_REQUESTS) {
+            throw DangerZoneRateLimitedException(
+                response.headers()[RETRY_AFTER_HEADER]?.trim()?.toLongOrNull()
+            )
+        }
         if (!response.isSuccessful) {
             throw Exception("Failed to verify danger zone password: ${response.code()}")
         }
@@ -29,5 +34,10 @@ class OpenApiDangerZoneService(
             configured = body.configured,
             message = body.message
         )
+    }
+
+    private companion object {
+        const val HTTP_TOO_MANY_REQUESTS = 429
+        const val RETRY_AFTER_HEADER = "Retry-After"
     }
 }

@@ -186,6 +186,18 @@ private fun DangerZoneSection(
                     Text(error.message)
                 }
 
+                is DangerZoneError.RateLimited -> {
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    val seconds = error.retryAfterSeconds
+                    Text(
+                        if (seconds != null) {
+                            stringResource(R.string.danger_zone_rate_limited, seconds)
+                        } else {
+                            stringResource(R.string.danger_zone_rate_limited_unknown)
+                        }
+                    )
+                }
+
                 is DangerZoneError.Unreachable -> {
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(stringResource(R.string.danger_zone_verify_failed))
