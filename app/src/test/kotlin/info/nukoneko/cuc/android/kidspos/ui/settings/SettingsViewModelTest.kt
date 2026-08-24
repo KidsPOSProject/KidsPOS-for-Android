@@ -1,9 +1,11 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
+import info.nukoneko.cuc.android.kidspos.entity.DangerZoneVerification
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkDownloader
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeDangerZoneService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
@@ -223,6 +225,161 @@ class SettingsViewModelTest {
         )
 
         assertEquals(UpdateStatus.Idle, secondViewModel.uiState.value.updateStatus)
+    }
+
+    @Test
+    fun unconfiguredPasswordLeavesDangerZoneUnlocked() = runTest {
+        val viewModel = createSettingsViewModel(settingsRepository)
+
+        assertEquals(
+            DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+    }
+
+    @Test
+    fun configuredPasswordLocksDangerZone() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        assertEquals(DangerZoneStatus.Locked(), viewModel.uiState.value.dangerZoneStatus)
+    }
+
+    @Test
+    fun statusFailureLeavesDangerZoneUnlocked() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { throw Exception("boom") }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        assertEquals(
+            DangerZoneStatus.Unlocked(DangerZoneReason.STATUS_UNAVAILABLE),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+    }
+
+    @Test
+    fun correctPasswordUnlocksDangerZone() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = {
+            DangerZoneVerification(valid = true, configured = true, message = "OK")
+        }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("secret")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Unlocked(DangerZoneReason.VERIFIED),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+        assertEquals(listOf("secret"), dangerZoneService.verifiedPasswords)
+        assertEquals("", viewModel.uiState.value.dangerZonePassword)
+    }
+
+    @Test
+    fun wrongPasswordKeepsDangerZoneLockedWithMessage() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("wrong")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Locked(DangerZoneError.Rejected("パスワードが違います")),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+        assertEquals("wrong", viewModel.uiState.value.dangerZonePassword)
+    }
+
+    @Test
+    fun verifyFailureKeepsDangerZoneLocked() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = { throw Exception("boom") }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("secret")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Locked(DangerZoneError.Unreachable),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+    }
+
+    @Test
+    fun passwordClearedOnServerUnlocksDangerZone() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = {
+            DangerZoneVerification(valid = false, configured = false, message = "未設定です")
+        }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("secret")
+        viewModel.onUnlockDangerZone()
+
+        assertEquals(
+            DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED),
+            viewModel.uiState.value.dangerZoneStatus
+        )
+    }
+
+    @Test
+    fun emptyPasswordDoesNotCallServer() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onUnlockDangerZone()
+
+        assertTrue(dangerZoneService.verifiedPasswords.isEmpty())
+        assertEquals(DangerZoneStatus.Locked(), viewModel.uiState.value.dangerZoneStatus)
+    }
+
+    @Test
+    fun lockDangerZoneRechecksServerStatus() = runTest {
+        val dangerZoneService = FakeDangerZoneService()
+        dangerZoneService.isPasswordConfiguredHandler = { true }
+        dangerZoneService.verifyPasswordHandler = {
+            DangerZoneVerification(valid = true, configured = true, message = "OK")
+        }
+        val viewModel = createSettingsViewModel(
+            settingsRepository,
+            dangerZoneService = dangerZoneService
+        )
+
+        viewModel.onDangerZonePasswordChange("secret")
+        viewModel.onUnlockDangerZone()
+        assertTrue(viewModel.uiState.value.dangerZoneUnlocked)
+
+        viewModel.onLockDangerZone()
+
+        assertEquals(DangerZoneStatus.Locked(), viewModel.uiState.value.dangerZoneStatus)
     }
 
     @Test

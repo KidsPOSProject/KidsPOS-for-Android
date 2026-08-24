@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
+import info.nukoneko.cuc.android.kidspos.data.repository.DangerZoneRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.SaleRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.ServerStatusRepository
@@ -47,10 +48,12 @@ fun createSettingsViewModel(
     apkDownloader: FakeApkDownloader = FakeApkDownloader(),
     apkInstaller: FakeApkInstaller = FakeApkInstaller(),
     apkInstallResultBus: ApkInstallResultBus = ApkInstallResultBus(),
+    dangerZoneService: FakeDangerZoneService = FakeDangerZoneService(),
     dispatcher: CoroutineDispatcher = Dispatchers.Unconfined
 ): SettingsViewModel = SettingsViewModel(
     settingsRepository,
     AppUpdateRepository(appUpdateService, apkDownloader, dispatcher),
+    DangerZoneRepository(dangerZoneService, dispatcher),
     apkInstaller,
     apkInstallResultBus
 )

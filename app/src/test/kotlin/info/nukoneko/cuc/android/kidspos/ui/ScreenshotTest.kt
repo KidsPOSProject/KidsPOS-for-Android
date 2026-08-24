@@ -16,6 +16,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeDangerZoneService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
@@ -269,6 +270,21 @@ class ScreenshotTest {
         runBlocking { settingsRepository.setServerAddress("http://192.168.1.10:8080") }
         setSettingsContent(createSettingsViewModel(settingsRepository))
         captureScreenRoboImage("screenshots/settings_screen.png")
+    }
+
+    @Test
+    fun settingsScreenDangerZoneLocked() {
+        runBlocking { settingsRepository.setServerAddress("http://192.168.1.10:8080") }
+        val dangerZoneService = FakeDangerZoneService().apply {
+            isPasswordConfiguredHandler = { true }
+        }
+        setSettingsContent(
+            createSettingsViewModel(
+                settingsRepository,
+                dangerZoneService = dangerZoneService
+            )
+        )
+        captureScreenRoboImage("screenshots/settings_screen_danger_zone_locked.png")
     }
 
     @Test

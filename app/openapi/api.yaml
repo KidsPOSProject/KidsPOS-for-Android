@@ -26,6 +26,8 @@ tags:
     description: サーバーステータス
   - name: Apk
     description: Androidアプリ配信
+  - name: DangerZone
+    description: 危険操作の保護
 
 paths:
   # Status
@@ -700,6 +702,49 @@ paths:
                   message:
                     type: string
 
+  # DangerZone
+  /api/setting/danger-zone/status:
+    get:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード設定状態取得
+      description: 危険操作を保護するパスワードが設定済みかを取得する
+      operationId: getDangerZoneStatus
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneStatusResponse'
+
+  /api/setting/danger-zone/verify:
+    post:
+      tags:
+        - DangerZone
+      summary: Danger Zone パスワード照合
+      description: 入力されたパスワードが設定済みパスワードと一致するかを判定する。不一致でも200を返し、validフラグで判定する
+      operationId: verifyDangerZonePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyDangerZonePasswordRequest'
+      responses:
+        '200':
+          description: 照合結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DangerZoneVerifyResponse'
+        '400':
+          description: パスワードが空
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   # APK
   /api/apk/version/latest:
     get:
@@ -1241,6 +1286,43 @@ components:
           $ref: '#/components/schemas/ApkVersionResponse'
       required:
         - hasUpdate
+
+    DangerZoneStatusResponse:
+      type: object
+      properties:
+        configured:
+          type: boolean
+          description: パスワードが設定済みか
+      required:
+        - configured
+
+    VerifyDangerZonePasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: 照合するパスワード
+          example: "kidspos1234"
+      required:
+        - password
+
+    DangerZoneVerifyResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: パスワードが一致したか
+        configured:
+          type: boolean
+          description: サーバーにパスワードが設定済みか
+        message:
+          type: string
+          description: 結果メッセージ
+          example: "認証しました"
+      required:
+        - valid
+        - configured
+        - message
 
     ErrorResponse:
       type: object

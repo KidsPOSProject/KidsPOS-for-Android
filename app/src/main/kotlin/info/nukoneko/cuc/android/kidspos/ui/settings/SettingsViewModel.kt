@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.nukoneko.cuc.android.kidspos.BuildConfig
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
+import info.nukoneko.cuc.android.kidspos.data.repository.DangerZoneRepository
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.update.ApkInstallResult
@@ -36,18 +37,41 @@ sealed interface UpdateStatus {
     data class Failed(val cause: UpdateFailure) : UpdateStatus
 }
 
+enum class DangerZoneReason {
+    NOT_CONFIGURED,
+    STATUS_UNAVAILABLE,
+    VERIFIED
+}
+
+sealed interface DangerZoneStatus {
+    data object Checking : DangerZoneStatus
+    data class Locked(val error: DangerZoneError? = null) : DangerZoneStatus
+    data class Unlocked(val reason: DangerZoneReason) : DangerZoneStatus
+}
+
+sealed interface DangerZoneError {
+    data class Rejected(val message: String) : DangerZoneError
+    data object Unreachable : DangerZoneError
+}
+
 data class SettingsUiState(
     val serverAddress: String = "",
     val mode: Mode = Mode.PRACTICE,
     val currentVersionName: String = BuildConfig.VERSION_NAME,
     val currentVersionCode: Int = BuildConfig.VERSION_CODE,
-    val updateStatus: UpdateStatus = UpdateStatus.Idle
-)
+    val updateStatus: UpdateStatus = UpdateStatus.Idle,
+    val dangerZoneStatus: DangerZoneStatus = DangerZoneStatus.Checking,
+    val dangerZonePassword: String = "",
+    val dangerZoneVerifying: Boolean = false
+) {
+    val dangerZoneUnlocked: Boolean get() = dangerZoneStatus is DangerZoneStatus.Unlocked
+}
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val appUpdateRepository: AppUpdateRepository,
+    private val dangerZoneRepository: DangerZoneRepository,
     private val apkInstaller: ApkInstaller,
     apkInstallResultBus: ApkInstallResultBus
 ) : ViewModel() {
@@ -77,6 +101,66 @@ class SettingsViewModel @Inject constructor(
                 apkInstallResultBus.clear()
             }
         }
+        checkDangerZoneStatus()
+    }
+
+    private fun checkDangerZoneStatus() {
+        viewModelScope.launch {
+            val status = try {
+                if (dangerZoneRepository.isPasswordConfigured()) {
+                    DangerZoneStatus.Locked()
+                } else {
+                    DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED)
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to get danger zone status")
+                DangerZoneStatus.Unlocked(DangerZoneReason.STATUS_UNAVAILABLE)
+            }
+            _uiState.update { it.copy(dangerZoneStatus = status) }
+        }
+    }
+
+    fun onDangerZonePasswordChange(value: String) {
+        _uiState.update {
+            it.copy(dangerZonePassword = value, dangerZoneStatus = DangerZoneStatus.Locked())
+        }
+    }
+
+    fun onUnlockDangerZone() {
+        val password = _uiState.value.dangerZonePassword
+        if (password.isEmpty() || _uiState.value.dangerZoneVerifying) return
+        _uiState.update { it.copy(dangerZoneVerifying = true) }
+        viewModelScope.launch {
+            val status = try {
+                val result = dangerZoneRepository.verifyPassword(password)
+                when {
+                    result.valid -> DangerZoneStatus.Unlocked(DangerZoneReason.VERIFIED)
+                    !result.configured -> DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED)
+                    else -> DangerZoneStatus.Locked(DangerZoneError.Rejected(result.message))
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to verify danger zone password")
+                DangerZoneStatus.Locked(DangerZoneError.Unreachable)
+            }
+            _uiState.update {
+                it.copy(
+                    dangerZoneStatus = status,
+                    dangerZoneVerifying = false,
+                    dangerZonePassword = if (status is DangerZoneStatus.Unlocked) {
+                        ""
+                    } else {
+                        it.dangerZonePassword
+                    }
+                )
+            }
+        }
+    }
+
+    fun onLockDangerZone() {
+        _uiState.update {
+            it.copy(dangerZoneStatus = DangerZoneStatus.Checking, dangerZonePassword = "")
+        }
+        checkDangerZoneStatus()
     }
 
     fun onServerAddressChange(value: String) {
