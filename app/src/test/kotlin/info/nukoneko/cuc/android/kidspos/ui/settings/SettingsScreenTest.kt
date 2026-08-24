@@ -72,7 +72,7 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText(
             context.getString(R.string.switch_mode_format, Mode.PRODUCTION.modeName)
-        ).performClick()
+        ).performScrollTo().performClick()
         composeRule.waitForIdle()
 
         assertEquals(Mode.PRODUCTION, viewModel.uiState.value.mode)
@@ -125,6 +125,7 @@ class SettingsScreenTest {
         }
 
         composeRule.onNodeWithText(context.getString(R.string.danger_zone_unlock))
+            .performScrollTo()
             .assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.load_setting)).assertDoesNotExist()
         composeRule.onNodeWithText(context.getString(R.string.check_update)).assertDoesNotExist()
