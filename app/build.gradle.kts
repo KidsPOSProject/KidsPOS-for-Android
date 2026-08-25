@@ -25,6 +25,11 @@ val keystoreProperties = Properties().apply {
     }
 }
 
+// リリースの版番は buildApk ワークフローが最新リリースタグから採番して
+// -PkidsposVersionName / -PkidsposVersionCode で渡す。下の既定値はローカルビルド専用
+val kidsposVersionName = providers.gradleProperty("kidsposVersionName").getOrElse("1.0.12")
+val kidsposVersionCode = providers.gradleProperty("kidsposVersionCode").getOrElse("13").toInt()
+
 android {
     namespace = "info.nukoneko.cuc.android.kidspos"
 
@@ -34,8 +39,8 @@ android {
         applicationId = "info.nukoneko.cuc.android.kidspos"
         minSdk = 23
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.0.12"
+        versionCode = kidsposVersionCode
+        versionName = kidsposVersionName
         testApplicationId = "info.nukoneko.cuc.android.kidspos.test"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += "ja"

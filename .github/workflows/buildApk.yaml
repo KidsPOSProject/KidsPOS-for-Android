@@ -1,7 +1,27 @@
 name: Build Apk
 
+# main が更新されるたびに APK をビルドし、GitHub Release として公開する。
+# 版番は最新リリースタグから自動採番するため、build.gradle.kts の手編集は不要。
+
 on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'リリースする versionName（空なら最新リリースの patch を +1 して自動採番）'
+        required: false
+        type: string
+
+# 連続した push で同じ版番を二重に採番しないよう、途中で打ち切らず順番に流す
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
 
 jobs:
   deploy-stg:
@@ -20,6 +40,23 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
+      - name: Resolve release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          set -euo pipefail
+          if ! RESOLVED=$(scripts/resolve-release-version.sh "${INPUT_VERSION_NAME}"); then
+            echo "::error::リリース版番を決定できませんでした"
+            exit 1
+          fi
+          read -r VERSION_NAME VERSION_CODE <<< "$RESOLVED"
+          {
+            echo "version_name=${VERSION_NAME}"
+            echo "version_code=${VERSION_CODE}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::リリース版番: ${VERSION_NAME} (versionCode ${VERSION_CODE})"
       - name: Set KeyStore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -33,17 +70,18 @@ jobs:
             echo "::warning::KEYSTORE_BASE64 を base64 として解釈できないため、同梱の開発用キーストアで署名します"
           fi
       - name: Build APK
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
         run: |
-          ./gradlew clean assembleProdRelease
+          ./gradlew clean assembleProdRelease \
+            "-PkidsposVersionName=${VERSION_NAME}" \
+            "-PkidsposVersionCode=${VERSION_CODE}"
       - name: Prepare release asset
         id: release_asset
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
         run: |
-          VERSION_NAME=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
-          VERSION_CODE=$(grep -oP 'versionCode = \K[0-9]+' app/build.gradle.kts)
-          if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
-            echo "::error::app/build.gradle.kts から versionName / versionCode を取得できませんでした"
-            exit 1
-          fi
           APK_PATH="app/build/outputs/apk/prod/release/app-prod-release.apk"
           if [ ! -f "$APK_PATH" ]; then
             echo "::error::APK が見つかりません: ${APK_PATH}"
@@ -52,25 +90,21 @@ jobs:
           ASSET_PATH="build/release/kidspos-v${VERSION_NAME}.apk"
           mkdir -p "$(dirname "$ASSET_PATH")"
           cp "$APK_PATH" "$ASSET_PATH"
-          {
-            echo "version_name=${VERSION_NAME}"
-            echo "version_code=${VERSION_CODE}"
-            echo "asset_path=${ASSET_PATH}"
-          } >> "$GITHUB_OUTPUT"
+          echo "asset_path=${ASSET_PATH}" >> "$GITHUB_OUTPUT"
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: v${{ steps.release_asset.outputs.version_name }}
-          VERSION_NAME: ${{ steps.release_asset.outputs.version_name }}
-          VERSION_CODE: ${{ steps.release_asset.outputs.version_code }}
+          TAG: v${{ steps.version.outputs.version_name }}
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
           ASSET_PATH: ${{ steps.release_asset.outputs.asset_path }}
         run: |
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" "$ASSET_PATH" --clobber
             echo "::notice::既存リリース ${TAG} のアセットを差し替えました"
           else
-            NOTES=$(printf 'KidsPOS Android アプリ\n\n- versionName: %s\n- versionCode: %s\n\nサーバーの APK 管理画面 (/apk) にこの APK をアップロードすると、端末は /api/apk/download/latest から取得できます。\n' "$VERSION_NAME" "$VERSION_CODE")
-            gh release create "$TAG" "$ASSET_PATH" --title "$TAG" --notes "$NOTES"
+            NOTES=$(printf 'KidsPOS Android アプリ\n\n- versionName: %s\n- versionCode: %s\n- 生成元コミット: %s\n\nサーバーの APK 管理画面 (/apk) にこの APK をアップロードすると、端末は /api/apk/download/latest から取得できます。\n' "$VERSION_NAME" "$VERSION_CODE" "$GITHUB_SHA")
+            gh release create "$TAG" "$ASSET_PATH" --title "$TAG" --notes "$NOTES" --target "$GITHUB_SHA"
             echo "::notice::リリース ${TAG} を作成しました"
           fi
       - name: Deploy Firebase App Distribution
