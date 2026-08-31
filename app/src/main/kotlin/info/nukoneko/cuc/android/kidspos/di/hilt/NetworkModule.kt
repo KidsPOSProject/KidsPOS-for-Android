@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import info.nukoneko.cuc.android.kidspos.api.ClientTimeInterceptor
 import info.nukoneko.cuc.android.kidspos.api.ServerSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -36,9 +37,17 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: ServerSelectionInterceptor): OkHttpClient =
+    fun provideClientTimeInterceptor(): ClientTimeInterceptor = ClientTimeInterceptor()
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        serverSelectionInterceptor: ServerSelectionInterceptor,
+        clientTimeInterceptor: ClientTimeInterceptor
+    ): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(interceptor)
+            .addInterceptor(serverSelectionInterceptor)
+            .addInterceptor(clientTimeInterceptor)
             .build()
 
     @OptIn(ExperimentalSerializationApi::class)
