@@ -1,6 +1,9 @@
 package info.nukoneko.cuc.android.kidspos.api
 
 import info.nukoneko.cuc.android.kidspos.api.generated.DangerZoneApi
+import info.nukoneko.cuc.android.kidspos.api.generated.model.ChangeDangerZonePasswordRequest
+import info.nukoneko.cuc.android.kidspos.api.generated.model.ClearDangerZonePasswordRequest
+import info.nukoneko.cuc.android.kidspos.api.generated.model.DangerZonePasswordResponse
 import info.nukoneko.cuc.android.kidspos.api.generated.model.DangerZoneStatusResponse
 import info.nukoneko.cuc.android.kidspos.api.generated.model.DangerZoneVerifyResponse
 import info.nukoneko.cuc.android.kidspos.api.generated.model.VerifyDangerZonePasswordRequest
@@ -26,6 +29,28 @@ class OpenApiDangerZoneServiceTest {
         override suspend fun verifyDangerZonePassword(
             verifyDangerZonePasswordRequest: VerifyDangerZonePasswordRequest
         ): Response<DangerZoneVerifyResponse> = verifyResponse
+
+        override suspend fun changeDangerZonePassword(
+            changeDangerZonePasswordRequest: ChangeDangerZonePasswordRequest
+        ): Response<DangerZonePasswordResponse> =
+            Response.success(
+                DangerZonePasswordResponse(
+                    success = true,
+                    message = "パスワードを保存しました",
+                    configured = true
+                )
+            )
+
+        override suspend fun clearDangerZonePassword(
+            clearDangerZonePasswordRequest: ClearDangerZonePasswordRequest
+        ): Response<DangerZonePasswordResponse> =
+            Response.success(
+                DangerZonePasswordResponse(
+                    success = true,
+                    message = "パスワードを解除しました",
+                    configured = false
+                )
+            )
     }
 
     private fun tooManyRequests(retryAfter: String?): Response<DangerZoneVerifyResponse> {
