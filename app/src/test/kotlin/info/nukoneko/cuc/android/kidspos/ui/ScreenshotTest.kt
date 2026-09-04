@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import info.nukoneko.cuc.android.kidspos.R
@@ -16,7 +17,6 @@ import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
-import info.nukoneko.cuc.android.kidspos.testutil.FakeDangerZoneService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
@@ -44,6 +44,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35], qualifiers = RobolectricDeviceQualifiers.MediumTablet)
+@OptIn(ExperimentalRoborazziApi::class)
 class ScreenshotTest {
     private val mainDispatcherRule = MainDispatcherRule()
     private val composeRule = createComposeRule()
@@ -270,21 +271,6 @@ class ScreenshotTest {
         runBlocking { settingsRepository.setServerAddress("http://192.168.1.10:8080") }
         setSettingsContent(createSettingsViewModel(settingsRepository))
         captureScreenRoboImage("screenshots/settings_screen.png")
-    }
-
-    @Test
-    fun settingsScreenDangerZoneLocked() {
-        runBlocking { settingsRepository.setServerAddress("http://192.168.1.10:8080") }
-        val dangerZoneService = FakeDangerZoneService().apply {
-            isPasswordConfiguredHandler = { true }
-        }
-        setSettingsContent(
-            createSettingsViewModel(
-                settingsRepository,
-                dangerZoneService = dangerZoneService
-            )
-        )
-        captureScreenRoboImage("screenshots/settings_screen_danger_zone_locked.png")
     }
 
     @Test

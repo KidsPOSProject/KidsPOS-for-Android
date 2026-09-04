@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.nukoneko.cuc.android.kidspos.BuildConfig
-import info.nukoneko.cuc.android.kidspos.api.DangerZoneRateLimitedException
-import info.nukoneko.cuc.android.kidspos.data.repository.DangerZoneRepository
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
 import info.nukoneko.cuc.android.kidspos.update.AppUpdateManager
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
@@ -16,44 +14,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
-
-enum class DangerZoneReason {
-    NOT_CONFIGURED,
-    STATUS_UNAVAILABLE,
-    VERIFIED
-}
-
-sealed interface DangerZoneStatus {
-    data object Checking : DangerZoneStatus
-    data class Locked(val error: DangerZoneError? = null) : DangerZoneStatus
-    data class Unlocked(val reason: DangerZoneReason) : DangerZoneStatus
-}
-
-sealed interface DangerZoneError {
-    data class Rejected(val message: String) : DangerZoneError
-    data class RateLimited(val retryAfterSeconds: Long?) : DangerZoneError
-    data object Unreachable : DangerZoneError
-}
 
 data class SettingsUiState(
     val serverAddress: String = "",
     val mode: Mode = Mode.PRACTICE,
     val currentVersionName: String = BuildConfig.VERSION_NAME,
     val currentVersionCode: Int = BuildConfig.VERSION_CODE,
-    val updateStatus: UpdateStatus = UpdateStatus.Idle,
-    val dangerZoneStatus: DangerZoneStatus = DangerZoneStatus.Checking,
-    val dangerZonePassword: String = "",
-    val dangerZoneVerifying: Boolean = false
-) {
-    val dangerZoneUnlocked: Boolean get() = dangerZoneStatus is DangerZoneStatus.Unlocked
-}
+    val updateStatus: UpdateStatus = UpdateStatus.Idle
+)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val dangerZoneRepository: DangerZoneRepository,
     private val appUpdateManager: AppUpdateManager,
     private val applicationScope: CoroutineScope
 ) : ViewModel() {
@@ -79,69 +52,6 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(updateStatus = status) }
             }
         }
-        checkDangerZoneStatus()
-    }
-
-    private fun checkDangerZoneStatus() {
-        viewModelScope.launch {
-            val status = try {
-                if (dangerZoneRepository.isPasswordConfigured()) {
-                    DangerZoneStatus.Locked()
-                } else {
-                    DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED)
-                }
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to get danger zone status")
-                DangerZoneStatus.Unlocked(DangerZoneReason.STATUS_UNAVAILABLE)
-            }
-            _uiState.update { it.copy(dangerZoneStatus = status) }
-        }
-    }
-
-    fun onDangerZonePasswordChange(value: String) {
-        _uiState.update {
-            it.copy(dangerZonePassword = value, dangerZoneStatus = DangerZoneStatus.Locked())
-        }
-    }
-
-    fun onUnlockDangerZone() {
-        val password = _uiState.value.dangerZonePassword
-        if (password.isEmpty() || _uiState.value.dangerZoneVerifying) return
-        _uiState.update { it.copy(dangerZoneVerifying = true) }
-        viewModelScope.launch {
-            val status = try {
-                val result = dangerZoneRepository.verifyPassword(password)
-                when {
-                    result.valid -> DangerZoneStatus.Unlocked(DangerZoneReason.VERIFIED)
-                    !result.configured -> DangerZoneStatus.Unlocked(DangerZoneReason.NOT_CONFIGURED)
-                    else -> DangerZoneStatus.Locked(DangerZoneError.Rejected(result.message))
-                }
-            } catch (e: DangerZoneRateLimitedException) {
-                Timber.w(e, "Danger zone verification is rate limited")
-                DangerZoneStatus.Locked(DangerZoneError.RateLimited(e.retryAfterSeconds))
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to verify danger zone password")
-                DangerZoneStatus.Locked(DangerZoneError.Unreachable)
-            }
-            _uiState.update {
-                it.copy(
-                    dangerZoneStatus = status,
-                    dangerZoneVerifying = false,
-                    dangerZonePassword = if (status is DangerZoneStatus.Unlocked) {
-                        ""
-                    } else {
-                        it.dangerZonePassword
-                    }
-                )
-            }
-        }
-    }
-
-    fun onLockDangerZone() {
-        _uiState.update {
-            it.copy(dangerZoneStatus = DangerZoneStatus.Checking, dangerZonePassword = "")
-        }
-        checkDangerZoneStatus()
     }
 
     // 書き込み直後に画面を離れると viewModelScope が閉じて保存が取り消されるため、

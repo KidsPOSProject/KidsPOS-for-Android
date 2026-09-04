@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.update
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,6 +22,7 @@ class ApkInstallResultBus @Inject constructor() {
         _results.tryEmit(result)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun clear() {
         _results.resetReplayCache()
     }

@@ -6,42 +6,50 @@ import android.os.Build
 import android.provider.Settings
 import android.webkit.URLUtil
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.update.UpdateFailure
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,60 +82,30 @@ fun SettingsScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Text(stringResource(R.string.current_connetion_target))
-            OutlinedTextField(
-                value = state.serverAddress,
-                onValueChange = viewModel::onServerAddressChange,
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
+            ConnectionCard(
+                serverAddress = state.serverAddress,
+                onLoadSetting = { scanLauncher.launch(ScanOptions()) },
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.padding(16.dp))
-            Text(stringResource(R.string.current_mode_format, state.mode.modeName))
-            Spacer(modifier = Modifier.padding(16.dp))
-            Text(
-                stringResource(
-                    R.string.current_version_format,
-                    state.currentVersionName,
-                    state.currentVersionCode
-                )
+            ModeCard(
+                currentMode = state.mode,
+                onToggleMode = viewModel::onToggleMode,
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.padding(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.padding(16.dp))
-            DangerZoneSection(
+            AppUpdateCard(
                 state = state,
-                onPasswordChange = viewModel::onDangerZonePasswordChange,
-                onUnlock = viewModel::onUnlockDangerZone,
-                onLock = viewModel::onLockDangerZone
+                onCheckUpdate = viewModel::onCheckUpdate,
+                modifier = Modifier.weight(1f)
             )
-            if (state.dangerZoneUnlocked) {
-                Spacer(modifier = Modifier.padding(16.dp))
-                Button(
-                    onClick = { scanLauncher.launch(ScanOptions()) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.load_setting))
-                }
-                Spacer(modifier = Modifier.padding(8.dp))
-                Button(
-                    onClick = viewModel::onToggleMode,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.switch_mode_format, state.mode.toggle().modeName))
-                }
-                Spacer(modifier = Modifier.padding(16.dp))
-                AppUpdateSection(
-                    state = state,
-                    onCheckUpdate = viewModel::onCheckUpdate
-                )
-            }
         }
     }
 
@@ -142,86 +120,95 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun DangerZoneSection(
-    state: SettingsUiState,
-    onPasswordChange: (String) -> Unit,
-    onUnlock: () -> Unit,
-    onLock: () -> Unit
+private fun SettingsCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    Text(stringResource(R.string.danger_zone))
-    Spacer(modifier = Modifier.padding(4.dp))
-    Text(stringResource(R.string.danger_zone_description))
-
-    when (val status = state.dangerZoneStatus) {
-        is DangerZoneStatus.Checking -> {
-            Spacer(modifier = Modifier.padding(8.dp))
-            Text(stringResource(R.string.danger_zone_checking))
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+            content()
         }
+    }
+}
 
-        is DangerZoneStatus.Locked -> {
-            Spacer(modifier = Modifier.padding(8.dp))
-            OutlinedTextField(
-                value = state.dangerZonePassword,
-                onValueChange = onPasswordChange,
-                label = { Text(stringResource(R.string.danger_zone_password)) },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.padding(4.dp))
-            Button(
-                onClick = onUnlock,
-                enabled = state.dangerZonePassword.isNotEmpty() && !state.dangerZoneVerifying,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.danger_zone_unlock))
-            }
-            if (state.dangerZoneVerifying) {
-                Spacer(modifier = Modifier.padding(4.dp))
-                Text(stringResource(R.string.danger_zone_unlocking))
-            }
-            when (val error = status.error) {
-                null -> Unit
-                is DangerZoneError.Rejected -> {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(error.message)
-                }
+@Composable
+private fun ActionButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.heightIn(min = 56.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Text(text = text, style = MaterialTheme.typography.titleMedium)
+    }
+}
 
-                is DangerZoneError.RateLimited -> {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    val seconds = error.retryAfterSeconds
-                    Text(
-                        if (seconds != null) {
-                            stringResource(R.string.danger_zone_rate_limited, seconds)
-                        } else {
-                            stringResource(R.string.danger_zone_rate_limited_unknown)
-                        }
-                    )
-                }
+@Composable
+private fun ConnectionCard(
+    serverAddress: String,
+    onLoadSetting: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.current_connetion_target),
+        modifier = modifier
+    ) {
+        Text(text = serverAddress, style = MaterialTheme.typography.bodyLarge)
+        ActionButton(text = stringResource(R.string.load_setting), onClick = onLoadSetting)
+    }
+}
 
-                is DangerZoneError.Unreachable -> {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(stringResource(R.string.danger_zone_verify_failed))
-                }
-            }
-        }
-
-        is DangerZoneStatus.Unlocked -> {
-            val message = when (status.reason) {
-                DangerZoneReason.NOT_CONFIGURED -> R.string.danger_zone_not_configured
-                DangerZoneReason.STATUS_UNAVAILABLE -> R.string.danger_zone_status_failed
-                DangerZoneReason.VERIFIED -> R.string.danger_zone_unlocked
-            }
-            Spacer(modifier = Modifier.padding(8.dp))
-            Text(stringResource(message))
-            if (status.reason == DangerZoneReason.VERIFIED) {
-                Spacer(modifier = Modifier.padding(4.dp))
-                TextButton(onClick = onLock) {
-                    Text(stringResource(R.string.danger_zone_lock))
-                }
+@Composable
+private fun ModeCard(
+    currentMode: Mode,
+    onToggleMode: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.current_mode),
+        modifier = modifier
+    ) {
+        val modes = listOf(Mode.PRACTICE, Mode.PRODUCTION)
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            modes.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = currentMode == mode,
+                    onClick = { if (currentMode != mode) onToggleMode() },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                    modifier = Modifier.heightIn(min = 56.dp),
+                    label = { Text(mode.modeName) }
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun AppUpdateCard(
+    state: SettingsUiState,
+    onCheckUpdate: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.app_update),
+        modifier = modifier
+    ) {
+        AppUpdateSection(state = state, onCheckUpdate = onCheckUpdate)
     }
 }
 
@@ -233,33 +220,34 @@ private fun AppUpdateSection(
     val context = LocalContext.current
     val status = state.updateStatus
 
-    Text(stringResource(R.string.app_update))
-    Spacer(modifier = Modifier.padding(8.dp))
-    Button(
+    Text(
+        text = stringResource(
+            R.string.current_version_format,
+            state.currentVersionName,
+            state.currentVersionCode
+        ),
+        style = MaterialTheme.typography.bodyLarge
+    )
+    ActionButton(
+        text = stringResource(R.string.check_update),
         onClick = onCheckUpdate,
         enabled = status !is UpdateStatus.Checking &&
             status !is UpdateStatus.Downloading &&
-            status !is UpdateStatus.Installing,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(stringResource(R.string.check_update))
-    }
+            status !is UpdateStatus.Installing
+    )
 
     when (status) {
         is UpdateStatus.Idle, is UpdateStatus.Available -> Unit
 
         is UpdateStatus.Checking -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.checking_update))
         }
 
         is UpdateStatus.UpToDate -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.app_is_up_to_date))
         }
 
         is UpdateStatus.Downloading -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 stringResource(
                     R.string.downloading_update_format,
@@ -274,15 +262,13 @@ private fun AppUpdateSection(
         }
 
         is UpdateStatus.Installing -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.installing_update))
         }
 
         is UpdateStatus.InstallNotPermitted -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.install_permission_required))
-            Spacer(modifier = Modifier.padding(4.dp))
-            Button(
+            ActionButton(
+                text = stringResource(R.string.open_install_permission_setting),
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startActivity(
@@ -292,15 +278,11 @@ private fun AppUpdateSection(
                             )
                         )
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.open_install_permission_setting))
-            }
+                }
+            )
         }
 
         is UpdateStatus.Failed -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 when (status.cause) {
                     UpdateFailure.CHECK -> stringResource(R.string.update_check_failed)

@@ -6,12 +6,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.api.AppUpdateService
-import info.nukoneko.cuc.android.kidspos.api.DangerZoneService
 import info.nukoneko.cuc.android.kidspos.api.OpenApiAPIService
 import info.nukoneko.cuc.android.kidspos.api.OpenApiAppUpdateService
-import info.nukoneko.cuc.android.kidspos.api.OpenApiDangerZoneService
 import info.nukoneko.cuc.android.kidspos.api.generated.ApkApi
-import info.nukoneko.cuc.android.kidspos.api.generated.DangerZoneApi
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
@@ -27,11 +24,6 @@ object ApiModule {
     @Singleton
     fun provideApkApi(retrofit: Retrofit): ApkApi =
         retrofit.create(ApkApi::class.java)
-
-    @Provides
-    @Singleton
-    fun provideDangerZoneApi(retrofit: Retrofit): DangerZoneApi =
-        retrofit.create(DangerZoneApi::class.java)
 
     @Provides
     @Singleton
@@ -71,9 +63,4 @@ object ApiModule {
     @Singleton
     fun provideAppUpdateService(apkApi: ApkApi): AppUpdateService =
         OpenApiAppUpdateService(apkApi)
-
-    @Provides
-    @Singleton
-    fun provideDangerZoneService(dangerZoneApi: DangerZoneApi): DangerZoneService =
-        OpenApiDangerZoneService(dangerZoneApi)
 }

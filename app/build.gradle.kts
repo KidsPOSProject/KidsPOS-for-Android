@@ -120,6 +120,8 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
+        optIn.add("kotlinx.serialization.ExperimentalSerializationApi")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
 
@@ -131,6 +133,7 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
@@ -187,7 +190,6 @@ openApiGenerate {
     outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.absolutePath)
     apiPackage.set("info.nukoneko.cuc.android.kidspos.api.generated")
     modelPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.model")
-    invokerPackage.set("info.nukoneko.cuc.android.kidspos.api.generated.invoker")
     configOptions.set(
         mapOf(
             "library" to "jvm-retrofit2",
