@@ -85,10 +85,9 @@ class RealServerSaleFlowE2eTest {
     @Test
     fun barcodeDepositAndAccountFlowPersistsSaleOnServer() {
         val unique = System.currentTimeMillis()
-        val storeId = (unique % 700_000).toInt() + 100_000
-        val storeName = "E2Eストア$storeId"
+        val storeName = "E2Eストア$unique"
         val barcode = itemBarcode(unique)
-        seedStore(storeId, storeName)
+        val storeId = seedStore(storeName)
         seedItem(barcode, "E2E商品", 300)
 
         runBlocking {
@@ -126,9 +125,8 @@ class RealServerSaleFlowE2eTest {
     @Test
     fun changeStoreFetchesSeededStoreFromServer() {
         val unique = System.currentTimeMillis()
-        val storeId = (unique % 700_000).toInt() + 900_000
-        val storeName = "E2E店舗一覧$storeId"
-        seedStore(storeId, storeName)
+        val storeName = "E2E店舗一覧$unique"
+        val storeId = seedStore(storeName)
 
         runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
         val viewModel = createViewModel()
@@ -216,8 +214,10 @@ class RealServerSaleFlowE2eTest {
         mainDispatcherRule.dispatcher
     )
 
-    private fun seedStore(id: Int, name: String) {
-        postJson("api/stores", """{"id":$id,"name":"$name","printerUri":""}""")
+    // サーバは登録時に id を採番するため、指定せずレスポンスから受け取る
+    private fun seedStore(name: String): Int {
+        val body = postJson("api/stores", """{"name":"$name","printerUri":""}""")
+        return Json.parseToJsonElement(body).jsonObject.getValue("id").jsonPrimitive.int
     }
 
     // サーバは商品バーコードを ^A(00|01|02)\d{6}A$ で検証するため、種別は BarcodeKind.ITEM に固定し
@@ -229,15 +229,17 @@ class RealServerSaleFlowE2eTest {
         postJson("api/item", """{"barcode":"$barcode","name":"$name","price":$price}""")
     }
 
-    private fun postJson(path: String, body: String) {
+    private fun postJson(path: String, body: String): String {
         val request = Request.Builder()
             .url(serverUrl + path)
             .post(body.toRequestBody("application/json".toMediaType()))
             .build()
         httpClient.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string().orEmpty()
             check(response.isSuccessful) {
-                "POST $path failed: ${response.code} ${response.body?.string()}"
+                "POST $path failed: ${response.code} $responseBody"
             }
+            return responseBody
         }
     }
 
