@@ -1,6 +1,8 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
+import android.app.Application
 import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
@@ -13,6 +15,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.api.ApiHttpException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
@@ -25,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 // Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する
@@ -152,5 +156,61 @@ class SettingsScreenTest {
         composeRule.onNodeWithText(
             context.getString(R.string.update_version_format, "9.9.9", 99)
         ).assertIsDisplayed()
+    }
+
+    @Test
+    fun updateCheckHttpErrorShowsStatusCode() {
+        val updateService = FakeAppUpdateService()
+        updateService.checkForUpdateHandler = { throw ApiHttpException(503) }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(
+                    settingsRepository,
+                    appUpdateService = updateService
+                )
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.check_update))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.update_check_failed)).assertExists()
+        composeRule.onNodeWithText(
+            context.getString(R.string.update_failure_http_format, 503)
+        ).assertExists()
+    }
+
+    @Test
+    fun openInBrowserButtonIsShown() {
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                viewModel = createSettingsViewModel(settingsRepository)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.open_in_browser))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun openInBrowserButtonStartsViewIntentForServerAddress() {
+        val viewModel = createSettingsViewModel(settingsRepository)
+        composeRule.setContent {
+            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.open_in_browser))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        val intent = shadowOf(context as Application).nextStartedActivity
+        assertEquals(Intent.ACTION_VIEW, intent.action)
+        assertEquals(viewModel.uiState.value.serverAddress, intent.dataString)
     }
 }

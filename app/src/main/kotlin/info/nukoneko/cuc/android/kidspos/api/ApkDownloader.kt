@@ -33,7 +33,7 @@ class OkHttpApkDownloader(
 
         client.newCall(Request.Builder().url(url).build()).execute().use { response ->
             if (!response.isSuccessful) {
-                throw Exception("Failed to download apk: ${response.code}")
+                throw ApiHttpException(response.code)
             }
             val body = response.body
             val total = body.contentLength().takeIf { it > 0 } ?: update.fileSize

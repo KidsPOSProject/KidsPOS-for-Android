@@ -34,6 +34,7 @@
     <string name="error">エラー</string>
     <string name="current_connetion_target">現在の接続先</string>
     <string name="load_setting">設定を読み込む</string>
+    <string name="open_in_browser">ブラウザで開く</string>
     <string name="change_mode">練習モードに切り替える</string>
     <string name="current_mode">現在のモード</string>
     <string name="store_fetch_failed">サーバーとの通信に失敗しました。\n接続を確認してください。</string>
@@ -62,6 +63,10 @@
     <string name="update_check_failed">アップデートの確認に失敗しました</string>
     <string name="update_download_failed">アップデートのダウンロードに失敗しました</string>
     <string name="update_install_failed">アップデートのインストールに失敗しました</string>
+    <string name="update_failure_http_format">サーバーが %1$d を返しました</string>
+    <string name="update_failure_timeout">通信がタイムアウトしました</string>
+    <string name="update_failure_unreachable">サーバーに接続できません</string>
+    <string name="update_failure_detail_format">詳細: %1$s</string>
     <string name="install_permission_required">アプリを更新するには、不明なアプリのインストールを許可してください</string>
     <string name="open_install_permission_setting">設定を開く</string>
 
