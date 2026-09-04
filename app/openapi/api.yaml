@@ -186,6 +186,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ItemResponse'
+        '400':
+          description: Invalid field type or barcode format
         '404':
           description: Item not found
 
@@ -833,6 +835,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateCheckResponse'
+        '400':
+          description: Missing or invalid query parameter
 
   /api/apk/version/all:
     get:
@@ -1060,6 +1064,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SaleSummaryResponse'
+        '400':
+          description: Missing or invalid query parameter
 
   /api/reports/sales/summary/today:
     get:
@@ -1115,6 +1121,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SaleSummaryResponse'
+        '400':
+          description: Missing or invalid query parameter
 
   /api/reports/sales/pdf:
     get:
@@ -1150,6 +1158,8 @@ paths:
                 format: binary
         '500':
           description: Report generation failed
+        '400':
+          description: Missing or invalid query parameter
 
   /api/reports/sales/pdf/today:
     get:
@@ -1202,6 +1212,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        '400':
+          description: Missing or invalid query parameter
 
   /api/reports/sales/excel:
     get:
@@ -1237,6 +1249,8 @@ paths:
                 format: binary
         '500':
           description: Report generation failed
+        '400':
+          description: Missing or invalid query parameter
 
   /api/reports/sales/excel/today:
     get:
@@ -1289,6 +1303,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        '400':
+          description: Missing or invalid query parameter
 
   # Logs
   /api/logs:
@@ -1653,6 +1669,7 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
         name:
           type: string
         printerUri:
