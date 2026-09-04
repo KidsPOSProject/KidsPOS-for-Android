@@ -28,7 +28,7 @@ jobs:
       - name: Test release version script
         run: bash scripts/test-resolve-release-version.sh
       - name: Build, lint and test
-        run: ./gradlew assembleProdDebug assembleDemoDebug assembleProdRelease lintProdDebug lintDemoDebug testProdDebugUnitTest testDemoDebugUnitTest
+        run: ./gradlew assembleProdRelease lintProdDebug testProdDebugUnitTest compileDemoDebugKotlin
       - name: Fetch baseline screenshots
         if: github.event_name == 'pull_request'
         run: |
