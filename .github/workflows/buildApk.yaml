@@ -39,7 +39,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
+      - uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
       - name: Resolve release version
         id: version
         env:
@@ -74,7 +74,7 @@ jobs:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}
         run: |
-          ./gradlew clean assembleProdRelease \
+          ./gradlew assembleProdRelease \
             "-PkidsposVersionName=${VERSION_NAME}" \
             "-PkidsposVersionCode=${VERSION_CODE}"
       - name: Prepare release asset
