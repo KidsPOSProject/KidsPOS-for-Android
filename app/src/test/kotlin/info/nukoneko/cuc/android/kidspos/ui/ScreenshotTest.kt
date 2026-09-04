@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import info.nukoneko.cuc.android.kidspos.R
@@ -43,6 +44,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35], qualifiers = RobolectricDeviceQualifiers.MediumTablet)
+@OptIn(ExperimentalRoborazziApi::class)
 class ScreenshotTest {
     private val mainDispatcherRule = MainDispatcherRule()
     private val composeRule = createComposeRule()
