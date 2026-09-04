@@ -1,6 +1,5 @@
 package info.nukoneko.cuc.android.kidspos.e2e
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import info.nukoneko.cuc.android.kidspos.api.APIService
 import info.nukoneko.cuc.android.kidspos.api.OpenApiAPIService
 import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
@@ -40,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.openapitools.client.infrastructure.Serializer
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @OptIn(ExperimentalSerializationApi::class)
 class RealServerSaleFlowE2eTest {
