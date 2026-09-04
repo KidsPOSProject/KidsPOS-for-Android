@@ -46,8 +46,6 @@
     <string name="title_test_mode">[テストモード]</string>
     <string name="practice_mode_no_receipt">練習モードのためレシートは出ません</string>
     <string name="network_error">通信エラーが発生しました。</string>
-    <string name="current_mode_format">現在は %s モードです</string>
-    <string name="switch_mode_format">%s に切り替える</string>
 
     <!-- App update -->
     <string name="app_update">アプリの更新</string>

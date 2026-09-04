@@ -6,27 +6,37 @@ import android.os.Build
 import android.provider.Settings
 import android.webkit.URLUtil
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,6 +49,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.update.UpdateFailure
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,50 +82,29 @@ fun SettingsScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Text(stringResource(R.string.current_connetion_target))
-            OutlinedTextField(
-                value = state.serverAddress,
-                onValueChange = viewModel::onServerAddressChange,
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth()
+            ConnectionCard(
+                serverAddress = state.serverAddress,
+                onLoadSetting = { scanLauncher.launch(ScanOptions()) },
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.padding(8.dp))
-            Button(
-                onClick = { scanLauncher.launch(ScanOptions()) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.load_setting))
-            }
-            Spacer(modifier = Modifier.padding(16.dp))
-            Text(stringResource(R.string.current_mode_format, state.mode.modeName))
-            Spacer(modifier = Modifier.padding(8.dp))
-            Button(
-                onClick = viewModel::onToggleMode,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.switch_mode_format, state.mode.toggle().modeName))
-            }
-            Spacer(modifier = Modifier.padding(16.dp))
-            Text(
-                stringResource(
-                    R.string.current_version_format,
-                    state.currentVersionName,
-                    state.currentVersionCode
-                )
+            ModeCard(
+                currentMode = state.mode,
+                onToggleMode = viewModel::onToggleMode,
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.padding(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.padding(16.dp))
-            AppUpdateSection(
+            AppUpdateCard(
                 state = state,
-                onCheckUpdate = viewModel::onCheckUpdate
+                onCheckUpdate = viewModel::onCheckUpdate,
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -130,6 +120,99 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun SettingsCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+            content()
+        }
+    }
+}
+
+@Composable
+private fun ActionButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.heightIn(min = 56.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Text(text = text, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
+private fun ConnectionCard(
+    serverAddress: String,
+    onLoadSetting: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.current_connetion_target),
+        modifier = modifier
+    ) {
+        Text(text = serverAddress, style = MaterialTheme.typography.bodyLarge)
+        ActionButton(text = stringResource(R.string.load_setting), onClick = onLoadSetting)
+    }
+}
+
+@Composable
+private fun ModeCard(
+    currentMode: Mode,
+    onToggleMode: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.current_mode),
+        modifier = modifier
+    ) {
+        val modes = listOf(Mode.PRACTICE, Mode.PRODUCTION)
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            modes.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = currentMode == mode,
+                    onClick = { if (currentMode != mode) onToggleMode() },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                    modifier = Modifier.heightIn(min = 56.dp),
+                    label = { Text(mode.modeName) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppUpdateCard(
+    state: SettingsUiState,
+    onCheckUpdate: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.app_update),
+        modifier = modifier
+    ) {
+        AppUpdateSection(state = state, onCheckUpdate = onCheckUpdate)
+    }
+}
+
+@Composable
 private fun AppUpdateSection(
     state: SettingsUiState,
     onCheckUpdate: () -> Unit
@@ -137,33 +220,34 @@ private fun AppUpdateSection(
     val context = LocalContext.current
     val status = state.updateStatus
 
-    Text(stringResource(R.string.app_update))
-    Spacer(modifier = Modifier.padding(8.dp))
-    Button(
+    Text(
+        text = stringResource(
+            R.string.current_version_format,
+            state.currentVersionName,
+            state.currentVersionCode
+        ),
+        style = MaterialTheme.typography.bodyLarge
+    )
+    ActionButton(
+        text = stringResource(R.string.check_update),
         onClick = onCheckUpdate,
         enabled = status !is UpdateStatus.Checking &&
             status !is UpdateStatus.Downloading &&
-            status !is UpdateStatus.Installing,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(stringResource(R.string.check_update))
-    }
+            status !is UpdateStatus.Installing
+    )
 
     when (status) {
         is UpdateStatus.Idle, is UpdateStatus.Available -> Unit
 
         is UpdateStatus.Checking -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.checking_update))
         }
 
         is UpdateStatus.UpToDate -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.app_is_up_to_date))
         }
 
         is UpdateStatus.Downloading -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 stringResource(
                     R.string.downloading_update_format,
@@ -178,15 +262,13 @@ private fun AppUpdateSection(
         }
 
         is UpdateStatus.Installing -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.installing_update))
         }
 
         is UpdateStatus.InstallNotPermitted -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(stringResource(R.string.install_permission_required))
-            Spacer(modifier = Modifier.padding(4.dp))
-            Button(
+            ActionButton(
+                text = stringResource(R.string.open_install_permission_setting),
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context.startActivity(
@@ -196,15 +278,11 @@ private fun AppUpdateSection(
                             )
                         )
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.open_install_permission_setting))
-            }
+                }
+            )
         }
 
         is UpdateStatus.Failed -> {
-            Spacer(modifier = Modifier.padding(8.dp))
             Text(
                 when (status.cause) {
                     UpdateFailure.CHECK -> stringResource(R.string.update_check_failed)

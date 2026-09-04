@@ -41,7 +41,7 @@ class SettingsScreenTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun currentServerAddressIsShownInTextField() {
+    fun currentServerAddressIsShown() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
@@ -61,18 +61,29 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun toggleModeButtonSwitchesToProduction() {
+    fun selectingProductionSegmentSwitchesMode() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
             SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
         }
 
-        composeRule.onNodeWithText(
-            context.getString(R.string.switch_mode_format, Mode.PRODUCTION.modeName)
-        ).performScrollTo().performClick()
+        composeRule.onNodeWithText(Mode.PRODUCTION.modeName).performScrollTo().performClick()
         composeRule.waitForIdle()
 
         assertEquals(Mode.PRODUCTION, viewModel.uiState.value.mode)
+    }
+
+    @Test
+    fun selectingCurrentModeSegmentDoesNothing() {
+        val viewModel = createSettingsViewModel(settingsRepository)
+        composeRule.setContent {
+            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+        }
+
+        composeRule.onNodeWithText(Mode.PRACTICE.modeName).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(Mode.PRACTICE, viewModel.uiState.value.mode)
     }
 
     @Test
