@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.update
 
+import info.nukoneko.cuc.android.kidspos.api.ApiHttpException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkDownloader
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
@@ -11,6 +12,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 class AppUpdateManagerTest {
     private fun appUpdate(versionCode: Int = 99) = AppUpdate(
@@ -68,7 +71,10 @@ class AppUpdateManagerTest {
 
         manager.checkForUpdate(10)
 
-        assertEquals(UpdateStatus.Failed(UpdateFailure.CHECK), manager.status.value)
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.CHECK, UpdateFailureReason.Other("Exception: boom")),
+            manager.status.value
+        )
     }
 
     @Test
@@ -156,7 +162,64 @@ class AppUpdateManagerTest {
         manager.checkForUpdate(10)
         manager.startUpdate()
 
-        assertEquals(UpdateStatus.Failed(UpdateFailure.DOWNLOAD), manager.status.value)
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.DOWNLOAD, UpdateFailureReason.Other("Exception: boom")),
+            manager.status.value
+        )
+    }
+
+    @Test
+    fun downloadHttpErrorReportsStatusCode() = runTest {
+        val downloader = FakeApkDownloader()
+        downloader.downloadHandler = { _, _ -> throw ApiHttpException(404) }
+        val manager = createAppUpdateManager(
+            appUpdateService = updateService(),
+            apkDownloader = downloader
+        )
+
+        manager.checkForUpdate(10)
+        manager.startUpdate()
+
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.DOWNLOAD, UpdateFailureReason.HttpStatus(404)),
+            manager.status.value
+        )
+    }
+
+    @Test
+    fun downloadTimeoutReportsTimeout() = runTest {
+        val downloader = FakeApkDownloader()
+        downloader.downloadHandler = { _, _ -> throw SocketTimeoutException("timeout") }
+        val manager = createAppUpdateManager(
+            appUpdateService = updateService(),
+            apkDownloader = downloader
+        )
+
+        manager.checkForUpdate(10)
+        manager.startUpdate()
+
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.DOWNLOAD, UpdateFailureReason.Timeout),
+            manager.status.value
+        )
+    }
+
+    @Test
+    fun downloadConnectionFailureReportsUnreachable() = runTest {
+        val downloader = FakeApkDownloader()
+        downloader.downloadHandler = { _, _ -> throw ConnectException("refused") }
+        val manager = createAppUpdateManager(
+            appUpdateService = updateService(),
+            apkDownloader = downloader
+        )
+
+        manager.checkForUpdate(10)
+        manager.startUpdate()
+
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.DOWNLOAD, UpdateFailureReason.Unreachable),
+            manager.status.value
+        )
     }
 
     @Test
@@ -171,7 +234,10 @@ class AppUpdateManagerTest {
         manager.checkForUpdate(10)
         manager.startUpdate()
 
-        assertEquals(UpdateStatus.Failed(UpdateFailure.INSTALL), manager.status.value)
+        assertEquals(
+            UpdateStatus.Failed(UpdateFailure.INSTALL, UpdateFailureReason.Other("Exception: boom")),
+            manager.status.value
+        )
     }
 
     @Test

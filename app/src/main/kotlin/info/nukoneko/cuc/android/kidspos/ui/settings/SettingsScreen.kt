@@ -1,5 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui.settings
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -23,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -48,8 +51,10 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.update.UpdateFailure
+import info.nukoneko.cuc.android.kidspos.update.UpdateFailureReason
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import timber.log.Timber
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +64,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
@@ -94,6 +100,7 @@ fun SettingsScreen(
             ConnectionCard(
                 serverAddress = state.serverAddress,
                 onLoadSetting = { scanLauncher.launch(ScanOptions()) },
+                onOpenInBrowser = { openInBrowser(context, state.serverAddress) },
                 modifier = Modifier.weight(1f)
             )
             ModeCard(
@@ -159,9 +166,24 @@ private fun ActionButton(
 }
 
 @Composable
+private fun SecondaryActionButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = Modifier.heightIn(min = 56.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Text(text = text, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
 private fun ConnectionCard(
     serverAddress: String,
     onLoadSetting: () -> Unit,
+    onOpenInBrowser: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SettingsCard(
@@ -169,7 +191,13 @@ private fun ConnectionCard(
         modifier = modifier
     ) {
         Text(text = serverAddress, style = MaterialTheme.typography.bodyLarge)
-        ActionButton(text = stringResource(R.string.load_setting), onClick = onLoadSetting)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ActionButton(text = stringResource(R.string.load_setting), onClick = onLoadSetting)
+            SecondaryActionButton(
+                text = stringResource(R.string.open_in_browser),
+                onClick = onOpenInBrowser
+            )
+        }
     }
 }
 
@@ -290,8 +318,24 @@ private fun AppUpdateSection(
                     UpdateFailure.INSTALL -> stringResource(R.string.update_install_failed)
                 }
             )
+            status.reason?.let { reason ->
+                Text(
+                    text = failureReasonText(reason),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun failureReasonText(reason: UpdateFailureReason): String = when (reason) {
+    is UpdateFailureReason.HttpStatus ->
+        stringResource(R.string.update_failure_http_format, reason.code)
+    UpdateFailureReason.Timeout -> stringResource(R.string.update_failure_timeout)
+    UpdateFailureReason.Unreachable -> stringResource(R.string.update_failure_unreachable)
+    is UpdateFailureReason.Other ->
+        stringResource(R.string.update_failure_detail_format, reason.description)
 }
 
 @Composable
@@ -330,4 +374,13 @@ private fun UpdateConfirmDialog(
             }
         }
     )
+}
+
+private fun openInBrowser(context: Context, address: String) {
+    val uri = Uri.parse(address)
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+    } catch (e: ActivityNotFoundException) {
+        Timber.w(e, "No browser available to open %s", address)
+    }
 }

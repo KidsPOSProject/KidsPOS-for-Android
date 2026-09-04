@@ -10,7 +10,7 @@ class OpenApiAppUpdateService(
     override suspend fun checkForUpdate(currentVersionCode: Int): AppUpdate? {
         val response = apkApi.checkApkUpdate(currentVersionCode)
         if (!response.isSuccessful) {
-            throw Exception("Failed to check app update: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
         val body = response.body()!!
         if (!body.hasUpdate) return null

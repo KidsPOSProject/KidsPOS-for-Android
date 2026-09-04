@@ -1,5 +1,6 @@
 package info.nukoneko.cuc.android.kidspos.update
 
+import info.nukoneko.cuc.android.kidspos.api.ApiHttpException
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,6 +21,13 @@ enum class UpdateFailure {
     CHECK,
     DOWNLOAD,
     INSTALL
+}
+
+sealed interface UpdateFailureReason {
+    data class HttpStatus(val code: Int) : UpdateFailureReason
+    data object Timeout : UpdateFailureReason
+    data object Unreachable : UpdateFailureReason
+    data class Other(val description: String) : UpdateFailureReason
 }
 
 sealed interface UpdateStatus {
@@ -27,7 +38,7 @@ sealed interface UpdateStatus {
     data class Downloading(val progress: Float) : UpdateStatus
     data object Installing : UpdateStatus
     data object InstallNotPermitted : UpdateStatus
-    data class Failed(val cause: UpdateFailure) : UpdateStatus
+    data class Failed(val cause: UpdateFailure, val reason: UpdateFailureReason? = null) : UpdateStatus
 }
 
 /**
@@ -71,7 +82,7 @@ class AppUpdateManager @Inject constructor(
                 if (update == null) UpdateStatus.UpToDate else UpdateStatus.Available(update)
             } catch (e: Exception) {
                 Timber.w(e, "Failed to check app update")
-                UpdateStatus.Failed(UpdateFailure.CHECK)
+                UpdateStatus.Failed(UpdateFailure.CHECK, reasonOf(e))
             }
             _status.value = status
         }
@@ -105,7 +116,7 @@ class AppUpdateManager @Inject constructor(
                 } else {
                     UpdateFailure.DOWNLOAD
                 }
-                _status.value = UpdateStatus.Failed(cause)
+                _status.value = UpdateStatus.Failed(cause, reasonOf(e))
             }
         }
     }
@@ -113,6 +124,15 @@ class AppUpdateManager @Inject constructor(
     fun dismiss() {
         if (isBusy()) return
         _status.value = UpdateStatus.Idle
+    }
+
+    private fun reasonOf(e: Exception): UpdateFailureReason = when (e) {
+        is ApiHttpException -> UpdateFailureReason.HttpStatus(e.code)
+        is SocketTimeoutException -> UpdateFailureReason.Timeout
+        is ConnectException, is UnknownHostException -> UpdateFailureReason.Unreachable
+        else -> UpdateFailureReason.Other(
+            listOfNotNull(e::class.simpleName, e.message).joinToString(": ")
+        )
     }
 
     // インストールは apkInstaller.install() から戻った後もブロードキャスト待ちが残るため、
