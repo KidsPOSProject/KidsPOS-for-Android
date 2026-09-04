@@ -67,18 +67,4 @@
     <string name="install_permission_required">アプリを更新するには、不明なアプリのインストールを許可してください</string>
     <string name="open_install_permission_setting">設定を開く</string>
 
-    <!-- Danger zone -->
-    <string name="danger_zone">Danger Zone</string>
-    <string name="danger_zone_description">接続先の変更・モードの切り替え・アプリの更新は、パスワードを入れてから操作できます</string>
-    <string name="danger_zone_checking">パスワードの設定状態を確認しています…</string>
-    <string name="danger_zone_password">パスワード</string>
-    <string name="danger_zone_unlock">ロックを解除する</string>
-    <string name="danger_zone_unlocking">確認しています…</string>
-    <string name="danger_zone_lock">もう一度ロックする</string>
-    <string name="danger_zone_unlocked">ロックを解除しました</string>
-    <string name="danger_zone_not_configured">サーバーにパスワードが設定されていないため、そのまま操作できます</string>
-    <string name="danger_zone_status_failed">サーバーに接続できないため、そのまま操作できます</string>
-    <string name="danger_zone_verify_failed">サーバーに接続できませんでした</string>
-    <string name="danger_zone_rate_limited">試行回数が多すぎます。%1$d秒後にもう一度お試しください</string>
-    <string name="danger_zone_rate_limited_unknown">試行回数が多すぎます。しばらく待ってからもう一度お試しください</string>
 </resources>
