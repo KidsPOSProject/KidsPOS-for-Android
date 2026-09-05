@@ -2,9 +2,11 @@ package info.nukoneko.cuc.android.kidspos.ui.settings
 
 import androidx.lifecycle.viewModelScope
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
+import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkDownloader
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeReachabilityProbe
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createAppUpdateManager
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
@@ -16,10 +18,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import java.io.IOException
 
 class SettingsViewModelTest {
     @get:Rule
@@ -196,5 +201,79 @@ class SettingsViewModelTest {
 
         assertEquals(1, installer.installedApks.size)
         assertEquals(UpdateStatus.Installing, secondViewModel.uiState.value.updateStatus)
+    }
+
+    @Test
+    fun connectionTestUpdatesConnectionState() = runTest {
+        val viewModel = createSettingsViewModel(settingsRepository)
+
+        viewModel.onConnectionTest()
+
+        assertTrue(viewModel.uiState.value.connection.isConnected)
+    }
+
+    @Test
+    fun loadingServerAddressTriggersConnectionCheck() = runTest {
+        val probe = FakeReachabilityProbe()
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+
+        viewModel.onServerAddressChange("http://10.0.0.5:8080")
+
+        assertEquals(listOf("10.0.0.5" to 8080), probe.probeCalls)
+    }
+
+    @Test
+    fun switchingToProductionClearsStoreAndChecksConnection() = runTest {
+        val probe = FakeReachabilityProbe()
+        settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+
+        viewModel.onToggleMode()
+
+        assertNull(settingsRepository.currentStore.first())
+        assertEquals(1, probe.probeCalls.size)
+        assertEquals(Mode.PRODUCTION, viewModel.uiState.value.mode)
+    }
+
+    @Test
+    fun switchingToPracticeDoesNotCheckConnection() = runTest {
+        val probe = FakeReachabilityProbe()
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+
+        viewModel.onToggleMode()
+
+        assertTrue(probe.probeCalls.isEmpty())
+        assertEquals(Mode.PRACTICE, viewModel.uiState.value.mode)
+    }
+
+    @Test
+    fun canLeaveIsFalseInProductionUntilConnected() = runTest {
+        val probe = FakeReachabilityProbe()
+        probe.probeHandler = { _, _ -> throw IOException("refused") }
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+
+        viewModel.onConnectionTest()
+
+        assertFalse(viewModel.uiState.value.canLeave)
+
+        probe.probeHandler = { _, _ -> }
+        viewModel.onConnectionTest()
+
+        assertTrue(viewModel.uiState.value.canLeave)
+    }
+
+    @Test
+    fun canLeaveIsAlwaysTrueInPracticeMode() = runTest {
+        val probe = FakeReachabilityProbe()
+        probe.probeHandler = { _, _ -> throw IOException("refused") }
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+
+        assertTrue(viewModel.uiState.value.canLeave)
+
+        viewModel.onConnectionTest()
+
+        assertTrue(viewModel.uiState.value.canLeave)
     }
 }

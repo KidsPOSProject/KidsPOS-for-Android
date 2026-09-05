@@ -5,9 +5,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -18,10 +24,14 @@ import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.api.ApiHttpException
 import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeReachabilityProbe
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
+import info.nukoneko.cuc.android.kidspos.ui.connection.ConnectionStatusReachabilityTag
+import info.nukoneko.cuc.android.kidspos.ui.connection.ConnectionStatusResponseTag
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -30,6 +40,7 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.io.IOException
 
 // Robolectric の SDK 36 実行は JDK 21 が必要なため、CI の JDK 17 で動く SDK 35 に固定する
 @RunWith(AndroidJUnit4::class)
@@ -49,7 +60,7 @@ class SettingsScreenTest {
     fun currentServerAddressIsShown() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
-            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+            SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
         }
 
         composeRule.onNodeWithText(viewModel.uiState.value.serverAddress).assertIsDisplayed()
@@ -59,7 +70,7 @@ class SettingsScreenTest {
     fun serverAddressCannotBeEditedByHand() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
-            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+            SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
         }
 
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
@@ -69,7 +80,7 @@ class SettingsScreenTest {
     fun selectingProductionSegmentSwitchesMode() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
-            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+            SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
         }
 
         composeRule.onNodeWithText(Mode.PRODUCTION.modeName).performScrollTo().performClick()
@@ -82,7 +93,7 @@ class SettingsScreenTest {
     fun selectingCurrentModeSegmentDoesNothing() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
-            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+            SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
         }
 
         composeRule.onNodeWithText(Mode.PRACTICE.modeName).performScrollTo().performClick()
@@ -97,6 +108,7 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = { navigatedBack = true },
+                onNavigateToLogs = {},
                 viewModel = createSettingsViewModel(settingsRepository)
             )
         }
@@ -112,6 +124,7 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = {},
+                onNavigateToLogs = {},
                 viewModel = createSettingsViewModel(settingsRepository)
             )
         }
@@ -139,6 +152,7 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = {},
+                onNavigateToLogs = {},
                 viewModel = createSettingsViewModel(
                     settingsRepository,
                     appUpdateService = updateService
@@ -165,6 +179,7 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = {},
+                onNavigateToLogs = {},
                 viewModel = createSettingsViewModel(
                     settingsRepository,
                     appUpdateService = updateService
@@ -188,6 +203,7 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreen(
                 onNavigateBack = {},
+                onNavigateToLogs = {},
                 viewModel = createSettingsViewModel(settingsRepository)
             )
         }
@@ -201,7 +217,7 @@ class SettingsScreenTest {
     fun openInBrowserButtonStartsViewIntentForServerAddress() {
         val viewModel = createSettingsViewModel(settingsRepository)
         composeRule.setContent {
-            SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+            SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
         }
 
         composeRule.onNodeWithText(context.getString(R.string.open_in_browser))
@@ -212,5 +228,121 @@ class SettingsScreenTest {
         val intent = shadowOf(context as Application).nextStartedActivity
         assertEquals(Intent.ACTION_VIEW, intent.action)
         assertEquals(viewModel.uiState.value.serverAddress, intent.dataString)
+    }
+
+    @Test
+    fun connectionTestShowsBothStagesOk() {
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                onNavigateToLogs = {},
+                viewModel = createSettingsViewModel(settingsRepository)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.connection_test))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        val okText = context.getString(R.string.connection_status_ok)
+        composeRule.onNodeWithTag(ConnectionStatusReachabilityTag)
+            .onChildren()
+            .filterToOne(hasText(okText))
+            .assertIsDisplayed()
+        composeRule.onNodeWithTag(ConnectionStatusResponseTag)
+            .onChildren()
+            .filterToOne(hasText(okText))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun connectionTestShowsFailureWhenUnreachable() {
+        val probe = FakeReachabilityProbe()
+        probe.probeHandler = { _, _ -> throw IOException("refused") }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                onNavigateToLogs = {},
+                viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.connection_test))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(ConnectionStatusReachabilityTag)
+            .onChildren()
+            .filterToOne(hasText(context.getString(R.string.connection_status_failed)))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("IOException: refused", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun backIsBlockedInProductionUntilConnected() {
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val probe = FakeReachabilityProbe()
+        probe.probeHandler = { _, _ -> throw IOException("refused") }
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                onNavigateToLogs = {},
+                viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.connection_test))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.back)).assertIsNotEnabled()
+        composeRule.onNodeWithText(context.getString(R.string.connection_required_to_leave))
+            .assertIsDisplayed()
+
+        probe.probeHandler = { _, _ -> }
+        composeRule.onNodeWithText(context.getString(R.string.connection_test))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(context.getString(R.string.back)).assertIsEnabled()
+    }
+
+    @Test
+    fun errorLogButtonNavigatesToLogs() {
+        var navigatedToLogs = false
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                onNavigateToLogs = { navigatedToLogs = true },
+                viewModel = createSettingsViewModel(settingsRepository)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.error_log))
+            .performScrollTo()
+            .performClick()
+        composeRule.waitForIdle()
+
+        assertTrue(navigatedToLogs)
+    }
+
+    @Test
+    fun browserButtonIsInsideOtherCard() {
+        composeRule.setContent {
+            SettingsScreen(
+                onNavigateBack = {},
+                onNavigateToLogs = {},
+                viewModel = createSettingsViewModel(settingsRepository)
+            )
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.other_settings)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.open_in_browser))
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 }

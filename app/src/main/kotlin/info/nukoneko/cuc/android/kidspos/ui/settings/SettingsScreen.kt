@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.webkit.URLUtil
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import info.nukoneko.cuc.android.kidspos.R
+import info.nukoneko.cuc.android.kidspos.connection.ConnectionCheck
+import info.nukoneko.cuc.android.kidspos.ui.connection.ConnectionStatusView
 import info.nukoneko.cuc.android.kidspos.update.UpdateFailure
 import info.nukoneko.cuc.android.kidspos.update.UpdateFailureReason
 import info.nukoneko.cuc.android.kidspos.update.UpdateStatus
@@ -61,10 +64,15 @@ import kotlin.math.roundToInt
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToLogs: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    BackHandler {
+        if (state.canLeave) onNavigateBack()
+    }
 
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
@@ -78,7 +86,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.drawer_setting)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onNavigateBack, enabled = state.canLeave) {
                         Icon(
                             painterResource(R.drawable.ic_arrow_back),
                             contentDescription = stringResource(R.string.back)
@@ -99,9 +107,11 @@ fun SettingsScreen(
         ) {
             ConnectionCard(
                 serverAddress = state.serverAddress,
+                connection = state.connection,
+                canLeave = state.canLeave,
                 onLoadSetting = { scanLauncher.launch(ScanOptions()) },
-                onOpenInBrowser = { openInBrowser(context, state.serverAddress) },
-                modifier = Modifier.weight(1f)
+                onConnectionTest = viewModel::onConnectionTest,
+                modifier = Modifier.weight(2f)
             )
             ModeCard(
                 currentMode = state.mode,
@@ -111,6 +121,11 @@ fun SettingsScreen(
             AppUpdateCard(
                 state = state,
                 onCheckUpdate = viewModel::onCheckUpdate,
+                modifier = Modifier.weight(1f)
+            )
+            OtherCard(
+                onOpenInBrowser = { openInBrowser(context, state.serverAddress) },
+                onOpenLogs = onNavigateToLogs,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -168,10 +183,12 @@ private fun ActionButton(
 @Composable
 private fun SecondaryActionButton(
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     FilledTonalButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.heightIn(min = 56.dp),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
     ) {
@@ -182,8 +199,10 @@ private fun SecondaryActionButton(
 @Composable
 private fun ConnectionCard(
     serverAddress: String,
+    connection: ConnectionCheck,
+    canLeave: Boolean,
     onLoadSetting: () -> Unit,
-    onOpenInBrowser: () -> Unit,
+    onConnectionTest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     SettingsCard(
@@ -194,10 +213,40 @@ private fun ConnectionCard(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ActionButton(text = stringResource(R.string.load_setting), onClick = onLoadSetting)
             SecondaryActionButton(
-                text = stringResource(R.string.open_in_browser),
-                onClick = onOpenInBrowser
+                text = stringResource(R.string.connection_test),
+                onClick = onConnectionTest,
+                enabled = !connection.isChecking
             )
         }
+        ConnectionStatusView(check = connection)
+        if (!canLeave) {
+            Text(
+                text = stringResource(R.string.connection_required_to_leave),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun OtherCard(
+    onOpenInBrowser: () -> Unit,
+    onOpenLogs: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsCard(
+        title = stringResource(R.string.other_settings),
+        modifier = modifier
+    ) {
+        SecondaryActionButton(
+            text = stringResource(R.string.open_in_browser),
+            onClick = onOpenInBrowser
+        )
+        SecondaryActionButton(
+            text = stringResource(R.string.error_log),
+            onClick = onOpenLogs
+        )
     }
 }
 
