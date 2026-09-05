@@ -12,6 +12,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -137,6 +138,7 @@ class ConnectionMonitorTest {
 
         val first = async { monitor.check() }
         val second = async { monitor.check() }
+        runCurrent()
         gate.complete(Unit)
 
         assertEquals(first.await(), second.await())

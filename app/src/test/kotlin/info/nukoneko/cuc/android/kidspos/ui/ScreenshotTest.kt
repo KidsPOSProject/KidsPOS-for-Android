@@ -423,9 +423,10 @@ class ScreenshotTest {
 
     @Test
     fun logScreenEmpty() {
+        val viewModel = LogViewModel(createLogRepository())
         composeRule.setContent {
             KidsPosTheme {
-                LogScreen(onNavigateBack = {}, viewModel = LogViewModel(createLogRepository()))
+                LogScreen(onNavigateBack = {}, viewModel = viewModel)
             }
         }
         composeRule.waitForIdle()
@@ -445,9 +446,10 @@ class ScreenshotTest {
             )
         )
         repository.append(LogEntry(FIXED_TIMESTAMP + 120_000L, Log.INFO, "Tag", "info message"))
+        val viewModel = LogViewModel(repository)
         composeRule.setContent {
             KidsPosTheme {
-                LogScreen(onNavigateBack = {}, viewModel = LogViewModel(repository))
+                LogScreen(onNavigateBack = {}, viewModel = viewModel)
             }
         }
         composeRule.waitForIdle()

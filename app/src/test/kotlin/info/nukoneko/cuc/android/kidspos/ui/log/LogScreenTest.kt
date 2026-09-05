@@ -118,11 +118,9 @@ class LogScreenTest {
     @Test
     fun backButtonCallsOnNavigateBack() {
         var navigatedBack = false
+        val viewModel = LogViewModel(createRepository())
         composeRule.setContent {
-            LogScreen(
-                onNavigateBack = { navigatedBack = true },
-                viewModel = LogViewModel(createRepository())
-            )
+            LogScreen(onNavigateBack = { navigatedBack = true }, viewModel = viewModel)
         }
 
         composeRule.onNodeWithContentDescription(context.getString(R.string.back)).performClick()
