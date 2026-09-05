@@ -445,7 +445,7 @@ class ScreenshotTest {
                 "failed\njava.io.IOException: connection reset\n\tat Foo.bar(Foo.kt:1)"
             )
         )
-        repository.append(LogEntry(FIXED_TIMESTAMP + 120_000L, Log.INFO, "Tag", "info message"))
+        repository.append(LogEntry(FIXED_TIMESTAMP + 120_000L, Log.WARN, "Tag", "another warn message"))
         val viewModel = LogViewModel(repository)
         composeRule.setContent {
             KidsPosTheme {
