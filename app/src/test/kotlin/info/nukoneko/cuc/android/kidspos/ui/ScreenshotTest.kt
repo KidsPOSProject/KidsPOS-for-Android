@@ -1,6 +1,7 @@
 package info.nukoneko.cuc.android.kidspos.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
@@ -14,28 +15,41 @@ import info.nukoneko.cuc.android.kidspos.entity.AppUpdate
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.log.LogEntry
+import info.nukoneko.cuc.android.kidspos.log.LogRepository
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
 import info.nukoneko.cuc.android.kidspos.testutil.FakeApkInstaller
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAppUpdateService
+import info.nukoneko.cuc.android.kidspos.testutil.FakeReachabilityProbe
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createConnectionMonitor
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.createSettingsViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeInput
+import info.nukoneko.cuc.android.kidspos.ui.log.LogScreen
+import info.nukoneko.cuc.android.kidspos.ui.log.LogViewModel
 import info.nukoneko.cuc.android.kidspos.ui.main.MainScreen
 import info.nukoneko.cuc.android.kidspos.ui.main.MainViewModel
 import info.nukoneko.cuc.android.kidspos.ui.settings.SettingsScreen
 import info.nukoneko.cuc.android.kidspos.ui.settings.SettingsViewModel
+import info.nukoneko.cuc.android.kidspos.ui.startup.StartupScreen
+import info.nukoneko.cuc.android.kidspos.ui.startup.StartupViewModel
 import info.nukoneko.cuc.android.kidspos.ui.theme.KidsPosTheme
 import info.nukoneko.cuc.android.kidspos.util.BarcodeKind
 import info.nukoneko.cuc.android.kidspos.util.Mode
+import java.io.File
 import java.io.IOException
+import java.net.ConnectException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -47,10 +61,13 @@ import org.robolectric.annotation.GraphicsMode
 @OptIn(ExperimentalRoborazziApi::class)
 class ScreenshotTest {
     private val mainDispatcherRule = MainDispatcherRule()
+    private val temporaryFolder = TemporaryFolder()
     private val composeRule = createComposeRule()
 
     @get:Rule
-    val rules: RuleChain = RuleChain.outerRule(mainDispatcherRule).around(composeRule)
+    val rules: RuleChain = RuleChain.outerRule(mainDispatcherRule)
+        .around(temporaryFolder)
+        .around(composeRule)
 
     private val apiService = FakeAPIService()
     private val settingsRepository = fakeSettingsRepository()
@@ -69,6 +86,7 @@ class ScreenshotTest {
         runBlocking {
             settingsRepository.setCurrentStore(Store(1, "100リバー"))
             settingsRepository.setCurrentStaff(Staff("100", "たろう"))
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
         }
     }
 
@@ -106,6 +124,18 @@ class ScreenshotTest {
         setUpStoreAndStaff()
         addItems(mainViewModel())
         captureScreenRoboImage("screenshots/main_screen.png")
+    }
+
+    @Test
+    fun mainScreenPracticeMode() {
+        runBlocking {
+            settingsRepository.setCurrentStore(Store(1, "100リバー"))
+            settingsRepository.setCurrentStaff(Staff("100", "たろう"))
+        }
+        setMainContent(mainViewModel())
+        barcodeEventBus.emit(BarcodeInput("1000000001", BarcodeKind.ITEM))
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/main_screen_practice.png")
     }
 
     @Test
@@ -162,6 +192,7 @@ class ScreenshotTest {
     @Test
     fun mainScreenStoreSelection() {
         setUpStoreAndStaff()
+        apiService.fetchStoresHandler = { listOf(Store(1, "100リバー"), Store(2, "デパート")) }
         val viewModel = mainViewModel()
         setMainContent(viewModel)
         viewModel.onChangeStoreClick()
@@ -172,7 +203,6 @@ class ScreenshotTest {
     @Test
     fun mainScreenStoreSelectionLoading() {
         setUpStoreAndStaff()
-        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
         apiService.fetchStoresHandler = { awaitCancellation() }
         val viewModel = mainViewModel()
         setMainContent(viewModel)
@@ -184,7 +214,6 @@ class ScreenshotTest {
     @Test
     fun mainScreenStoreSelectionFailed() {
         setUpStoreAndStaff()
-        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
         apiService.fetchStoresHandler = { throw IOException() }
         val viewModel = mainViewModel()
         setMainContent(viewModel)
@@ -245,10 +274,33 @@ class ScreenshotTest {
         captureScreenRoboImage("screenshots/main_screen_error.png")
     }
 
+    @Test
+    fun startupScreen() {
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val probe = FakeReachabilityProbe().apply { probeHandler = { _, _ -> awaitCancellation() } }
+        apiService.getServerStatusHandler = { awaitCancellation() }
+        val connectionMonitor = createConnectionMonitor(
+            settingsRepository,
+            apiService,
+            probe,
+            mainDispatcherRule.dispatcher
+        )
+        val viewModel = StartupViewModel(settingsRepository, connectionMonitor)
+
+        composeRule.mainClock.autoAdvance = false
+        composeRule.setContent {
+            KidsPosTheme {
+                StartupScreen(onNavigateToMain = {}, onNavigateToSettings = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.mainClock.advanceTimeBy(100)
+        captureScreenRoboImage("screenshots/startup_screen.png")
+    }
+
     private fun setSettingsContent(viewModel: SettingsViewModel) {
         composeRule.setContent {
             KidsPosTheme {
-                SettingsScreen(onNavigateBack = {}, viewModel = viewModel)
+                SettingsScreen(onNavigateBack = {}, onNavigateToLogs = {}, viewModel = viewModel)
             }
         }
         composeRule.waitForIdle()
@@ -323,5 +375,88 @@ class ScreenshotTest {
         viewModel.onStartUpdate()
         composeRule.waitForIdle()
         captureScreenRoboImage("screenshots/settings_screen_install_not_permitted.png")
+    }
+
+    @Test
+    fun settingsScreenConnected() {
+        val viewModel = createSettingsViewModel(settingsRepository)
+        setSettingsContent(viewModel)
+        viewModel.onConnectionTest()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/settings_screen_connected.png")
+    }
+
+    @Test
+    fun settingsScreenUnreachable() {
+        val probe = FakeReachabilityProbe().apply {
+            probeHandler = { _, _ -> throw ConnectException("Connection refused") }
+        }
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+        setSettingsContent(viewModel)
+        viewModel.onConnectionTest()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/settings_screen_unreachable.png")
+    }
+
+    @Test
+    fun settingsScreenProductionBlocked() {
+        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        val probe = FakeReachabilityProbe().apply {
+            probeHandler = { _, _ -> throw ConnectException("Connection refused") }
+        }
+        val viewModel = createSettingsViewModel(settingsRepository, reachabilityProbe = probe)
+        setSettingsContent(viewModel)
+        viewModel.onConnectionTest()
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/settings_screen_production_blocked.png")
+    }
+
+    private fun createLogRepository(): LogRepository {
+        val dispatcher = mainDispatcherRule.dispatcher
+        return LogRepository(
+            File(temporaryFolder.root, "log.json"),
+            Json,
+            dispatcher,
+            CoroutineScope(dispatcher)
+        )
+    }
+
+    @Test
+    fun logScreenEmpty() {
+        val viewModel = LogViewModel(createLogRepository())
+        composeRule.setContent {
+            KidsPosTheme {
+                LogScreen(onNavigateBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/log_screen_empty.png")
+    }
+
+    @Test
+    fun logScreenWithEntries() {
+        val repository = createLogRepository()
+        repository.append(LogEntry(FIXED_TIMESTAMP, Log.WARN, "Tag", "warn message"))
+        repository.append(
+            LogEntry(
+                FIXED_TIMESTAMP + 60_000L,
+                Log.ERROR,
+                "Tag",
+                "failed\njava.io.IOException: connection reset\n\tat Foo.bar(Foo.kt:1)"
+            )
+        )
+        repository.append(LogEntry(FIXED_TIMESTAMP + 120_000L, Log.WARN, "Tag", "another warn message"))
+        val viewModel = LogViewModel(repository)
+        composeRule.setContent {
+            KidsPosTheme {
+                LogScreen(onNavigateBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.waitForIdle()
+        captureScreenRoboImage("screenshots/log_screen.png")
+    }
+
+    private companion object {
+        const val FIXED_TIMESTAMP = 1_756_000_000_000L
     }
 }

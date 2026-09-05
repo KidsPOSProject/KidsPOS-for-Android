@@ -11,7 +11,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
+import info.nukoneko.cuc.android.kidspos.log.LogRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
+import java.io.File
 import javax.inject.Singleton
 
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -48,4 +52,18 @@ object DataModule {
         dataStore: DataStore<Preferences>,
         json: Json
     ): SettingsRepository = SettingsRepository(dataStore, json)
+
+    @Provides
+    @Singleton
+    fun provideLogRepository(
+        @ApplicationContext context: Context,
+        json: Json,
+        @IoDispatcher dispatcher: CoroutineDispatcher,
+        applicationScope: CoroutineScope
+    ): LogRepository = LogRepository(
+        File(context.filesDir, "error_log.json"),
+        json,
+        dispatcher,
+        applicationScope
+    )
 }

@@ -3,6 +3,8 @@ package info.nukoneko.cuc.android.kidspos.testutil
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import info.nukoneko.cuc.android.kidspos.api.APIService
+import info.nukoneko.cuc.android.kidspos.connection.ConnectionMonitor
+import info.nukoneko.cuc.android.kidspos.connection.ReachabilityProbe
 import info.nukoneko.cuc.android.kidspos.data.repository.AppUpdateRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.ItemRepository
 import info.nukoneko.cuc.android.kidspos.data.repository.SaleRepository
@@ -59,6 +61,19 @@ fun createAppUpdateManager(
     applicationScope
 )
 
+fun createConnectionMonitor(
+    settingsRepository: SettingsRepository,
+    apiService: APIService = FakeAPIService(),
+    reachabilityProbe: ReachabilityProbe = FakeReachabilityProbe(),
+    dispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+    applicationScope: CoroutineScope = CoroutineScope(dispatcher)
+): ConnectionMonitor = ConnectionMonitor(
+    settingsRepository,
+    reachabilityProbe,
+    ServerStatusRepository(apiService, dispatcher),
+    applicationScope
+)
+
 fun createSettingsViewModel(
     settingsRepository: SettingsRepository,
     appUpdateService: FakeAppUpdateService = FakeAppUpdateService(),
@@ -73,9 +88,18 @@ fun createSettingsViewModel(
         apkInstallResultBus,
         dispatcher
     ),
+    apiService: FakeAPIService = FakeAPIService(),
+    reachabilityProbe: FakeReachabilityProbe = FakeReachabilityProbe(),
+    connectionMonitor: ConnectionMonitor = createConnectionMonitor(
+        settingsRepository,
+        apiService,
+        reachabilityProbe,
+        dispatcher
+    ),
     applicationScope: CoroutineScope = CoroutineScope(dispatcher)
 ): SettingsViewModel = SettingsViewModel(
     settingsRepository,
     appUpdateManager,
+    connectionMonitor,
     applicationScope
 )

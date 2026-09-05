@@ -19,6 +19,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
+import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
@@ -80,6 +81,10 @@ class MainScreenTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "テスト商品", price = 300, storeId = 1, genreId = 1)
         }
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        }
         composeRule.setContent {
             MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
         }
@@ -97,6 +102,10 @@ class MainScreenTest {
     fun manualItemSelectionFromDrawerAddsTappedItemToCart() {
         apiService.fetchItemsHandler = {
             listOf(Item(id = 7, barcode = "1001000007", name = "手動商品", price = 250, storeId = 1, genreId = 1))
+        }
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
         }
         composeRule.setContent {
             MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
@@ -274,7 +283,10 @@ class MainScreenTest {
             gate.await()
             defaultCreateSale(args)
         }
-        runBlocking { settingsRepository.setRunningMode(Mode.PRODUCTION) }
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        }
         openCalculator()
 
         pressKeys("5", "0", "0")
@@ -337,6 +349,10 @@ class MainScreenTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "テスト商品", price = 300, storeId = 1, genreId = 1)
         }
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        }
         composeRule.setContent {
             MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
         }
@@ -350,6 +366,10 @@ class MainScreenTest {
     @Test
     fun manualItemSelectionShowsFailureMessageWithReload() {
         apiService.fetchItemsHandler = { throw IOException() }
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        }
         val viewModel = createViewModel()
         composeRule.setContent {
             MainScreen(onNavigateToSettings = {}, viewModel = viewModel)
@@ -369,6 +389,47 @@ class MainScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText("復活商品").assertIsDisplayed()
+    }
+
+    @Test
+    fun practiceModeHidesStoreNameAndStoreSwitch() {
+        runBlocking { settingsRepository.setCurrentStore(Store(1, "テスト店")) }
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("[テスト店]", substring = true).assertDoesNotExist()
+
+        composeRule.onNodeWithContentDescription(
+            context.getString(R.string.navigation_drawer_open)
+        ).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.DrawerTitleChangeStore))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun productionModeShowsStoreNameAndStoreSwitch() {
+        runBlocking {
+            settingsRepository.setRunningMode(Mode.PRODUCTION)
+            settingsRepository.setCurrentStore(Store(1, "テスト店"))
+        }
+        composeRule.setContent {
+            MainScreen(onNavigateToSettings = {}, viewModel = createViewModel())
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("[テスト店]", substring = true).assertIsDisplayed()
+
+        composeRule.onNodeWithContentDescription(
+            context.getString(R.string.navigation_drawer_open)
+        ).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.DrawerTitleChangeStore))
+            .assertIsDisplayed()
     }
 
     private companion object {

@@ -13,12 +13,20 @@ import info.nukoneko.cuc.android.kidspos.api.generated.ItemsApi
 import info.nukoneko.cuc.android.kidspos.api.generated.SalesApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StatusApi
 import info.nukoneko.cuc.android.kidspos.api.generated.StoresApi
+import info.nukoneko.cuc.android.kidspos.connection.ReachabilityProbe
+import info.nukoneko.cuc.android.kidspos.connection.SocketReachabilityProbe
+import kotlinx.coroutines.CoroutineDispatcher
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+
+    @Provides
+    @Singleton
+    fun provideReachabilityProbe(@IoDispatcher dispatcher: CoroutineDispatcher): ReachabilityProbe =
+        SocketReachabilityProbe(dispatcher)
 
     @Provides
     @Singleton

@@ -9,6 +9,7 @@ import info.nukoneko.cuc.android.kidspos.entity.Staff
 import info.nukoneko.cuc.android.kidspos.entity.Store
 import info.nukoneko.cuc.android.kidspos.testutil.FakeAPIService
 import info.nukoneko.cuc.android.kidspos.testutil.MainDispatcherRule
+import info.nukoneko.cuc.android.kidspos.testutil.createItemRepository
 import info.nukoneko.cuc.android.kidspos.testutil.createMainViewModel
 import info.nukoneko.cuc.android.kidspos.testutil.fakeSettingsRepository
 import info.nukoneko.cuc.android.kidspos.ui.barcode.BarcodeEventBus
@@ -42,6 +43,11 @@ class MainViewModelTest {
         mainDispatcherRule.dispatcher
     )
 
+    private suspend fun useProductionMode(store: Store = Store(1, "ストア")) {
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        settingsRepository.setCurrentStore(store)
+    }
+
     private fun emitBarcode(barcode: String, kind: BarcodeKind) {
         barcodeEventBus.emit(BarcodeInput(barcode, kind))
     }
@@ -55,6 +61,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
+        useProductionMode()
         val viewModel = createViewModel()
 
         emitBarcode("1001000001", BarcodeKind.ITEM)
@@ -67,6 +74,7 @@ class MainViewModelTest {
     @Test
     fun itemFetchFailureShowsItemError() = runTest {
         apiService.getItemHandler = { throw RuntimeException("network") }
+        useProductionMode()
         val viewModel = createViewModel()
 
         emitBarcode("1001000001", BarcodeKind.ITEM)
@@ -93,6 +101,7 @@ class MainViewModelTest {
                 apiVersion = APIService.SUPPORTED_API_VERSION + 1
             )
         }
+        useProductionMode()
         val viewModel = createViewModel()
 
         assertEquals(R.string.api_version_mismatch, viewModel.uiState.value.errorMessageRes)
@@ -101,6 +110,7 @@ class MainViewModelTest {
     @Test
     fun serverStatusFailureIsIgnored() = runTest {
         apiService.getServerStatusHandler = { throw RuntimeException("network") }
+        useProductionMode()
         val viewModel = createViewModel()
 
         assertNull(viewModel.uiState.value.errorMessageRes)
@@ -129,6 +139,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
 
@@ -155,6 +166,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -175,6 +187,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -191,6 +204,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -205,13 +219,10 @@ class MainViewModelTest {
 
     @Test
     fun practiceModeAccountSkipsApiAndClearsItems() = runTest {
-        apiService.getItemHandler = { barcode ->
-            Item(id = 1, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
-        }
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
-        viewModel.enterDeposit(5, 0, 0)
+        viewModel.enterDeposit(1, 0, 0)
         viewModel.onCalculatorOk()
 
         viewModel.onAccountResultOk()
@@ -220,6 +231,7 @@ class MainViewModelTest {
         assertTrue(viewModel.uiState.value.items.isEmpty())
         assertEquals(0, viewModel.uiState.value.total)
         assertTrue(apiService.createSaleCalls.isEmpty())
+        assertTrue(apiService.getItemCalls.isEmpty())
 
         viewModel.onToastShown()
         assertNull(viewModel.uiState.value.toastMessageRes)
@@ -252,7 +264,7 @@ class MainViewModelTest {
     @Test
     fun productionModeAccountFailureShowsServerMessage() = runTest {
         apiService.createSaleHandler = { throw RuntimeException("boom") }
-        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -277,7 +289,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 9, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
-        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -306,7 +318,7 @@ class MainViewModelTest {
         apiService.getItemHandler = { barcode ->
             Item(id = 9, barcode = barcode, name = "item", price = 300, storeId = 1, genreId = 1)
         }
-        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -325,7 +337,7 @@ class MainViewModelTest {
     @Test
     fun productionModeAccountFailureWithoutMessageShowsGenericError() = runTest {
         apiService.createSaleHandler = { throw RuntimeException() }
-        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        useProductionMode()
         val viewModel = createViewModel()
         emitBarcode("1001000001", BarcodeKind.ITEM)
         viewModel.onAccountClick()
@@ -336,20 +348,6 @@ class MainViewModelTest {
 
         assertNull(viewModel.uiState.value.errorMessage)
         assertEquals(R.string.network_error, viewModel.uiState.value.errorMessageRes)
-    }
-
-    @Test
-    fun changeStoreInPracticeModeShowsDummyStores() = runTest {
-        val viewModel = createViewModel()
-
-        viewModel.onChangeStoreClick()
-
-        val selection = viewModel.uiState.value.storeSelection
-        assertNotNull(selection)
-        assertEquals(false, selection?.loading)
-        assertEquals(false, selection?.failed)
-        assertEquals(2, selection?.stores?.size)
-        assertTrue(apiService.createSaleCalls.isEmpty())
     }
 
     @Test
@@ -377,8 +375,12 @@ class MainViewModelTest {
 
     @Test
     fun selectingStorePersistsAndClosesSelection() = runTest {
+        val stores = listOf(Store(1, "100リバー"), Store(2, "デパート"))
+        apiService.fetchStoresHandler = { stores }
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
         val viewModel = createViewModel()
-        viewModel.onChangeStoreClick()
+
+        assertNotNull(viewModel.uiState.value.storeSelection)
 
         viewModel.onStoreSelected(Store(2, "デパート"))
 
@@ -404,6 +406,7 @@ class MainViewModelTest {
             Item(2, "1001000002", "みかん", 200, 1, 1)
         )
         apiService.fetchItemsHandler = { items }
+        useProductionMode()
         val viewModel = createViewModel()
 
         viewModel.onManualItemSelectionClick()
@@ -419,6 +422,7 @@ class MainViewModelTest {
     fun manualItemSelectionFallsBackToCacheWhenFetchFails() = runTest {
         val cached = listOf(Item(1, "1001000001", "りんご", 100, 1, 1))
         apiService.fetchItemsHandler = { cached }
+        useProductionMode()
         val viewModel = createViewModel()
 
         apiService.fetchItemsHandler = { throw RuntimeException("network") }
@@ -432,6 +436,7 @@ class MainViewModelTest {
     @Test
     fun manualItemSelectionMarksFailedWhenFetchFailsWithoutCache() = runTest {
         apiService.fetchItemsHandler = { throw RuntimeException("network") }
+        useProductionMode()
         val viewModel = createViewModel()
 
         viewModel.onManualItemSelectionClick()
@@ -444,6 +449,7 @@ class MainViewModelTest {
     @Test
     fun manualItemSelectionReloadRecoversAfterFailure() = runTest {
         apiService.fetchItemsHandler = { throw RuntimeException("network") }
+        useProductionMode()
         val viewModel = createViewModel()
         viewModel.onManualItemSelectionClick()
         assertEquals(true, viewModel.uiState.value.itemSelection?.failed)
@@ -464,6 +470,7 @@ class MainViewModelTest {
             Item(2, "1001000002", "みかん", 200, 1, 1)
         )
         apiService.fetchItemsHandler = { items }
+        useProductionMode()
         val viewModel = createViewModel()
         viewModel.onManualItemSelectionClick()
 
@@ -480,6 +487,7 @@ class MainViewModelTest {
     fun itemSelectionDismissClosesSelectionKeepingCart() = runTest {
         val items = listOf(Item(1, "1001000001", "りんご", 100, 1, 1))
         apiService.fetchItemsHandler = { items }
+        useProductionMode()
         val viewModel = createViewModel()
         viewModel.onManualItemSelectionClick()
         viewModel.onManualItemSelected(items[0])
@@ -501,5 +509,107 @@ class MainViewModelTest {
 
         assertNull(viewModel.uiState.value.errorMessage)
         assertNull(viewModel.uiState.value.errorMessageRes)
+    }
+
+    @Test
+    fun practiceModeDoesNotCallServerOnStart() = runTest {
+        createViewModel()
+
+        assertTrue(apiService.getServerStatusCalls.isEmpty())
+        assertTrue(apiService.fetchItemsCalls.isEmpty())
+    }
+
+    @Test
+    fun practiceModeItemBarcodeUsesCacheWithoutServer() = runTest {
+        val itemRepository = createItemRepository(apiService, mainDispatcherRule.dispatcher)
+        apiService.fetchItemsHandler = {
+            listOf(Item(id = 1, barcode = "1001000001", name = "りんご", price = 150, storeId = 1, genreId = 1))
+        }
+        itemRepository.refreshItems()
+
+        val viewModel = createMainViewModel(
+            apiService,
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository = itemRepository
+        )
+
+        emitBarcode("1001000001", BarcodeKind.ITEM)
+
+        val item = viewModel.uiState.value.items.single()
+        assertEquals("りんご", item.name)
+        assertEquals(150, item.price)
+        assertTrue(apiService.getItemCalls.isEmpty())
+    }
+
+    @Test
+    fun practiceModeUnknownItemBarcodeAddsDummyItem() = runTest {
+        val viewModel = createViewModel()
+
+        emitBarcode("9999999999", BarcodeKind.ITEM)
+
+        val item = viewModel.uiState.value.items.single()
+        assertEquals(Item.create("9999999999"), item)
+        assertEquals(100, viewModel.uiState.value.total)
+        assertTrue(apiService.getItemCalls.isEmpty())
+    }
+
+    @Test
+    fun practiceModeIgnoresChangeStore() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onChangeStoreClick()
+
+        assertNull(viewModel.uiState.value.storeSelection)
+        assertTrue(apiService.fetchStoresCalls.isEmpty())
+    }
+
+    @Test
+    fun practiceModeManualItemSelectionShowsCacheWithoutServer() = runTest {
+        val itemRepository = createItemRepository(apiService, mainDispatcherRule.dispatcher)
+        apiService.fetchItemsHandler = {
+            listOf(Item(id = 1, barcode = "1001000001", name = "りんご", price = 150, storeId = 1, genreId = 1))
+        }
+        itemRepository.refreshItems()
+
+        val viewModel = createMainViewModel(
+            apiService,
+            settingsRepository,
+            barcodeEventBus,
+            mainDispatcherRule.dispatcher,
+            itemRepository = itemRepository
+        )
+        apiService.fetchItemsCalls.clear()
+
+        viewModel.onManualItemSelectionClick()
+
+        val selection = viewModel.uiState.value.itemSelection
+        assertEquals(1, selection?.items?.size)
+        assertTrue(apiService.fetchItemsCalls.isEmpty())
+    }
+
+    @Test
+    fun productionModeWithoutStoreOpensStoreSelection() = runTest {
+        apiService.fetchStoresHandler = { listOf(Store(1, "ストア")) }
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+
+        val viewModel = createViewModel()
+
+        assertNotNull(viewModel.uiState.value.storeSelection)
+        assertEquals(1, apiService.fetchStoresCalls.size)
+    }
+
+    @Test
+    fun productionModeAccountWithoutStoreShowsError() = runTest {
+        settingsRepository.setRunningMode(Mode.PRODUCTION)
+        val viewModel = createViewModel()
+        viewModel.onStoreSelectionDismiss()
+        emitBarcode("1001000001", BarcodeKind.ITEM)
+
+        viewModel.onAccountClick()
+
+        assertEquals(R.string.store_not_selected, viewModel.uiState.value.errorMessageRes)
+        assertNull(viewModel.uiState.value.calculator)
     }
 }
