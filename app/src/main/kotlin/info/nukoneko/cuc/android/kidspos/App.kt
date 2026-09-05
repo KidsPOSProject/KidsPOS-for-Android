@@ -4,6 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import info.nukoneko.cuc.android.kidspos.api.ServerSelectionInterceptor
 import info.nukoneko.cuc.android.kidspos.data.settings.SettingsRepository
+import info.nukoneko.cuc.android.kidspos.log.ErrorLogTree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -21,11 +22,15 @@ open class App : Application() {
     @Inject
     lateinit var serverSelectionInterceptor: ServerSelectionInterceptor
 
+    @Inject
+    lateinit var errorLogTree: ErrorLogTree
+
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+        Timber.plant(errorLogTree)
 
         settingsRepository.serverAddress
             .onEach { serverSelectionInterceptor.serverAddress = it }

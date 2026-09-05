@@ -68,6 +68,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import info.nukoneko.cuc.android.kidspos.R
 import info.nukoneko.cuc.android.kidspos.entity.Item
 import info.nukoneko.cuc.android.kidspos.entity.Store
+import info.nukoneko.cuc.android.kidspos.util.Mode
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,7 +93,9 @@ fun MainScreen(
     val modeLabel = stringResource(R.string.title_mode_format, state.mode.modeName)
     val testModeLabel = stringResource(R.string.title_test_mode)
     val titleSuffix = buildString {
-        state.store?.name?.let { append(" [$it]") }
+        if (state.mode == Mode.PRODUCTION) {
+            state.store?.name?.let { append(" [$it]") }
+        }
         append(" $modeLabel")
         if (state.demoMode) append(" $testModeLabel")
     }
@@ -113,14 +116,16 @@ fun MainScreen(
                         }
                     }
                 )
-                NavigationDrawerItem(
-                    label = { Text(stringResource(R.string.DrawerTitleChangeStore)) },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        viewModel.onChangeStoreClick()
-                    }
-                )
+                if (state.mode == Mode.PRODUCTION) {
+                    NavigationDrawerItem(
+                        label = { Text(stringResource(R.string.DrawerTitleChangeStore)) },
+                        selected = false,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            viewModel.onChangeStoreClick()
+                        }
+                    )
+                }
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.DrawerTitleManualItemSelection)) },
                     selected = false,

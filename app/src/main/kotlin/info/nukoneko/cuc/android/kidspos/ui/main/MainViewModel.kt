@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -96,12 +97,16 @@ class MainViewModel @Inject constructor(
             ) { mode, store, staff -> Triple(mode, store, staff) }
                 .collect { (mode, store, staff) ->
                     _uiState.update { it.copy(mode = mode, store = store, staff = staff) }
+                    if (mode == Mode.PRODUCTION && store == null && _uiState.value.storeSelection == null) {
+                        onChangeStoreClick()
+                    }
                 }
         }
         viewModelScope.launch {
             barcodeEventBus.events.collect { onBarcodeInput(it) }
         }
         viewModelScope.launch {
+            if (settingsRepository.runningMode.first() != Mode.PRODUCTION) return@launch
             try {
                 val serverStatus = serverStatusRepository.getServerStatus()
                 if (serverStatus.apiVersion != APIService.SUPPORTED_API_VERSION) {
@@ -110,8 +115,6 @@ class MainViewModel @Inject constructor(
             } catch (e: Throwable) {
                 Timber.e(e, "getServerStatus failed")
             }
-        }
-        viewModelScope.launch {
             try {
                 itemRepository.refreshItems()
             } catch (e: Throwable) {
@@ -134,11 +137,17 @@ class MainViewModel @Inject constructor(
         }
         when (input.kind) {
             BarcodeKind.ITEM -> viewModelScope.launch {
-                try {
-                    addItem(itemRepository.getItemByBarcode(input.barcode))
-                } catch (e: Throwable) {
-                    Timber.e(e, "getItemByBarcode failed")
-                    _uiState.update { it.copy(errorMessageRes = R.string.request_item_failed) }
+                when (_uiState.value.mode) {
+                    Mode.PRACTICE -> {
+                        val cached = itemRepository.getCachedItems()
+                        addItem(cached.firstOrNull { it.barcode == input.barcode } ?: Item.create(input.barcode))
+                    }
+                    Mode.PRODUCTION -> try {
+                        addItem(itemRepository.getItemByBarcode(input.barcode))
+                    } catch (e: Throwable) {
+                        Timber.e(e, "getItemByBarcode failed")
+                        _uiState.update { it.copy(errorMessageRes = R.string.request_item_failed) }
+                    }
                 }
             }
             BarcodeKind.STAFF -> setStaff(Staff(input.barcode, input.barcode))
@@ -163,6 +172,10 @@ class MainViewModel @Inject constructor(
     fun onAccountClick() {
         val state = _uiState.value
         if (state.items.isEmpty()) return
+        if (state.mode == Mode.PRODUCTION && state.store == null) {
+            _uiState.update { it.copy(errorMessageRes = R.string.store_not_selected) }
+            return
+        }
         _uiState.update { it.copy(calculator = CalculatorState(totalPrice = state.total)) }
     }
 
@@ -223,11 +236,12 @@ class MainViewModel @Inject constructor(
             }
             return
         }
+        val storeId = state.store?.id ?: return
         _uiState.update { it.copy(accountResult = result.copy(processing = true)) }
         viewModelScope.launch {
             try {
                 saleRepository.createSale(
-                    storeId = state.store?.id ?: 0,
+                    storeId = storeId,
                     deposit = result.deposit,
                     items = state.items
                 )
@@ -250,12 +264,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onChangeStoreClick() {
-        if (_uiState.value.mode == Mode.PRACTICE) {
-            _uiState.update {
-                it.copy(storeSelection = StoreSelectionState(stores = DUMMY_STORES))
-            }
-            return
-        }
+        if (_uiState.value.mode == Mode.PRACTICE) return
         _uiState.update { it.copy(storeSelection = StoreSelectionState(loading = true)) }
         viewModelScope.launch {
             try {
@@ -284,6 +293,10 @@ class MainViewModel @Inject constructor(
     fun onManualItemSelectionClick() {
         viewModelScope.launch {
             val cached = itemRepository.getCachedItems()
+            if (_uiState.value.mode == Mode.PRACTICE) {
+                _uiState.update { it.copy(itemSelection = ItemSelectionState(items = cached)) }
+                return@launch
+            }
             _uiState.update {
                 it.copy(
                     itemSelection = ItemSelectionState(
@@ -343,10 +356,5 @@ class MainViewModel @Inject constructor(
 
     private companion object {
         const val FETCH_TIMEOUT_MILLIS = 3000L
-
-        val DUMMY_STORES = listOf(
-            Store(1, "100リバー"),
-            Store(2, "デパート")
-        )
     }
 }

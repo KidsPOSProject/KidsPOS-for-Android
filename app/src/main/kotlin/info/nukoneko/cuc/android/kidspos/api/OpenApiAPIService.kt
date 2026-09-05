@@ -28,7 +28,7 @@ class OpenApiAPIService(
                 )
             } ?: emptyList()
         } else {
-            throw Exception("Failed to fetch stores: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
     }
 
@@ -56,7 +56,7 @@ class OpenApiAPIService(
                 staffId = 0
             )
         } else {
-            throw Exception("Failed to create sale: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
     }
 
@@ -73,7 +73,7 @@ class OpenApiAPIService(
                 genreId = 0
             )
         } else {
-            throw Exception("Failed to get item: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
     }
 
@@ -91,7 +91,7 @@ class OpenApiAPIService(
                 )
             } ?: emptyList()
         } else {
-            throw Exception("Failed to fetch items: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
     }
 
@@ -105,7 +105,7 @@ class OpenApiAPIService(
                 apiVersion = statusResponse.apiVersion
             )
         } else {
-            throw Exception("Failed to get server status: ${response.code()}")
+            throw ApiHttpException(response.code())
         }
     }
 }

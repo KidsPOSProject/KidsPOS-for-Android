@@ -14,6 +14,10 @@ class FakeAPIService : APIService {
     )
 
     val createSaleCalls = mutableListOf<CreateSaleArgs>()
+    val fetchStoresCalls = mutableListOf<Unit>()
+    val getItemCalls = mutableListOf<String>()
+    val fetchItemsCalls = mutableListOf<Unit>()
+    val getServerStatusCalls = mutableListOf<Unit>()
 
     var fetchStoresHandler: suspend () -> List<Store> = { emptyList() }
     var createSaleHandler: suspend (CreateSaleArgs) -> Sale = { args ->
@@ -40,7 +44,10 @@ class FakeAPIService : APIService {
         )
     }
 
-    override suspend fun fetchStores(): List<Store> = fetchStoresHandler()
+    override suspend fun fetchStores(): List<Store> {
+        fetchStoresCalls += Unit
+        return fetchStoresHandler()
+    }
 
     override suspend fun createSale(
         storeId: Int,
@@ -52,9 +59,18 @@ class FakeAPIService : APIService {
         return createSaleHandler(args)
     }
 
-    override suspend fun getItem(itemBarcode: String): Item = getItemHandler(itemBarcode)
+    override suspend fun getItem(itemBarcode: String): Item {
+        getItemCalls += itemBarcode
+        return getItemHandler(itemBarcode)
+    }
 
-    override suspend fun fetchItems(): List<Item> = fetchItemsHandler()
+    override suspend fun fetchItems(): List<Item> {
+        fetchItemsCalls += Unit
+        return fetchItemsHandler()
+    }
 
-    override suspend fun getServerStatus(): ServerStatus = getServerStatusHandler()
+    override suspend fun getServerStatus(): ServerStatus {
+        getServerStatusCalls += Unit
+        return getServerStatusHandler()
+    }
 }
